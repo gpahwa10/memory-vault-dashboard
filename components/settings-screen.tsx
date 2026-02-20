@@ -92,11 +92,11 @@ export function SettingsScreen() {
         <div className="space-y-6">
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <h2 className="mb-4 font-serif text-lg font-semibold text-foreground">
-              Your plan
+              Your current plan
             </h2>
-            <div className="flex flex-wrap items-center gap-3 rounded-lg border-2 border-vault-gold/40 bg-vault-gold/10 p-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-vault-gold/20">
-                <Crown className="h-6 w-6 text-vault-gold" />
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border-2 border-vault-teal/40 bg-vault-teal/10 p-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-vault-teal/20">
+                <Crown className="h-6 w-6 text-vault-teal" />
               </div>
               <div>
                 <p className="font-semibold text-foreground">Premium</p>
@@ -110,45 +110,51 @@ export function SettingsScreen() {
 
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <h2 className="mb-4 font-serif text-lg font-semibold text-foreground">
-              Subscriptions
+              View all plans
             </h2>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Change or upgrade your plan. Billing is monthly; cancel anytime.
+            <p className="mb-6 text-sm text-muted-foreground">
+              Browse all available subscription tiers and upgrade or downgrade as needed.
             </p>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-3">
               {subscriptionTiers.map((tier) => (
                 <div
                   key={tier.id}
-                  className={`rounded-xl border-2 p-4 transition-all ${
+                  className={`relative overflow-hidden rounded-xl border-2 p-5 transition-all ${
                     tier.current
-                      ? "border-vault-teal bg-vault-teal/10"
-                      : "border-border bg-background hover:border-vault-teal/40"
+                      ? "border-vault-teal bg-vault-teal/8 shadow-lg"
+                      : "border-border bg-background hover:border-vault-teal/40 hover:shadow-md"
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-foreground">{tier.name}</span>
-                    {tier.current && (
-                      <span className="rounded-full bg-vault-teal px-2 py-0.5 text-xs font-medium text-primary-foreground">
-                        Current
-                      </span>
+                  {tier.current && (
+                    <div className="absolute top-0 right-0 h-20 w-20 bg-vault-teal/5 rounded-full blur-xl" />
+                  )}
+                  <div className="relative space-y-3">
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-serif text-xl font-bold text-foreground">{tier.name}</h3>
+                      {tier.current && (
+                        <span className="rounded-full bg-vault-teal px-2 py-0.5 text-xs font-semibold text-primary-foreground flex items-center gap-1">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-2xl font-bold text-vault-teal">
+                      ${tier.price.toFixed(2)}
+                      {tier.price > 0 && <span className="text-xs font-normal text-muted-foreground ml-1">/mo</span>}
+                    </p>
+                    <p className="text-xs text-muted-foreground font-medium">
+                      {tier.books} books · {tier.storage} storage
+                    </p>
+                    {!tier.current && (
+                      <button className="mt-4 w-full rounded-lg border border-vault-teal/40 bg-vault-teal/5 py-2 text-sm font-semibold text-vault-teal hover:bg-vault-teal/15 transition-colors">
+                        {tier.price === 0 ? "Downgrade" : "Upgrade"}
+                      </button>
                     )}
                   </div>
-                  <p className="mt-1 text-2xl font-bold text-vault-teal">
-                    ${tier.price.toFixed(2)}
-                    {tier.price > 0 && <span className="text-sm font-normal text-muted-foreground">/mo</span>}
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {tier.books} books · {tier.storage} storage
-                  </p>
-                  {!tier.current && (
-                    <button className="mt-3 w-full rounded-lg border border-vault-teal bg-background py-2 text-sm font-medium text-vault-teal hover:bg-vault-teal/10">
-                      {tier.price === 0 ? "Downgrade" : "Upgrade"}
-                    </button>
-                  )}
                 </div>
               ))}
             </div>
-            <div className="mt-4 flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm">
+            <div className="mt-6 flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm">
               <span className="text-muted-foreground">Payment method</span>
               <span className="font-medium text-foreground">•••• 4242</span>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />

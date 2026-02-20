@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Lora, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { WhatsAppButton } from '@/components/whatsapp-button'
 import './globals.css'
 
 const lora = Lora({
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en" className={`${lora.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased">
         {children}
+        <WhatsAppButton phoneNumber="1234567890" message="Hello, I have a question about Memory Vault." />
         <Analytics />
       </body>
     </html>
