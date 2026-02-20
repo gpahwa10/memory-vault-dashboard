@@ -1,18 +1,13 @@
 import type { Metadata } from 'next'
-import { Lora, Playfair_Display } from 'next/font/google'
+import { Poppins } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { WhatsAppButton } from '@/components/whatsapp-button'
 import './globals.css'
 
-const lora = Lora({
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-lora',
-  display: 'swap',
-})
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins',
   display: 'swap',
 })
 
@@ -31,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${lora.variable} ${playfair.variable}`}>
+    <html lang="en" className={poppins.variable}>
       <body className="font-sans antialiased">
         {children}
         <WhatsAppButton phoneNumber="1234567890" message="Hello, I have a question about Memory Vault." />
