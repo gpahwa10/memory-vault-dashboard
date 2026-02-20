@@ -5,7 +5,7 @@ import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import Link from 'next/link'
 
 interface AuthFormProps {
-  title: string
+  title?: string
   subtitle?: string
   fields: {
     name: string
@@ -17,6 +17,8 @@ interface AuthFormProps {
   buttonText: string
   footerText?: ReactNode
   onSubmit?: (data: Record<string, string>) => void
+  /** 'stack' = one column, 'grid' = 2 columns on sm+ */
+  fieldLayout?: 'stack' | 'grid'
 }
 
 export function AuthForm({
@@ -26,6 +28,7 @@ export function AuthForm({
   buttonText,
   footerText,
   onSubmit,
+  fieldLayout = 'stack',
 }: AuthFormProps) {
   const [formData, setFormData] = useState<Record<string, string>>(
     fields.reduce((acc, field) => ({ ...acc, [field.name]: '' }), {})
@@ -63,9 +66,18 @@ export function AuthForm({
       {title && <h2 className="font-serif text-2xl font-bold text-foreground">{title}</h2>}
       {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
 
-      <div className="space-y-3">
+      <div
+        className={
+          fieldLayout === 'grid'
+            ? 'grid grid-cols-1 sm:grid-cols-2 gap-4'
+            : 'space-y-3'
+        }
+      >
         {fields.map((field) => (
-          <div key={field.name} className="flex flex-col gap-2">
+          <div
+            key={field.name}
+            className={`flex flex-col gap-2 ${fieldLayout === 'grid' && field.name === 'confirmPassword' ? 'sm:col-span-2' : ''}`}
+          >
             <label htmlFor={field.name} className="text-sm font-medium text-foreground">
               {field.label}
             </label>

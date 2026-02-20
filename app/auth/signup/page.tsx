@@ -64,7 +64,22 @@ export default function SignupPage() {
       )}
 
       <AuthForm
+        fieldLayout="grid"
         fields={[
+          {
+            name: 'fullName',
+            type: 'text',
+            label: 'Full Name',
+            placeholder: 'John Doe',
+            required: true,
+          },
+          {
+            name: 'phone',
+            type: 'text',
+            label: 'Phone Number',
+            placeholder: '+1234567890',
+            required: true,
+          },
           {
             name: 'email',
             type: 'email',

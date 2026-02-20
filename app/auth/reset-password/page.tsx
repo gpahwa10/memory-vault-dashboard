@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { AuthHeader } from '@/components/auth-header'
 import { AuthForm } from '@/components/auth-form'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const [error, setError] = useState<string | null>(null)
@@ -102,5 +102,23 @@ export default function ResetPasswordPage() {
         onSubmit={handleResetPassword}
       />
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-6">
+          <AuthHeader
+            title="Create new password"
+            subtitle="Loading..."
+          />
+          <div className="h-24 animate-pulse rounded-lg bg-muted" />
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
