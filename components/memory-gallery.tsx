@@ -5,7 +5,6 @@ import Image from "next/image"
 import { format } from "date-fns"
 import {
   Search,
-  Filter,
   Grid3X3,
   List,
   Calendar,
@@ -16,10 +15,11 @@ import {
   Eye,
   ImageIcon,
   Video,
+  ArrowLeft,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface Memory {
+export interface Memory {
   id: string
   title: string
   date: Date
@@ -101,12 +101,139 @@ const sampleMemories: Memory[] = [
 
 type ViewMode = "grid" | "list" | "timeline"
 
+function MemoryDetailView({
+  memory,
+  onBack,
+  onLike,
+  onCloseMenu,
+}: {
+  memory: Memory
+  onBack: () => void
+  onLike: () => void
+  onCloseMenu: () => void
+}) {
+  const [openMenu, setOpenMenu] = useState(false)
+  return (
+    <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
+      <button
+        onClick={onBack}
+        className="inline-flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Memory Vault
+      </button>
+
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="relative aspect-[16/9] w-full overflow-hidden">
+          <Image
+            src={memory.images[0]}
+            alt={memory.title}
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-3">
+            <span className="inline-block rounded-full bg-vault-gold/90 px-3 py-1 text-xs font-semibold uppercase text-accent-foreground">
+              {memory.category}
+            </span>
+            <div className="flex items-center gap-2">
+              {memory.hasVideo && (
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-vault-teal">
+                  <Video className="h-4 w-4" />
+                </span>
+              )}
+              {memory.images.length > 1 && (
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-vault-warm">
+                  <ImageIcon className="h-4 w-4" />
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="p-6 sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
+                {memory.title}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {format(memory.date, "MMMM d, yyyy")}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onLike}
+                className="inline-flex items-center gap-2 rounded-lg bg-vault-teal/10 px-4 py-2 text-sm font-medium text-vault-teal transition-colors hover:bg-vault-teal/20"
+              >
+                <Heart
+                  className={cn(
+                    "h-4 w-4",
+                    memory.liked
+                      ? "fill-destructive text-destructive"
+                      : "text-vault-teal"
+                  )}
+                />
+                {memory.liked ? "Liked" : "Like"}
+              </button>
+              <button className="inline-flex items-center gap-2 rounded-lg bg-vault-gold/10 px-4 py-2 text-sm font-medium text-vault-warm transition-colors hover:bg-vault-gold/20">
+                <Edit3 className="h-4 w-4" />
+                Edit
+              </button>
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setOpenMenu(!openMenu)
+                    onCloseMenu()
+                  }}
+                  className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </button>
+                {openMenu && (
+                  <div className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-border bg-popover p-1 shadow-lg">
+                    <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive hover:bg-destructive/10">
+                      <Trash2 className="h-4 w-4" />
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+            {memory.description}
+          </p>
+          {memory.images.length > 1 && (
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {memory.images.slice(1, 4).map((img, i) => (
+                <div
+                  key={i}
+                  className="relative aspect-video overflow-hidden rounded-lg border border-border"
+                >
+                  <Image
+                    src={img}
+                    alt={`${memory.title} ${i + 2}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function MemoryGallery() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [memories, setMemories] = useState(sampleMemories)
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null)
 
   const categories = ["all", "Milestone", "Celebration", "Family", "Daily"]
 
@@ -125,11 +252,27 @@ export function MemoryGallery() {
     )
   }
 
+  const selectedMemory = selectedMemoryId
+    ? memories.find((m) => m.id === selectedMemoryId)
+    : null
+
+  // Memory detail view (same layout as dashboard main area)
+  if (selectedMemory) {
+    return (
+      <MemoryDetailView
+        memory={selectedMemory}
+        onBack={() => setSelectedMemoryId(null)}
+        onLike={() => toggleLike(selectedMemory.id)}
+        onCloseMenu={() => setOpenMenu(null)}
+      />
+    )
+  }
+
   return (
     <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
       <div>
         <h1 className="font-serif text-3xl font-bold text-foreground">
-          Memory Gallery
+          Memory Vault
         </h1>
         <p className="mt-1 text-muted-foreground">
           {memories.length} memories stored in your vault
@@ -197,7 +340,11 @@ export function MemoryGallery() {
           {filtered.map((memory) => (
             <div
               key={memory.id}
-              className="group overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              role="button"
+              tabIndex={0}
+              onClick={() => setSelectedMemoryId(memory.id)}
+              onKeyDown={(e) => e.key === "Enter" && setSelectedMemoryId(memory.id)}
+              className="group cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <Image
@@ -238,7 +385,10 @@ export function MemoryGallery() {
                     </p>
                   </div>
                   <button
-                    onClick={() => toggleLike(memory.id)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleLike(memory.id)
+                    }}
                     className="shrink-0 p-1"
                     aria-label={memory.liked ? "Unlike" : "Like"}
                   >
@@ -256,19 +406,29 @@ export function MemoryGallery() {
                   {memory.description}
                 </p>
                 <div className="mt-3 flex items-center gap-2">
-                  <button className="inline-flex items-center gap-1 rounded-md bg-vault-teal/10 px-2.5 py-1 text-xs font-medium text-vault-teal transition-colors hover:bg-vault-teal/20">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedMemoryId(memory.id)
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md bg-vault-teal/10 px-2.5 py-1 text-xs font-medium text-vault-teal transition-colors hover:bg-vault-teal/20"
+                  >
                     <Eye className="h-3 w-3" />
                     View
                   </button>
-                  <button className="inline-flex items-center gap-1 rounded-md bg-vault-gold/10 px-2.5 py-1 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/20">
+                  <button
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 rounded-md bg-vault-gold/10 px-2.5 py-1 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/20"
+                  >
                     <Edit3 className="h-3 w-3" />
                     Edit
                   </button>
                   <div className="relative ml-auto">
                     <button
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation()
                         setOpenMenu(openMenu === memory.id ? null : memory.id)
-                      }
+                      }}
                       className="rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
                     >
                       <MoreHorizontal className="h-4 w-4" />
@@ -295,7 +455,11 @@ export function MemoryGallery() {
           {filtered.map((memory) => (
             <div
               key={memory.id}
-              className="flex gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-md"
+              role="button"
+              tabIndex={0}
+              onClick={() => setSelectedMemoryId(memory.id)}
+              onKeyDown={(e) => e.key === "Enter" && setSelectedMemoryId(memory.id)}
+              className="flex cursor-pointer gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-md"
             >
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg">
                 <Image
@@ -323,7 +487,10 @@ export function MemoryGallery() {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <button
-                  onClick={() => toggleLike(memory.id)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleLike(memory.id)
+                  }}
                   aria-label={memory.liked ? "Unlike" : "Like"}
                 >
                   <Heart
@@ -352,7 +519,13 @@ export function MemoryGallery() {
               <p className="mb-2 text-xs font-semibold text-vault-teal">
                 {format(memory.date, "MMMM d, yyyy")}
               </p>
-              <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelectedMemoryId(memory.id)}
+                onKeyDown={(e) => e.key === "Enter" && setSelectedMemoryId(memory.id)}
+                className="cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md"
+              >
                 <div className="relative aspect-[16/7] overflow-hidden">
                   <Image
                     src={memory.images[0]}

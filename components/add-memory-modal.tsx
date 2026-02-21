@@ -14,12 +14,38 @@ import {
   Trash2,
   GripVertical,
   LayoutGrid,
-  CheckSquare,
 } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
+import { MEMORY_CATEGORIES } from "@/lib/memories"
+
+const CATEGORY_CONFIG: Record<
+  (typeof MEMORY_CATEGORIES)[number],
+  { image: string; label: string; accent: string }
+> = {
+  "Wedding Albums": {
+    image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80&fit=crop",
+    label: "Wedding Albums",
+    accent: "from-rose-900/80",
+  },
+  "Travel Journey": {
+    image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&q=80&fit=crop",
+    label: "Travel Journey",
+    accent: "from-sky-900/80",
+  },
+  "Baby Milestones": {
+    image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&q=80&fit=crop",
+    label: "Baby Milestones",
+    accent: "from-amber-900/70",
+  },
+  "Graduation Books": {
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&q=80&fit=crop",
+    label: "Graduation Books",
+    accent: "from-emerald-900/80",
+  },
+}
 
 interface AddMemoryModalProps {
   open: boolean
@@ -35,6 +61,7 @@ interface UploadedImage {
 type MediaMode = "images" | "video" | null
 
 export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
+  const [category, setCategory] = useState<(typeof MEMORY_CATEGORIES)[number] | null>(null)
   const [date, setDate] = useState<Date>(new Date())
   const [includeInBook, setIncludeInBook] = useState(true)
   const [mediaMode, setMediaMode] = useState<MediaMode>(null)
@@ -76,7 +103,6 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
   const handleEnhanceText = () => {
     if (!memoryText.trim()) return
     setOriginalText(memoryText)
-    // Simulate AI enhancement
     const enhanced = memoryText
       .replace(/\bi\b/g, "I")
       .replace(/^./, (c) => c.toUpperCase())
@@ -105,7 +131,6 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
   }
 
   const handleClose = () => {
-    // Could show "save this memory?" confirmation
     onClose()
   }
 
@@ -133,14 +158,74 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
         </div>
 
         <div className="flex flex-col gap-6 p-6">
+          {/* Category selection */}
+          <div>
+            <p className="mb-3 text-sm font-medium text-foreground">Choose a category</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {MEMORY_CATEGORIES.map((cat) => {
+                const { image, label, accent } = CATEGORY_CONFIG[cat]
+                const isSelected = category === cat
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategory(cat)}
+                    className={cn(
+                      "group relative overflow-hidden rounded-xl border-2 transition-all hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-vault-teal",
+                      isSelected
+                        ? "border-vault-teal shadow-md ring-2 ring-vault-teal/30"
+                        : "border-border hover:border-vault-gold/50"
+                    )}
+                    style={{ aspectRatio: "1 / 1" }}
+                  >
+                    {/* Background image */}
+                    <img
+                      src={image}
+                      alt={label}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+
+                    {/* Gradient overlay */}
+                    <div
+                      className={cn(
+                        "absolute inset-0 bg-gradient-to-t to-transparent transition-opacity",
+                        accent,
+                        isSelected ? "opacity-90" : "opacity-70 group-hover:opacity-80"
+                      )}
+                    />
+
+                    {/* Selected ring overlay */}
+                    {isSelected && (
+                      <div className="absolute inset-0 rounded-[10px] ring-2 ring-inset ring-vault-teal/60" />
+                    )}
+
+                    {/* Label */}
+                    <div className="absolute inset-0 flex items-end p-2.5">
+                      <span className="text-left text-xs font-bold leading-tight text-white drop-shadow-md">
+                        {label}
+                      </span>
+                    </div>
+
+                    {/* Selected checkmark */}
+                    {isSelected && (
+                      <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-vault-teal shadow">
+                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Include in Book & Date */}
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex cursor-pointer items-center gap-2.5">
               <Checkbox
                 checked={includeInBook}
-                onCheckedChange={(v) =>
-                  setIncludeInBook(v as boolean)
-                }
+                onCheckedChange={(v) => setIncludeInBook(v as boolean)}
                 className="border-vault-gold data-[state=checked]:bg-vault-gold data-[state=checked]:text-accent-foreground"
               />
               <span className="text-sm font-medium text-foreground">
@@ -168,7 +253,6 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
 
           {/* Media Upload Area */}
           <div className="overflow-hidden rounded-xl border border-dashed border-border bg-background">
-            {/* Watermark background */}
             <div className="relative min-h-[140px]">
               <div className="pointer-events-none absolute inset-0 flex flex-wrap items-center justify-center gap-8 overflow-hidden opacity-[0.04]">
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -181,7 +265,6 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
                 ))}
               </div>
 
-              {/* Upload buttons or preview */}
               {mediaMode === null && (
                 <div className="relative z-10 flex flex-col items-center gap-3 px-6 py-8">
                   <button
@@ -207,7 +290,6 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
                 </div>
               )}
 
-              {/* Image preview grid */}
               {mediaMode === "images" && images.length > 0 && (
                 <div className="relative z-10 p-4">
                   <div
@@ -272,7 +354,6 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
                 </div>
               )}
 
-              {/* Video placeholder */}
               {mediaMode === "video" && (
                 <div className="relative z-10 flex flex-col items-center gap-3 px-6 py-8">
                   <div className="flex h-24 w-40 items-center justify-center rounded-xl border border-border bg-muted">
