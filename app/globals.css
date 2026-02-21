@@ -4,8 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Memory Vault Theme - Teal & Gold */
-  --background: #f5efe6;
+  /* Memory Vault Theme - Teal & Gold. App background: light cream (HSL 40 30% 97%) */
+  --background: hsl(40 30% 97%);
   --foreground: #2d2418;
   --card: #faf6ef;
   --card-foreground: #2d2418;
