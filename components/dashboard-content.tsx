@@ -239,7 +239,7 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
           </div>
 
         </div>
-        <button className="shrink-0 rounded-lg bg-vault-teal px-5 py-2.5 mt-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark">
+        <button className="shrink-0 rounded-lg bg-vault-teal px-5 py-2.5 mt-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark" onClick={() => router.push("/settings")}>
           Extend Membership
         </button>
       </section>
@@ -350,7 +350,7 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
                         {format(memory.date, "MMMM d, yyyy")}
                       </p>
                     </div>
-                    <button
+                    {/* <button
                       onClick={(e) => {
                         e.stopPropagation()
                         router.push(`/memory-detail/${memory.id}`)
@@ -366,7 +366,7 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
                             : "text-muted-foreground hover:text-destructive"
                         )}
                       />
-                    </button>
+                    </button> */}
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
                     <ProgressMini

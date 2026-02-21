@@ -159,66 +159,7 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
 
         <div className="flex flex-col gap-6 p-6">
           {/* Category selection */}
-          <div>
-            <p className="mb-3 text-sm font-medium text-foreground">Choose a category</p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {MEMORY_CATEGORIES.map((cat) => {
-                const { image, label, accent } = CATEGORY_CONFIG[cat]
-                const isSelected = category === cat
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setCategory(cat)}
-                    className={cn(
-                      "group relative overflow-hidden rounded-xl border-2 transition-all hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-vault-teal",
-                      isSelected
-                        ? "border-vault-teal shadow-md ring-2 ring-vault-teal/30"
-                        : "border-border hover:border-vault-gold/50"
-                    )}
-                    style={{ aspectRatio: "1 / 1" }}
-                  >
-                    {/* Background image */}
-                    <img
-                      src={image}
-                      alt={label}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-
-                    {/* Gradient overlay */}
-                    <div
-                      className={cn(
-                        "absolute inset-0 bg-gradient-to-t to-transparent transition-opacity",
-                        accent,
-                        isSelected ? "opacity-90" : "opacity-70 group-hover:opacity-80"
-                      )}
-                    />
-
-                    {/* Selected ring overlay */}
-                    {isSelected && (
-                      <div className="absolute inset-0 rounded-[10px] ring-2 ring-inset ring-vault-teal/60" />
-                    )}
-
-                    {/* Label */}
-                    <div className="absolute inset-0 flex items-end p-2.5">
-                      <span className="text-left text-xs font-bold leading-tight text-white drop-shadow-md">
-                        {label}
-                      </span>
-                    </div>
-
-                    {/* Selected checkmark */}
-                    {isSelected && (
-                      <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-vault-teal shadow">
-                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
+       
 
           {/* Include in Book & Date */}
           <div className="flex flex-wrap items-center gap-4">

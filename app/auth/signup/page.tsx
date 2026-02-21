@@ -27,6 +27,15 @@ interface Plan {
 
 const PLANS: Plan[] = [
   {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    period: '14 days',
+    description: 'Perfect for those who want to try Memory Vault for free',
+    icon: Sparkles,
+    features: [],
+  },
+  {
     id: 'starter',
     name: 'Starter',
     price: 4.99,

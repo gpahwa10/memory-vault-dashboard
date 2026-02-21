@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { DashboardContent } from "@/components/dashboard-content"
 import { useAddMemory } from "./add-memory-context"
+import { useAddVault } from "./add-vault-context"
 
 const idToPath: Record<string, string> = {
   preview: "/preview",
@@ -21,10 +22,15 @@ const idToPath: Record<string, string> = {
 export default function DashboardPage() {
   const router = useRouter()
   const openAddMemory = useAddMemory()
+  const openAddVault = useAddVault()
 
   const handleNavigate = (item: string) => {
     if (item === "add-memory") {
       openAddMemory()
+      return
+    }
+    if (item === "add-vault") {
+      openAddVault()
       return
     }
     const path = idToPath[item]

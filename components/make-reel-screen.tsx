@@ -1,193 +1,233 @@
 "use client"
 
-import { useState } from "react"
-import { Film, Music, Clock, Sparkles, Play, Download } from "lucide-react"
+import { motion } from "framer-motion"
+import { Play, Plus, Sparkles, ArrowRight, Video, Palette, Music } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
-const durationOptions = [
-  { value: 30, label: "30 seconds" },
-  { value: 60, label: "1 minute" },
-  { value: 90, label: "1 min 30 sec" },
-  { value: 120, label: "2 minutes" },
-]
+const sampleReels = [
+  {
+    id: 1,
+    title: "Summer Vacation 2024",
+    thumbnail: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=600&fit=crop",
+    duration: "0:45",
+  },
+  {
+    id: 2,
+    title: "Family Reunion",
+    thumbnail: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&h=600&fit=crop",
+    duration: "1:20",
+  },
+  {
+    id: 3,
+    title: "Birthday Celebration",
+    thumbnail: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=600&fit=crop",
+    duration: "0:55",
+  },
+  {
+    id: 4,
+    title: "Wedding Memories",
+    thumbnail: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=600&fit=crop",
+    duration: "2:10",
+  },
+  {
+    id: 5,
+    title: "Road Trip Adventures",
+    thumbnail: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&h=600&fit=crop",
+    duration: "1:30",
+  },
+  {
+    id: 6,
+    title: "Holiday Season",
+    thumbnail: "https://images.unsplash.com/photo-1512389142860-9c449e58a814?w=400&h=600&fit=crop",
+    duration: "0:50",
+  },
+];
 
-const musicOptions = [
-  { id: "soft", label: "Soft piano" },
-  { id: "upbeat", label: "Upbeat acoustic" },
-  { id: "none", label: "No music" },
-]
+const templates = [
+  {
+    id: 1,
+    name: "Classic Memories",
+    description: "Elegant transitions with soft music",
+    icon: Palette,
+    color: "bg-primary/10 text-primary",
+  },
+  {
+    id: 2,
+    name: "Modern Vibes",
+    description: "Trendy effects with upbeat tracks",
+    icon: Sparkles,
+    color: "bg-accent/10 text-accent",
+  },
+  {
+    id: 3,
+    name: "Cinematic",
+    description: "Film-like quality with dramatic music",
+    icon: Video,
+    color: "bg-secondary text-foreground",
+  },
+  {
+    id: 4,
+    name: "Musical Journey",
+    description: "Sync your memories to your favorite songs",
+    icon: Music,
+    color: "bg-gold/10 text-gold",
+  },
+];
 
-export function MakeReelScreen() {
-  const [duration, setDuration] = useState(60)
-  const [music, setMusic] = useState("soft")
-  const [generating, setGenerating] = useState(false)
-  const [done, setDone] = useState(false)
-
-  const handleGenerate = () => {
-    setGenerating(true)
-    setTimeout(() => {
-      setGenerating(false)
-      setDone(true)
-    }, 2500)
-  }
-
-  if (done) {
-    return (
-      <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
-        <div>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Make a Reel
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Create a short video from your memories
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-            <div className="relative aspect-[9/16] w-full max-w-[200px] overflow-hidden rounded-xl bg-muted">
-              <div className="absolute inset-0 flex items-center justify-center bg-vault-teal/20">
-                <Play className="h-12 w-12 text-vault-teal" />
-              </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <h2 className="font-serif text-lg font-semibold text-foreground">
-                Your reel is ready
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                We&apos;ve created a 1-minute reel from your baby book memories. You can preview it below or download to share.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <button className="inline-flex items-center gap-2 rounded-lg bg-vault-teal px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-vault-teal-dark">
-                  <Play className="h-4 w-4" />
-                  Preview
-                </button>
-                <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted">
-                  <Download className="h-4 w-4" />
-                  Download
-                </button>
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => setDone(false)}
-            className="mt-6 text-sm font-medium text-vault-teal hover:underline"
-          >
-            Create another reel
-          </button>
-        </div>
-      </div>
-    )
-  }
-
+export default function MakeReelScreen() {
   return (
-    <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-foreground">
-          Make a Reel
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          Turn your memory book into a short, shareable video
-        </p>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <h2 className="mb-4 font-serif text-lg font-semibold text-foreground">
-            Reel settings
-          </h2>
-          <div className="space-y-5">
-            <div>
-              <label className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-                <Clock className="h-4 w-4 text-vault-teal" />
-                Duration
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {durationOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setDuration(opt.value)}
-                    className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
-                      duration === opt.value
-                        ? "border-vault-teal bg-vault-teal/15 text-vault-teal"
-                        : "border-border bg-background text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-                <Music className="h-4 w-4 text-vault-teal" />
-                Background music
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {musicOptions.map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => setMusic(opt.id)}
-                    className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
-                      music === opt.id
-                        ? "border-vault-teal bg-vault-teal/15 text-vault-teal"
-                        : "border-border bg-background text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+    <div className="paper-texture min-h-0 pb-8">
+      <div className="space-y-8">
+        {/* Hero Section with CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-primary rounded-2xl p-8 md:p-12 text-center relative overflow-hidden"
+        >
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-primary-foreground blur-3xl" />
+            <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full bg-accent blur-3xl" />
           </div>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <h2 className="mb-4 font-serif text-lg font-semibold text-foreground">
-            Source book
-          </h2>
-          <div className="space-y-3">
-            <button className="flex w-full items-center gap-3 rounded-lg border-2 border-vault-teal bg-vault-teal/10 p-4 text-left">
-              <div className="h-14 w-20 rounded bg-muted" />
-              <div>
-                <p className="font-medium text-foreground">Our Baby Book</p>
-                <p className="text-xs text-muted-foreground">24 photos · 6 chapters</p>
-              </div>
-            </button>
-            <p className="text-xs text-muted-foreground">
-              We&apos;ll pick the best moments from this book for your reel. You can reorder or exclude pages after generation.
+          <div className="relative z-10">
+            <Video className="w-16 h-16 mx-auto mb-4 text-primary-foreground" />
+            <h1 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+              Create Stunning Memory Reels
+            </h1>
+            <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
+              Transform your photos and videos into beautiful, shareable reels with just a few clicks.
             </p>
+            <Button size="lg" className="btn-gold-gradient text-base h-12 px-8">
+              <Plus className="w-5 h-5 mr-2" />
+              Create New Reel
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Templates Section */}
+        <div>
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+            Choose a Template
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {templates.map((template, index) => (
+              <motion.div
+                key={template.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="memory-card cursor-pointer hover:border-primary transition-colors group">
+                  <CardContent className="p-6 text-center">
+                    <div className={`w-14 h-14 rounded-xl ${template.color} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                      <template.icon className="w-7 h-7" />
+                    </div>
+                    <h3 className="font-display text-lg font-semibold text-foreground mb-2">
+                      {template.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{template.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </div>
 
-      <div className="rounded-xl border border-vault-gold/30 bg-vault-gold/5 p-4">
-        <div className="flex gap-3">
-          <Sparkles className="h-5 w-5 shrink-0 text-vault-gold" />
-          <div className="text-sm">
-            <p className="font-medium text-foreground">Pro tip</p>
-            <p className="text-muted-foreground">
-              Reels with 1–2 minutes and soft music tend to get the most engagement when shared with family.
-            </p>
+        {/* Sample Reels - Infinite Scroll Style */}
+        <div>
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+            Sample Reels for Inspiration
+          </h2>
+          <div className="relative overflow-hidden">
+            <motion.div 
+              className="flex gap-4"
+              animate={{ x: [0, -1200] }}
+              transition={{ 
+                x: { 
+                  repeat: Infinity, 
+                  repeatType: "loop", 
+                  duration: 20, 
+                  ease: "linear" 
+                } 
+              }}
+            >
+              {[...sampleReels, ...sampleReels].map((reel, index) => (
+                <div 
+                  key={`${reel.id}-${index}`}
+                  className="relative flex-shrink-0 w-48 group cursor-pointer"
+                >
+                  <div className="relative rounded-xl overflow-hidden aspect-[9/16] shadow-lg">
+                    <img
+                      src={reel.thumbnail}
+                      alt={reel.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-14 h-14 rounded-full bg-primary-foreground/90 flex items-center justify-center">
+                        <Play className="w-6 h-6 text-primary ml-1" />
+                      </div>
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <p className="text-primary-foreground text-sm font-medium truncate">{reel.title}</p>
+                      <p className="text-primary-foreground/70 text-xs">{reel.duration}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
           </div>
         </div>
-      </div>
 
-      <button
-        onClick={handleGenerate}
-        disabled={generating}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-vault-teal py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark disabled:opacity-70 sm:w-auto sm:px-8"
-      >
-        {generating ? (
-          <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-            Creating your reel…
-          </>
-        ) : (
-          <>
-            <Film className="h-5 w-5" />
-            Generate reel
-          </>
-        )}
-      </button>
+        {/* Static Grid of Sample Reels */}
+        <div>
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+            Browse All Samples
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {sampleReels.map((reel, index) => (
+              <motion.div
+                key={reel.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                className="relative group cursor-pointer"
+              >
+                <div className="relative rounded-xl overflow-hidden aspect-[9/16] shadow-lg">
+                  <img
+                    src={reel.thumbnail}
+                    alt={reel.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-12 h-12 rounded-full bg-primary-foreground/90 flex items-center justify-center">
+                      <Play className="w-5 h-5 text-primary ml-0.5" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <p className="text-primary-foreground text-xs font-medium truncate">{reel.title}</p>
+                    <p className="text-primary-foreground/70 text-xs">{reel.duration}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-8"
+        >
+          <p className="text-muted-foreground mb-4">Ready to create your own memory reel?</p>
+          <Button size="lg" className="btn-primary-gradient">
+            Get Started Now
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </motion.div>
+      </div>
     </div>
-  )
+  );
 }

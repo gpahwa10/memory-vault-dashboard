@@ -3,16 +3,23 @@
 import { useRef, useEffect } from "react"
 
 /**
- * Full-screen background video at 50% opacity.
+ * Background video at 50% opacity.
+ * - Default: full-screen fixed (e.g. landing page).
+ * - contained: fills its parent (e.g. left half in auth split layout).
  * Place your theme video in public/ e.g. public/background.mp4
- * Use muted, autoPlay, loop for ambient background (browser autoplay policy).
  */
 export function BackgroundVideo({
   src = "/background.mp4",
   className = "",
+  contained = false,
+  size = "full",
 }: {
   src?: string
   className?: string
+  /** If true, use absolute positioning to fill parent instead of fixed full-screen */
+  contained?: boolean
+  /** When contained: "full" fills parent, "reduced" scales video down (e.g. 75%) */
+  size?: "full" | "reduced"
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -22,9 +29,15 @@ export function BackgroundVideo({
     video.play().catch(() => {})
   }, [src])
 
+  const isReduced = contained && size === "reduced"
+
   return (
     <div
-      className={`pointer-events-none fixed inset-0 z-[1] min-h-screen min-w-full ${className}`}
+      className={
+        contained
+          ? `pointer-events-none absolute inset-0 z-[1] flex items-center justify-center ${className}`
+          : `pointer-events-none fixed inset-0 z-[1] min-h-screen min-w-full ${className}`
+      }
       aria-hidden
     >
       <video
@@ -33,7 +46,11 @@ export function BackgroundVideo({
         muted
         loop
         playsInline
-        className="absolute inset-0 size-full object-cover opacity-50"
+        className={
+          
+           "absolute inset-0 size-full object-cover opacity-50"
+        }
+        style={isReduced ? { position: "relative" } : undefined}
         src={src}
       />
     </div>

@@ -35,19 +35,18 @@ interface AppSidebarProps {
   mobileOpen?: boolean
   onMobileToggle?: () => void
   onAddMemory?: () => void
+  onAddVault?: () => void
 }
 
 const mainNavItems: { id: string; label: string; href: string | null; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { id: "add-memory", label: "Add a new vault", href: null, icon: PlusCircle },
+  // { id: "add-memory", label: "Add a new memory", href: null, icon: PlusCircle },
+  { id: "add-vault", label: "Add a new vault", href: null, icon: PlusCircle },
   { id: "calendar", label: "Events Calendar", href: "/calendar", icon: CalendarDays },
-  { id: "media", label: "Photos & Videos", href: "/media", icon: ImageIcon },
-  // { id: "questions", label: "All Questions", href: "/questions", icon: HelpCircle },
-  { id: "edit-book", label: "Edit Book Details", href: "/edit-book", icon: BookOpen },
-  { id: "preview", label: "Preview Your Book", href: "/preview", icon: Eye },
   { id: "settings", label: "Settings", href: "/settings", icon: Settings },
   { id: "help", label: "Help", href: "/help", icon: HelpCircle },
   { id: "review", label: "Review", href: "/review", icon: Star },
+  { id: "gift", label: "Give a Gift", href: "/give-gift", icon: Gift },
 
 ]
 
@@ -64,6 +63,7 @@ export function AppSidebar({
   mobileOpen = false,
   onMobileToggle,
   onAddMemory,
+  onAddVault,
 }: AppSidebarProps) {
   const pathname = usePathname()
 
@@ -122,6 +122,23 @@ export function AppSidebar({
                         type="button"
                         onClick={() => {
                           onAddMemory?.()
+                          onMobileToggle?.()
+                        }}
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/80 transition-all duration-200 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                      >
+                        <item.icon className="h-4 w-4 shrink-0 text-sidebar-foreground/60" />
+                        {item.label}
+                      </button>
+                    </li>
+                  )
+                }
+                if (item.id === "add-vault") {
+                  return (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onAddVault?.()
                           onMobileToggle?.()
                         }}
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/80 transition-all duration-200 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"

@@ -1,55 +1,171 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
   ArrowLeft,
   BookOpen,
-  BookOpenCheck,
   Camera,
   Edit3,
   Eye,
   Film,
-  Gift,
   HelpCircle,
-  Images,
-  Library,
-  Lightbulb,
   PlusCircle,
-  Printer,
-  Sparkles,
+  TrendingUp,
   Video,
+  X,
 } from "lucide-react"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useAddMemory } from "../../add-memory-context"
-import type { Memory as MemoryType } from "@/lib/memories"
+import { useAddVault } from "../../add-vault-context"
+import { cn } from "@/lib/utils"
+import type { Memory as MemoryType, MemoryQuestion, MemoryQuestionMedia } from "@/lib/memories"
 
 interface SerializedMemory extends Omit<MemoryType, "date"> {
   date: string
 }
 
+// ─────────────────────────────────────────────
+// Quick Actions config
+// ─────────────────────────────────────────────
 const quickActions = [
-  { id: "add-memory", label: "Add a new memory", icon: PlusCircle, color: "bg-vault-teal text-primary-foreground", href: null },
-  { id: "preview", label: "Preview your book", icon: Eye, color: "bg-vault-gold text-accent-foreground", href: "/preview" },
-  { id: "edit-vault", label: "Edit the vault", icon: Edit3, color: "bg-vault-teal text-primary-foreground", href: "/edit-vault" },
-  { id: "print-book", label: "Print your book", icon: Printer, color: "bg-vault-warm text-primary-foreground", href: "/print-book" },
-  { id: "give-gift", label: "Give a gift", icon: Gift, color: "bg-vault-gold text-accent-foreground", href: "/give-gift" },
+  { id: "add-memory",  label: "Add a new memory",    icon: PlusCircle, color: "teal" as const, href: null },
+  // { id: "preview",     label: "Preview your book",   icon: Eye,        color: "gold" as const, href: "/preview" },
+  { id: "generate",    label: "Generate your book",  icon: BookOpen,   color: "gold" as const, href: "/preview" },
+  { id: "edit-vault",  label: "Edit the vault",      icon: Edit3,      color: "teal" as const, href: "/edit-vault" },
+  { id: "create-reel", label: "Create a reel",       icon: Film,       color: "teal" as const, href: "/make-reel" },
 ]
 
-const editBookItems = [
-  { id: "gallery", label: "View Memory Vault", icon: Images, desc: "Browse all your memories", href: "/gallery" },
-  { id: "questions", label: "Unanswered Questions", icon: HelpCircle, desc: "5 questions pending", href: "/questions" },
-  { id: "edit-book", label: "Your Book Details", icon: BookOpen, desc: "Edit title, theme & more", href: "/edit-book" },
-  { id: "all-books", label: "All Books Created", icon: Library, desc: "2 books in your vault", href: "/" },
-]
+const actionColorMap = {
+  teal: {
+    icon: "bg-vault-teal/15 text-vault-teal border border-vault-teal/25",
+    hover: "hover:border-vault-teal/40 hover:bg-vault-teal/5",
+  },
+  gold: {
+    icon: "bg-vault-gold/15 text-vault-gold border border-vault-gold/25",
+    hover: "hover:border-vault-gold/40 hover:bg-vault-gold/5",
+  },
+}
 
+// ─────────────────────────────────────────────
+// Progress metric helpers
+// ─────────────────────────────────────────────
+const metricColorMap = {
+  teal: {
+    bar:    "bg-vault-teal",
+    text:   "text-vault-teal",
+    bg:     "bg-vault-teal/8",
+    border: "border-vault-teal/15",
+    glow:   "hover:shadow-vault-teal/15",
+    track:  "bg-vault-teal/12",
+  },
+  gold: {
+    bar:    "bg-vault-gold",
+    text:   "text-vault-gold",
+    bg:     "bg-vault-gold/8",
+    border: "border-vault-gold/15",
+    glow:   "hover:shadow-vault-gold/15",
+    track:  "bg-vault-gold/12",
+  },
+}
+
+interface ProgressMetricProps {
+  icon: React.ReactNode
+  label: string
+  current: number
+  total: number
+  suffix?: string
+  color: "teal" | "gold"
+  href?: string
+}
+
+function ProgressMetric({ icon, label, current, total, suffix, color, href }: ProgressMetricProps) {
+  const pct = Math.min((current / total) * 100, 100)
+  const c = metricColorMap[color]
+  const displayTotal = suffix ? `${total} ${suffix}` : total
+
+  const inner = (
+    <div
+      className={cn(
+        "group flex flex-col gap-2.5 rounded-xl border px-4 py-3.5 transition-all duration-200 hover:shadow-md",
+        c.border, c.bg, c.glow
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={cn("flex h-7 w-7 items-center justify-center rounded-lg border", c.bg, c.border)}>
+            <span className={c.text}>{icon}</span>
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+            {label}
+          </span>
+        </div>
+        <div className="flex items-baseline gap-1">
+          <span className={cn("text-lg font-bold tabular-nums leading-none", c.text)}>{current}</span>
+          <span className="text-xs leading-none text-muted-foreground">/ {displayTotal}</span>
+        </div>
+      </div>
+
+      <div className={cn("h-1.5 w-full overflow-hidden rounded-full", c.track)}>
+        <div
+          className={cn("h-full rounded-full transition-all duration-500", c.bar)}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <span className="text-xs tabular-nums text-muted-foreground">{Math.round(pct)}% complete</span>
+        {href && (
+          <span className={cn("text-xs font-medium opacity-70 transition-opacity group-hover:opacity-100", c.text)}>
+            View all →
+          </span>
+        )}
+      </div>
+    </div>
+  )
+
+  if (href) return <Link href={href} className="block">{inner}</Link>
+  return inner
+}
+
+// ─────────────────────────────────────────────
+// Main page component
+// ─────────────────────────────────────────────
 export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
   const openAddMemory = useAddMemory()
-  const questions = memory.memoryQuestions ?? [
+  const openAddVault  = useAddVault()
+  const [fullScreenMedia, setFullScreenMedia] = useState<MemoryQuestionMedia | null>(null)
+
+  const questions: MemoryQuestion[] = memory.memoryQuestions ?? [
     { question: "What made this moment special?" },
     { question: "Who was there?" },
     { question: "What would you tell your future self about this day?" },
   ]
+
+  const answeredCount = questions.filter((q) => q.answer?.trim()).length
+  const photoCount    = memory.images?.length ?? 0
+  const videoCount    = memory.hasVideo ? 1 : 0
+
+  const overallPct = Math.round(
+    ((answeredCount / Math.max(questions.length, 1)) * 0.5 +
+      (photoCount / 100) * 0.35 +
+      (videoCount / 10) * 0.15) * 100
+  )
+
   return (
     <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
+      {/* Back link */}
       <Link
         href="/gallery"
         className="inline-flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -58,287 +174,254 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
         Back to Memory Vault
       </Link>
 
-      {/* Header: title left, Generate book & Make reel right */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* Page title */}
+      <header>
         <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
           {memory.title}
         </h1>
-        <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href="/preview"
-            className="inline-flex items-center gap-2 rounded-lg border border-vault-gold/40 bg-vault-gold/10 px-4 py-2.5 text-sm font-semibold text-vault-warm transition-colors hover:bg-vault-gold/20"
-          >
-            <BookOpenCheck className="h-4 w-4" />
-            Generate a book
-          </Link>
-          <Link
-            href="/make-reel"
-            className="inline-flex items-center gap-2 rounded-lg border border-vault-teal/40 bg-vault-teal/10 px-4 py-2.5 text-sm font-semibold text-vault-teal transition-colors hover:bg-vault-teal/20"
-          >
-            <Film className="h-4 w-4" />
-            Make a reel
-          </Link>
-        </div>
       </header>
 
-      {/* Quick Actions */}
+      {/* ── Quick Actions ─────────────────────────── */}
       <section>
-        <h2 className="mb-4 font-serif text-xl font-semibold text-foreground">
-          Quick Actions
-        </h2>
+        <h2 className="mb-4 font-serif text-xl font-semibold text-foreground">Quick Actions</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {quickActions.map((action) => {
+            const colors = actionColorMap[action.color]
+
+            const content = (
+              <>
+                <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110", colors.icon)}>
+                  <action.icon className="h-5 w-5" />
+                </div>
+                <span className="text-center text-[13px] font-medium text-foreground/80">
+                  {action.label}
+                </span>
+              </>
+            )
+
+            const baseClass = cn(
+              "group flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-4 py-5",
+              "shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
+              colors.hover
+            )
+
             if (action.id === "add-memory") {
               return (
-                <button
-                  key={action.id}
-                  type="button"
-                  onClick={() => openAddMemory()}
-                  className="group flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-4 py-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-vault-gold/40 hover:shadow-md"
-                >
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${action.color} transition-transform duration-300 group-hover:scale-110`}>
-                    <action.icon className="h-5 w-5" />
-                  </div>
-                  <span className="text-center text-sm font-medium text-card-foreground">
-                    {action.label}
-                  </span>
+                <button key={action.id} type="button" onClick={() => openAddMemory()} className={baseClass}>
+                  {content}
+                </button>
+              )
+            }
+            if (action.id === "add-vault") {
+              return (
+                <button key={action.id} type="button" onClick={() => openAddVault()} className={baseClass}>
+                  {content}
                 </button>
               )
             }
             return (
-              <Link
-                key={action.id}
-                href={action.href!}
-                className="group flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-4 py-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-vault-gold/40 hover:shadow-md"
-              >
-                <div className={`flex h-12 w-12 items-center justify-center rounded-full ${action.color} transition-transform duration-300 group-hover:scale-110`}>
-                  <action.icon className="h-5 w-5" />
-                </div>
-                <span className="text-center text-sm font-medium text-card-foreground">
-                  {action.label}
-                </span>
+              <Link key={action.id} href={action.href!} className={baseClass}>
+                {content}
               </Link>
             )
           })}
         </div>
       </section>
-      {/* Progress card: inverted triangle metrics + action buttons */}
-      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="mb-6 text-center font-serif text-xl font-semibold text-foreground">
-          Memory progress
-        </h2>
-        {/* Inverted triangle: one top-center, two bottom left/right */}
-        <div className="grid grid-cols-[1fr_auto_1fr] grid-rows-2 place-items-center gap-y-4 gap-x-8 px-4">
-          <div className="row-start-1 col-start-2">
-            <ProgressItem
-              icon={<HelpCircle className="h-8 w-8 text-vault-teal" />}
-              label="Questions"
-              current={questions.filter((q) => q.answer?.trim()).length}
-              total={questions.length}
-              strokeColor="var(--vault-teal)"
-            />
+
+      {/* ── Memory Progress ───────────────────────── */}
+      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        {/* Header row */}
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <TrendingUp className="h-4 w-4 text-vault-teal" />
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+              Memory Progress
+            </h2>
           </div>
-          <div className="row-start-2 col-start-1 justify-self-center">
-            <ProgressItem
-              icon={<Camera className="h-8 w-8 text-vault-gold" />}
-              label="Photos"
-              current={memory.images?.length ?? 0}
-              total={100}
-              suffix="max"
-              strokeColor="var(--vault-gold)"
-            />
-          </div>
-          <div className="row-start-2 col-start-3 justify-self-center">
-            <ProgressItem
-              icon={<Video className="h-8 w-8 text-vault-teal" />}
-              label="Videos"
-              current={memory.hasVideo ? 1 : 0}
-              total={10}
-              strokeColor="var(--vault-teal)"
-            />
+
+          {/* Overall progress pill */}
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-vault-teal to-vault-gold transition-all duration-700"
+                style={{ width: `${overallPct}%` }}
+              />
+            </div>
+            <span className="text-sm font-bold tabular-nums text-foreground">{overallPct}%</span>
           </div>
         </div>
-        {/* Bottom action buttons: dynamic routes for this memory */}
-        <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:justify-center sm:gap-4">
-          <Link
-            href={`/memory-detail/${memory.id}/questions`}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-vault-teal/50 bg-vault-teal/10 px-5 py-3 text-sm font-semibold text-vault-teal transition-all hover:border-vault-teal hover:bg-vault-teal/20 focus:outline-none focus:ring-2 focus:ring-vault-teal/30"
-          >
-            <HelpCircle className="h-4 w-4" />
-            View all questions
-          </Link>
-          <Link
-            href={`/memory-detail/${memory.id}/media`}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-vault-gold/50 bg-vault-gold/10 px-5 py-3 text-sm font-semibold text-vault-warm transition-all hover:border-vault-gold hover:bg-vault-gold/20 focus:outline-none focus:ring-2 focus:ring-vault-gold/30"
-          >
-            <Camera className="h-4 w-4" />
-            View all pictures
-          </Link>
+
+        {/* Metric rows */}
+        <div className="flex flex-col gap-2.5 p-4">
+          <ProgressMetric
+            icon={<HelpCircle className="h-3.5 w-3.5" />}
+            label="Questions"
+            current={answeredCount}
+            total={questions.length}
+            color="teal"
+            // href={`/memory-detail/${memory.id}/questions`}
+          />
+          <ProgressMetric
+            icon={<Camera className="h-3.5 w-3.5" />}
+            label="Photos"
+            current={photoCount}
+            total={100}
+            suffix="max"
+            color="gold"
+            // href={`/memory-detail/${memory.id}/media`}
+          />
+          <ProgressMetric
+            icon={<Video className="h-3.5 w-3.5" />}
+            label="Videos"
+            current={videoCount}
+            total={10}
+            color="teal"
+          />
         </div>
       </section>
-      {/* Memory questions – progress bars + list (same layout as questions page) */}
-      {/* <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="mb-4 font-serif text-xl font-semibold text-foreground">
-          Memory questions
-        </h2>
-        
-        <div className="flex flex-col gap-3">
-          {questions.map((q, idx) => {
-            const answered = !!q.answer?.trim()
-            return (
-              <div
-                key={idx}
-                className={`rounded-xl border p-5 transition-all ${
-                  answered
-                    ? "border-border bg-card"
-                    : "border-vault-gold/30 bg-vault-gold/5"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <span
-                    className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                      answered
-                        ? "bg-vault-teal text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {idx + 1}
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">{q.question}</p>
-                    {answered ? (
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {q.answer}
-                      </p>
-                    ) : (
-                      <div className="mt-2 space-y-2">
-                        <p className="text-xs font-medium text-muted-foreground">
-                          Your answer (optional):
-                        </p>
-                        <textarea
-                          placeholder="Type your answer here..."
-                          rows={3}
-                          defaultValue={q.answer ?? ""}
-                          className="mt-1 w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
-                        />
-                      </div>
-                    )}
+
+      {/* ── Questions Answered ────────────────────── */}
+      <QuestionsAnsweredSection
+        questions={questions}
+        setFullScreenMedia={setFullScreenMedia}
+      />
+
+      {/* ── Full-screen media viewer ──────────────── */}
+      <Dialog open={!!fullScreenMedia} onOpenChange={(open) => !open && setFullScreenMedia(null)}>
+        <DialogContent
+          showCloseButton={false}
+          className="fixed inset-0 z-50 flex h-screen w-screen max-w-none items-center justify-center border-0 bg-black/95 p-0"
+        >
+          <DialogTitle className="sr-only">View media full screen</DialogTitle>
+          {fullScreenMedia && (
+            <>
+              {fullScreenMedia.type === "image" ? (
+                <div className="relative h-full w-full">
+                  <Image
+                    src={fullScreenMedia.url}
+                    alt={fullScreenMedia.name ?? "Full size"}
+                    fill
+                    className="object-contain"
+                    sizes="100vw"
+                    unoptimized={fullScreenMedia.url.startsWith("#")}
+                  />
+                </div>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center p-4">
+                  <div className="flex max-h-full max-w-full flex-col items-center gap-2 rounded-lg bg-muted/20 p-4">
+                    <Video className="h-16 w-16 text-vault-teal/80" />
+                    <p className="text-sm text-muted-foreground">Video: {fullScreenMedia.name ?? "Video"}</p>
                   </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-      </section> */}
-
-      {/* Edit Your Book */}
-      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="mb-5 font-serif text-xl font-semibold text-foreground">
-          Edit Your Book
-        </h2>
-        <div className="grid grid-cols-2 gap-3">
-          {editBookItems.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className="group flex flex-col gap-2 rounded-lg border border-border bg-background p-4 text-left transition-all duration-200 hover:border-vault-gold/40 hover:shadow-sm"
-            >
-              <item.icon className="h-5 w-5 text-vault-teal transition-colors group-hover:text-vault-gold" />
-              <span className="text-sm font-semibold text-foreground">
-                {item.label}
-              </span>
-              <span className="text-xs text-muted-foreground">{item.desc}</span>
-            </Link>
-          ))}
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <Link
-            href="/help"
-            className="flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-3 text-sm font-medium text-foreground transition-all hover:border-vault-teal/40"
-          >
-            <Lightbulb className="h-4 w-4 text-vault-gold" />
-            How to create your book
-          </Link>
-          <Link
-            href="/help"
-            className="flex items-center gap-2 rounded-lg border border-vault-gold/30 bg-vault-gold/10 px-4 py-3 text-sm font-semibold text-vault-warm transition-all hover:bg-vault-gold/20"
-          >
-            <Sparkles className="h-4 w-4 text-vault-gold" />
-            Tips & Tricks
-          </Link>
-        </div>
-      </section>
+              )}
+              <button
+                type="button"
+                onClick={() => setFullScreenMedia(null)}
+                className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Close"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-function ProgressItem({
-  icon,
-  label,
-  current,
-  total,
-  suffix,
-  strokeColor,
+// ─────────────────────────────────────────────
+// Questions Answered Section
+// ─────────────────────────────────────────────
+function QuestionsAnsweredSection({
+  questions,
+  setFullScreenMedia,
 }: {
-  icon: React.ReactNode
-  label: string
-  current: number
-  total: number
-  suffix?: string
-  strokeColor: string
+  questions: MemoryQuestion[]
+  setFullScreenMedia: (m: MemoryQuestionMedia | null) => void
 }) {
-  const percentage = total > 0 ? (current / total) * 100 : 0
-  const size = 88
-  const strokeWidth = 8
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const strokeDashoffset = circumference * (1 - percentage / 100)
+  if (questions.length === 0) {
+    return (
+      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h2 className="mb-5 font-serif text-xl font-semibold text-foreground">Questions answered</h2>
+        <p className="text-sm text-muted-foreground">No questions for this memory yet.</p>
+      </section>
+    )
+  }
 
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
-      <div className="relative flex h-[88px] w-[88px] items-center justify-center">
-        <svg
-          className="absolute inset-0 -rotate-90"
-          width={size}
-          height={size}
-          viewBox={`0 0 ${size} ${size}`}
-          aria-hidden
-        >
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={strokeWidth}
-            className="text-muted"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke={strokeColor}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            className="transition-all duration-700"
-          />
-        </svg>
-        <div className="flex items-center justify-center">{icon}</div>
-      </div>
-      <div>
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="mt-0.5 text-sm font-bold text-foreground">
-          {current}/{total}
-          {suffix && (
-            <span className="ml-1 text-xs font-normal text-muted-foreground">
-              {suffix}
-            </span>
-          )}
-        </p>
-      </div>
-    </div>
+    <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <h2 className="mb-5 font-serif text-xl font-semibold text-foreground">Questions answered</h2>
+      <Accordion type="single" collapsible className="w-full">
+        {questions.map((q, idx) => {
+          const answered = !!q.answer?.trim()
+          return (
+            <AccordionItem
+              key={idx}
+              value={`q-${idx}`}
+              className={cn(
+                "mb-2 rounded-lg border border-border px-4 last:mb-0 transition-colors",
+                answered ? "bg-card" : "bg-muted/30"
+              )}
+            >
+              <AccordionTrigger className="py-4 hover:no-underline">
+                <div className="flex items-center gap-3 text-left">
+                  <span
+                    className={cn(
+                      "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                      answered
+                        ? "bg-vault-teal text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {idx + 1}
+                  </span>
+                  <span className="font-medium text-foreground">{q.question}</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                {answered ? (
+                  <>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{q.answer}</p>
+                    {q.media && q.media.length > 0 && (
+                      <div className="mt-4">
+                        <p className="mb-2 text-xs font-medium text-muted-foreground">Media attached</p>
+                        <div className="flex flex-wrap gap-2">
+                          {q.media.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setFullScreenMedia(item) }}
+                              className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-muted transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-vault-teal/40"
+                            >
+                              {item.type === "image" ? (
+                                <Image
+                                  src={item.url}
+                                  alt={item.name ?? "Attachment"}
+                                  fill
+                                  className="object-cover"
+                                  sizes="80px"
+                                  unoptimized={item.url.startsWith("#")}
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center bg-muted">
+                                  <Video className="h-8 w-8 text-vault-teal/60" />
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Not answered</p>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          )
+        })}
+      </Accordion>
+    </section>
   )
 }
