@@ -32,6 +32,11 @@ export default function LoginPage() {
       )}
 
       <AuthForm
+        onGoogleClick={() => {
+          // TODO: wire to Google OAuth (e.g. signIn('google'))
+          console.log('[login] Sign in with Google')
+        }}
+        googleButtonLabel="Sign in with Google"
         fields={[
           {
             name: 'email',

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react"
 import Image from "next/image"
 import {
+  Check,
   HelpCircle,
   ImageIcon,
   Video,
@@ -10,6 +11,7 @@ import {
   Trash2,
   Pencil,
   GripVertical,
+  X,
 } from "lucide-react"
 
 interface MediaItem {
@@ -23,6 +25,7 @@ interface QuestionItem {
   id: string
   question: string
   answer: string
+  answered: boolean
   media: MediaItem[]
 }
 
@@ -31,12 +34,14 @@ const initialQuestions: QuestionItem[] = [
     id: "1",
     question: "What was the first word your baby said?",
     answer: "She said 'Dada' for the first time at 8 months!",
+    answered: true,
     media: [{ id: "m1", type: "image", url: "/samples/memory-1.jpg", name: "memory-1.jpg" }],
   },
   {
     id: "2",
     question: "Describe your baby's favourite toy.",
     answer: "A soft brown teddy bear named Mr. Snuggles.",
+    answered: true,
     media: [
       { id: "m2", type: "image", url: "/samples/memory-2.jpg", name: "memory-2.jpg" },
       { id: "m3", type: "video", url: "#", name: "birthday-video.mp4" },
@@ -46,6 +51,7 @@ const initialQuestions: QuestionItem[] = [
     id: "3",
     question: "What is your favourite memory from the first month?",
     answer: "",
+    answered: false,
     media: [],
   },
   {
@@ -53,12 +59,14 @@ const initialQuestions: QuestionItem[] = [
     question: "How did you choose your baby's name?",
     answer: "We named her after her great-grandmother.",
     media: [{ id: "m4", type: "image", url: "/samples/memory-3.jpg", name: "memory-3.jpg" }],
+    answered: true,
   },
   {
     id: "5",
     question: "What song does your baby love?",
     answer: "",
     media: [],
+    answered: false,
   },
 ]
 
@@ -90,7 +98,7 @@ export function EditVaultContent() {
   const addQuestion = () => {
     setQuestions((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), question: "", answer: "", media: [] },
+      { id: crypto.randomUUID(), question: "", answer: "", answered: false, media: [] },
     ])
   }
 
@@ -214,17 +222,17 @@ export function EditVaultContent() {
   }
 
   return (
-    <div className="animate-fade-in-up flex flex-col gap-8 pb-8">
+    <div className="animate-fade-in-up flex flex-col gap-8 pb-2">
       <div>
         <h1 className="font-serif text-3xl font-bold text-foreground">
-          Edit the vault
+          Your Memories
         </h1>
-        <p className="mt-1 text-muted-foreground">
+        {/* <p className="mt-1 text-muted-foreground">
           Change answers and attach images or videos to each question
-        </p>
+        </p> */}
       </div>
 
-      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <section className="rounded-xl border border-border bg-card p-2 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <HelpCircle className="h-5 w-5 text-vault-teal" />
           <h2 className="font-serif text-xl font-semibold text-foreground">
@@ -241,13 +249,22 @@ export function EditVaultContent() {
               className="flex flex-col gap-4 rounded-xl border border-border bg-background p-5"
             >
               <div className="flex items-start justify-between gap-2">
-                <input
-                  type="text"
-                  value={q.question}
-                  onChange={(e) => updateQuestionText(q.id, e.target.value)}
-                  placeholder="Question"
-                  className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
-                />
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" aria-hidden>
+                    {q.answered ? (
+                      <Check className="h-5 w-5 text-green-600 dark:text-green-500" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-600 dark:text-red-500" />
+                    )}
+                  </span>
+                  <input
+                    type="text"
+                    value={q.question}
+                    onChange={(e) => updateQuestionText(q.id, e.target.value)}
+                    placeholder="Question"
+                    className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                  />
+                </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     type="button"

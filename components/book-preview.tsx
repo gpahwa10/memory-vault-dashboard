@@ -2,8 +2,9 @@
 
 import { useRef, useState, forwardRef, useCallback, useEffect } from "react"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Sparkle, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "./ui/button"
 
 interface BookPage {
   type: "cover" | "content" | "divider" | "back-cover"
@@ -241,13 +242,16 @@ export function BookPreview() {
 
   return (
     <div className="flex flex-col gap-6 pb-8">
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-foreground">
+      <div className="flex flex-row justify-between items-center">
+       <div>
+       <h1 className="font-serif text-3xl font-bold text-foreground">
           Preview Your Book
         </h1>
         <p className="mt-1 text-muted-foreground">
           Flip through your memory book preview
         </p>
+       </div>
+       <Button className="border border-1 bg-vault-gold text-foreground "> <Sparkles className="h-4 w-4" /> Generate Book </Button>
       </div>
 
       <div

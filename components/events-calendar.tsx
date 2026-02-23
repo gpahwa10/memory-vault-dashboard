@@ -84,16 +84,9 @@ export function EventsCalendar({
             Your memory timeline at a glance
           </p>
         </div>
-        <button
-          onClick={onAddMemory}
-          className="inline-flex items-center gap-2 rounded-lg bg-vault-teal px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark"
-        >
-          <PlusCircle className="h-4 w-4" />
-          Add Memory
-        </button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Calendar */}
         <div className="overflow-hidden rounded-xl border border-border bg-card p-4 shadow-sm">
           <Calendar
@@ -108,7 +101,7 @@ export function EventsCalendar({
             modifiersClassNames={{
               hasEvent: "ring-2 ring-vault-gold ring-offset-1 ring-offset-card",
             }}
-            className="mx-auto"
+            className="w-90 h-90 mx-auto"
           />
         </div>
 

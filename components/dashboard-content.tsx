@@ -32,6 +32,7 @@ import Image from "next/image"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 interface DashboardContentProps {
   onNavigate: (item: string) => void
   userName?: string
@@ -127,7 +128,7 @@ const sampleMemories: Memory[] = [
     description:
       "The most magical day - her first birthday celebration with all the family gathered around.",
     images: ["/samples/memory-2.jpg"],
-    hasVideo: true,
+    hasVideo: false,
     liked: true,
     category: "Celebration",
   },
@@ -245,7 +246,10 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
       </section>
 
       <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
-
+        <div className="flex flex-row justify-between items-center">
+          <h1 className="font-serif text-2xl font-bold text-foreground">Your Memory Vaults</h1>
+          <Button className="border border-1 bg-transparent text-foreground hover:bg-vault-gold"> <Plus className="h-4 w-4" /> Create Memory Vault </Button>
+        </div>
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1">
@@ -471,7 +475,7 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
           </div>
 
           <span className="mt-3 text-sm font-semibold text-foreground tracking-wide">
-            Add a New Memory
+            Create Memory Vault
           </span>
 
           <span className="text-xs text-muted-foreground mt-1">
@@ -480,7 +484,7 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
         </div>
 
       </div>
-      
+
     </div>
   )
 }

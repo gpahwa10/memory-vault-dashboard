@@ -16,7 +16,7 @@ export function AuthHeader({ title, subtitle }: AuthHeaderProps) {
         </Link>
       </div>
       <h1 className="font-serif text-3xl font-bold text-foreground">{title}</h1>
-      {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+      {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
     </div>
   )
 }

@@ -41,13 +41,12 @@ interface AppSidebarProps {
 const mainNavItems: { id: string; label: string; href: string | null; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", href: "/", icon: LayoutDashboard },
   // { id: "add-memory", label: "Add a new memory", href: null, icon: PlusCircle },
-  { id: "add-vault", label: "Add a new vault", href: null, icon: PlusCircle },
+  { id: "add-vault", label: "Memory vaults", href: null, icon: PlusCircle },
   { id: "calendar", label: "Events Calendar", href: "/calendar", icon: CalendarDays },
   { id: "settings", label: "Settings", href: "/settings", icon: Settings },
   { id: "help", label: "Help", href: "/help", icon: HelpCircle },
   { id: "review", label: "Review", href: "/review", icon: Star },
   { id: "gift", label: "Give a Gift", href: "/give-gift", icon: Gift },
-
 ]
 
 

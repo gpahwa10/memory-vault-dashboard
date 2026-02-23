@@ -12,6 +12,7 @@ import {
   Film,
   HelpCircle,
   PlusCircle,
+  Sparkles,
   TrendingUp,
   Video,
   X,
@@ -31,6 +32,9 @@ import { useAddMemory } from "../../add-memory-context"
 import { useAddVault } from "../../add-vault-context"
 import { cn } from "@/lib/utils"
 import type { Memory as MemoryType, MemoryQuestion, MemoryQuestionMedia } from "@/lib/memories"
+import { Button } from "@/components/ui/button"
+import { EditVaultContent } from "@/components/edit-vault-content"
+import { useRouter } from "next/navigation"   
 
 interface SerializedMemory extends Omit<MemoryType, "date"> {
   date: string
@@ -146,7 +150,7 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
   const openAddMemory = useAddMemory()
   const openAddVault  = useAddVault()
   const [fullScreenMedia, setFullScreenMedia] = useState<MemoryQuestionMedia | null>(null)
-
+  const router = useRouter()
   const questions: MemoryQuestion[] = memory.memoryQuestions ?? [
     { question: "What made this moment special?" },
     { question: "Who was there?" },
@@ -175,10 +179,21 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
       </Link>
 
       {/* Page title */}
-      <header>
+      <header className="flex fkex-row items-center justify-between">
+        <div className="flex flex-row items-center gap-2">
         <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
           {memory.title}
         </h1>
+        <Button className="border border-1 bg-transparent text-foreground"> <Edit3 className="h-4 w-4" /></Button>
+        </div>
+        <div className="flex flex-row gap-2">
+          <Button className="border-2 border-vault-gold/50 bg-transparent text-foreground hover:bg-vault-gold/10" onClick={() => router.push("/preview")}>
+            <Sparkles className="h-4 w-4" /> Generate Book
+          </Button>
+          <Button className="border-2 border-transparent bg-gradient-to-r from-vault-teal to-vault-gold text-white shadow-md hover:opacity-90 hover:shadow-lg" onClick={() => router.push("/make-reel")}>
+            <Film className="h-4 w-4" /> Create Reel
+          </Button>
+        </div>
       </header>
 
       {/* ── Quick Actions ─────────────────────────── */}
@@ -240,7 +255,7 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
           </div>
 
           {/* Overall progress pill */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-vault-teal to-vault-gold transition-all duration-700"
@@ -248,7 +263,7 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
               />
             </div>
             <span className="text-sm font-bold tabular-nums text-foreground">{overallPct}%</span>
-          </div>
+          </div> */}
         </div>
 
         {/* Metric rows */}
@@ -281,10 +296,11 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
       </section>
 
       {/* ── Questions Answered ────────────────────── */}
-      <QuestionsAnsweredSection
+      {/* <QuestionsAnsweredSection
         questions={questions}
         setFullScreenMedia={setFullScreenMedia}
-      />
+      /> */}
+      <EditVaultContent />
 
       {/* ── Full-screen media viewer ──────────────── */}
       <Dialog open={!!fullScreenMedia} onOpenChange={(open) => !open && setFullScreenMedia(null)}>

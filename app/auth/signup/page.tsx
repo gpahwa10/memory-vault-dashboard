@@ -4,6 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { AuthHeader } from '@/components/auth-header'
 import { AuthForm } from '@/components/auth-form'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { Check, Sparkles, Shield, Crown, CreditCard, Lock, ChevronRight, ChevronLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -465,12 +471,12 @@ export default function SignupPage() {
           )}
 
           {/* Subscription required notice */}
-          <div className="flex items-start gap-2.5 rounded-xl border border-vault-gold/30 bg-vault-gold/8 px-4 py-3">
+          {/* <div className="flex items-start gap-2.5 rounded-xl border border-vault-gold/30 bg-vault-gold/8 px-4 py-3">
             <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-vault-gold" />
             <p className="text-xs text-foreground/80 leading-relaxed">
               Memory Vault is a <span className="font-semibold">subscription-based service</span>. After setting up your account details, you'll choose a plan and complete payment to activate your vault.
             </p>
-          </div>
+          </div> */}
 
           <AuthForm
             fieldLayout="grid"
@@ -542,16 +548,27 @@ export default function SignupPage() {
             subtitle="Select the subscription that's right for you. You won't be charged until the next step."
           />
 
-          <div className="space-y-3">
+          <Accordion type="single" collapsible className="w-full space-y-3">
             {PLANS.map((plan) => (
-              <PlanCard
-                key={plan.id}
-                plan={plan}
-                selected={selectedPlanId === plan.id}
-                onSelect={() => setSelectedPlanId(plan.id)}
-              />
+              <AccordionItem key={plan.id} value={plan.id} className="border-none">
+                <AccordionTrigger className="rounded-xl border border-border bg-muted/50 px-4 py-3 hover:no-underline hover:bg-muted">
+                  <div className="flex w-full items-center justify-between pr-2 text-left">
+                    <span className="font-semibold text-foreground">{plan.name}</span>
+                    <span className="text-sm text-muted-foreground">
+                      ${plan.price} / {plan.period}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pt-3">
+                  <PlanCard
+                    plan={plan}
+                    selected={selectedPlanId === plan.id}
+                    onSelect={() => setSelectedPlanId(plan.id)}
+                  />
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
 
           <div className="flex items-center gap-3">
             <button
