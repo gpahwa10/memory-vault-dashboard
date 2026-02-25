@@ -251,7 +251,7 @@ export function BookPreview() {
           Flip through your memory book preview
         </p>
        </div>
-       <Button className="border border-1 bg-vault-gold text-foreground "> <Sparkles className="h-4 w-4" /> Generate Book </Button>
+       <Button className="border border-1 bg-vault-gold text-foreground "> <Sparkles className="h-4 w-4" /> Re-Generate Book </Button>
       </div>
 
       <div

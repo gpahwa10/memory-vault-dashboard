@@ -73,7 +73,7 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
   const [isSaving, setIsSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
-
+  const [memoryQuestion, setMemoryQuestion] = useState("")
   const handleImageUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files
@@ -158,8 +158,7 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
         </div>
 
         <div className="flex flex-col gap-6 p-6">
-          {/* Category selection */}
-       
+
 
           {/* Include in Book & Date */}
           <div className="flex flex-wrap items-center gap-4">
@@ -192,6 +191,55 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
             </Popover>
           </div>
 
+          {/* Memory Question */}
+          <div className="flex flex-col gap-2">
+            <input
+              value={memoryQuestion}
+              onChange={(e) => {
+                setMemoryQuestion(e.target.value)
+              }}
+              placeholder="Tell us about your memory..."
+              className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+            />
+
+          </div>
+
+          {/* Memory Text */}
+          <div className="flex flex-col gap-2">
+            <textarea
+              value={memoryText}
+              onChange={(e) => {
+                setMemoryText(e.target.value)
+                if (isEnhanced) {
+                  setIsEnhanced(false)
+                  setOriginalText(null)
+                }
+              }}
+              placeholder="Type your memory here..."
+              rows={6}
+              className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+            />
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleEnhanceText}
+                disabled={!memoryText.trim()}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-vault-teal transition-colors hover:text-vault-teal-dark disabled:opacity-40"
+              >
+                <Sparkles className="h-4 w-4" />
+                ENHANCE YOUR TEXT
+              </button>
+              {isEnhanced && (
+                <button
+                  onClick={handleUndo}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Undo2 className="h-4 w-4" />
+                  UNDO
+                </button>
+              )}
+
+            </div>
+          </div>
           {/* Media Upload Area */}
           <div className="overflow-hidden rounded-xl border border-dashed border-border bg-background">
             <div className="relative min-h-[140px]">
@@ -314,50 +362,15 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
               )}
             </div>
           </div>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-vault-teal px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark disabled:opacity-70"
+          >
+            <Save className="h-4 w-4" />
+            {isSaving ? "Saving..." : "SAVE"}
+          </button>
 
-          {/* Memory Text */}
-          <div className="flex flex-col gap-2">
-            <textarea
-              value={memoryText}
-              onChange={(e) => {
-                setMemoryText(e.target.value)
-                if (isEnhanced) {
-                  setIsEnhanced(false)
-                  setOriginalText(null)
-                }
-              }}
-              placeholder="Type your memory here..."
-              rows={6}
-              className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
-            />
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleEnhanceText}
-                disabled={!memoryText.trim()}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-vault-teal transition-colors hover:text-vault-teal-dark disabled:opacity-40"
-              >
-                <Sparkles className="h-4 w-4" />
-                ENHANCE YOUR TEXT
-              </button>
-              {isEnhanced && (
-                <button
-                  onClick={handleUndo}
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <Undo2 className="h-4 w-4" />
-                  UNDO
-                </button>
-              )}
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-vault-teal px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark disabled:opacity-70"
-              >
-                <Save className="h-4 w-4" />
-                {isSaving ? "Saving..." : "SAVE"}
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Hidden file inputs */}

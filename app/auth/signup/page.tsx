@@ -12,15 +12,13 @@ import {
 } from '@/components/ui/accordion'
 import { Check, Sparkles, Shield, Crown, CreditCard, Lock, ChevronRight, ChevronLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BASE_SUBSCRIPTION_PLANS, type BaseSubscriptionPlan } from '@/lib/subscription-plans'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Step = 'account' | 'plan' | 'payment' | 'success'
 
-interface Plan {
-  id: string
-  name: string
-  price: number
+interface Plan extends BaseSubscriptionPlan {
   period: string
   description: string
   features: string[]
@@ -31,69 +29,36 @@ interface Plan {
 
 // ─── Subscription Plans ───────────────────────────────────────────────────────
 
-const PLANS: Plan[] = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    period: '14 days',
-    description: 'Perfect for those who want to try Memory Vault for free',
-    icon: Sparkles,
-    features: [],
-  },
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 4.99,
-    period: 'month',
-    description: 'Perfect for individuals preserving personal memories',
-    icon: Shield,
-    features: [
-      'Up to 100 memories',
-      '5 GB photo storage',
-      '2 memory books',
-      'Basic AI text enhancement',
-      'Email support',
-    ],
-  },
-  {
-    id: 'family',
-    name: 'Family',
-    price: 12.99,
-    period: 'month',
-    description: 'Share and celebrate memories together as a family',
-    icon: Sparkles,
-    highlight: true,
-    badge: 'Most Popular',
-    features: [
-      'Unlimited memories',
-      '50 GB photo & video storage',
-      'Unlimited memory books',
-      'Advanced AI enhancement',
-      'Shared family vault (up to 6)',
-      'Priority support',
-      'Custom book themes',
-    ],
-  },
-  {
-    id: 'legacy',
-    name: 'Legacy',
-    price: 24.99,
-    period: 'month',
-    description: 'For those who want to preserve a lifetime of moments',
-    icon: Crown,
-    badge: 'Best Value',
-    features: [
-      'Everything in Family',
-      '500 GB storage',
-      'Print-quality book export',
-      'Professional editing tools',
-      'Dedicated account manager',
-      'Heirloom archival quality',
-      'API access',
-    ],
-  },
-]
+const PLANS: Plan[] = BASE_SUBSCRIPTION_PLANS.map((base, index) => {
+  const isMostPopular = base.id === '3m'
+  const isBestValue = base.id === '12m'
+
+  const icon: typeof Crown =
+    base.id === '1m' ? Sparkles : base.id === '3m' ? Shield : base.id === '6m' ? Sparkles : Crown
+
+  const features: string[] = [
+    `${base.booksIncluded} memory book${base.booksIncluded > 1 ? 's' : ''} included`,
+    `${base.reelsIncluded} highlight reel${base.reelsIncluded > 1 ? 's' : ''} included`,
+    'Full access to Memory Vault during this period',
+  ]
+
+  return {
+    ...base,
+    period: base.durationLabel,
+    description:
+      base.id === '1m'
+        ? 'Perfect for trying Memory Vault with a single book and reel'
+        : base.id === '3m'
+        ? 'Great for capturing a season of memories with multiple books and reels'
+        : base.id === '6m'
+        ? 'Ideal for families capturing milestones over half a year'
+        : 'Best for gifting a full year of books and reels',
+    icon,
+    highlight: isMostPopular,
+    badge: isMostPopular ? 'Most Popular' : isBestValue ? 'Best Value' : undefined,
+    features,
+  }
+})
 
 // ─── Step Indicator ───────────────────────────────────────────────────────────
 
@@ -387,7 +352,7 @@ function PaymentForm({
 export default function SignupPage() {
   const [step, setStep] = useState<Step>('account')
   const [accountData, setAccountData] = useState<Record<string, string> | null>(null)
-  const [selectedPlanId, setSelectedPlanId] = useState<string>('family')
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('3m')
   const [error, setError] = useState<string | null>(null)
 
   const selectedPlan = PLANS.find((p) => p.id === selectedPlanId)!
@@ -395,12 +360,8 @@ export default function SignupPage() {
   // ── Step 1: Account details ──
 
   const handleAccountSubmit = (data: Record<string, string>) => {
-    if (!data.email || !data.password || !data.confirmPassword) {
+    if (!data.email || !data.password) {
       setError('Please fill in all fields')
-      return
-    }
-    if (data.password !== data.confirmPassword) {
-      setError('Passwords do not match')
       return
     }
     if (data.password.length < 8) {
@@ -509,13 +470,7 @@ export default function SignupPage() {
                 placeholder: 'Create a strong password',
                 required: true,
               },
-              {
-                name: 'confirmPassword',
-                type: 'password',
-                label: 'Confirm password',
-                placeholder: 'Confirm your password',
-                required: true,
-              },
+              
             ]}
             buttonText={
               'Continue to Plan Selection'

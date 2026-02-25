@@ -73,7 +73,7 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
       <div
         className="relative w-full max-w-lg animate-fade-in-up rounded-3xl border border-white/10 bg-secondary shadow-2xl overflow-hidden"
         role="dialog"
-        aria-label="Add a New Vault"
+        aria-label="Add a New Book"
         style={{
           boxShadow: "0 0 80px -20px rgba(80,220,200,0.15), 0 25px 50px -12px rgba(0,0,0,0.8)",
         }}
@@ -86,10 +86,10 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
         <div className="relative flex items-center justify-between px-7 py-5 border-b border-border">
           <div>
             <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-muted-foreground mb-0.5">
-              Memory Vault
+              Memory Book
             </p>
             <h2 className="font-serif text-2xl font-bold text-foreground tracking-tight">
-              Add a New Vault
+              Add a New Book
             </h2>
           </div>
           <button
@@ -105,7 +105,7 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
           {/* Vault Name Input */}
           <div className="flex flex-col gap-2.5">
             <label className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              Vault Name
+              Memory Book Name
             </label>
             <div className="relative">
               <input
@@ -216,7 +216,7 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
             )}
           >
             <Save className="h-4 w-4" />
-            {isSaving ? "Creating..." : "Create Vault"}
+            {isSaving ? "Creating..." : "Create Book"}
           </button>
         </div>
 

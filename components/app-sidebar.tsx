@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   PlusCircle,
@@ -23,8 +23,10 @@ import {
   Mail,
   Menu,
   X,
+  LogOutIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "./ui/button"
 
 interface AppSidebarProps {
   userName?: string
@@ -44,8 +46,8 @@ const mainNavItems: { id: string; label: string; href: string | null; icon: type
   { id: "add-vault", label: "Memory vaults", href: null, icon: PlusCircle },
   { id: "calendar", label: "Events Calendar", href: "/calendar", icon: CalendarDays },
   { id: "settings", label: "Settings", href: "/settings", icon: Settings },
-  { id: "help", label: "Help", href: "/help", icon: HelpCircle },
-  { id: "review", label: "Review", href: "/review", icon: Star },
+  { id: "help", label: "FAQs", href: "/help", icon: HelpCircle },
+  { id: "review", label: "Rate Us", href: "/review", icon: Star },
   { id: "gift", label: "Give a Gift", href: "/give-gift", icon: Gift },
 ]
 
@@ -65,7 +67,7 @@ export function AppSidebar({
   onAddVault,
 }: AppSidebarProps) {
   const pathname = usePathname()
-
+  const router = useRouter()
   return (
     <>
       {/* Mobile overlay */}
@@ -174,7 +176,18 @@ export function AppSidebar({
             </ul>
           </nav>
         </div>
-
+        <div className="border-t border-sidebar-border px-4 py-4">
+          <Button
+            variant="destructive"
+            className="w-full transition-transform duration-150 hover:scale-[1.02] active:scale-[0.99]"
+            onClick={() => {
+              router.push("/auth/login")
+            }}
+          >
+            <LogOutIcon className="h-4 w-4" />
+            Log out
+          </Button>
+        </div>
         {/* User profile */}
         <div className="border-t border-sidebar-border px-4 py-4">
           <div className="flex items-center gap-3">

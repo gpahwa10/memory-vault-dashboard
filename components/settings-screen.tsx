@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import {
   User,
   Mail,
@@ -17,40 +17,33 @@ import {
   Sparkles,
   X,
 } from "lucide-react"
+import { useSearchParams } from "next/navigation"
+import { BASE_SUBSCRIPTION_PLANS, type SubscriptionPlanId } from "@/lib/subscription-plans"
 
-const subscriptionTiers = [
-  {
-    id: "free",
-    name: "Free",
-    price: 0,
-    books: 1,
-    storage: "1 GB",
-    features: ["1 memory book", "1 GB storage", "Basic questions"],
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    price: 9.99,
-    books: 5,
-    storage: "50 GB",
-    features: ["5 memory books", "50 GB storage", "AI question generation", "Media uploads"],
-    current: true,
-  },
-  {
-    id: "family",
-    name: "Family",
-    price: 19.99,
-    books: 20,
-    storage: "200 GB",
-    features: ["20 memory books", "200 GB storage", "Everything in Premium", "Up to 6 members"],
-  },
-]
+const subscriptionTiers = BASE_SUBSCRIPTION_PLANS.map((base) => {
+  const bookLabel = `${base.booksIncluded} memory book${base.booksIncluded > 1 ? "s" : ""}`
+  const reelLabel = `${base.reelsIncluded} highlight reel${base.reelsIncluded > 1 ? "s" : ""}`
+
+  return {
+    id: base.id,
+    name: base.name,
+    price: base.price,
+    durationLabel: base.durationLabel,
+    features: [
+      bookLabel,
+      reelLabel,
+      "Full access to Memory Vault during this period",
+    ],
+  }
+})
 
 type BillingFlow = "idle" | "extend" | "cancel" | "confirm-cancel" | "cancelled" | "extended"
 
 export function SettingsScreen() {
+  const searchParams = useSearchParams()
+  const tab = searchParams.get("tab")
   const [activeTab, setActiveTab] = useState<"account" | "subscription" | "security">("account")
-  const [selectedTier, setSelectedTier] = useState("premium")
+  const [selectedTier, setSelectedTier] = useState<SubscriptionPlanId>("3m")
   const [billingFlow, setBillingFlow] = useState<BillingFlow>("idle")
   const [avatarSrc, setAvatarSrc] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -63,6 +56,17 @@ export function SettingsScreen() {
       reader.readAsDataURL(file)
     }
   }
+  useEffect(() => {
+    const tab = searchParams.get("tab")
+  
+    if (
+      tab === "account" ||
+      tab === "subscription" ||
+      tab === "security"
+    ) {
+      setActiveTab(tab as "account" | "subscription" | "security")
+    }
+  }, [searchParams])
 
   const currentTier = subscriptionTiers.find((t) => t.id === selectedTier)!
 
@@ -194,7 +198,7 @@ export function SettingsScreen() {
                   <span className="rounded-full bg-vault-teal px-2 py-0.5 text-xs font-semibold text-white">Active</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {currentTier.price === 0 ? "Free forever" : `$${currentTier.price.toFixed(2)}/month · Renews Jan 2027`}
+                  {`$${currentTier.price.toFixed(2)} for ${currentTier.durationLabel}`}
                 </p>
               </div>
               {currentTier.price > 0 && (
@@ -226,7 +230,7 @@ export function SettingsScreen() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               {subscriptionTiers.map((tier) => {
-                const isSelected = selectedTier === tier.id
+                const isSelected = selectedTier === tier.id as SubscriptionPlanId
                 return (
                   <button
                     key={tier.id}
@@ -245,9 +249,9 @@ export function SettingsScreen() {
                     )}
                     <p className="font-serif text-lg font-bold text-foreground">{tier.name}</p>
                     <p className="mt-1 text-2xl font-extrabold text-vault-teal">
-                      {tier.price === 0 ? "Free" : `$${tier.price.toFixed(2)}`}
-                      {tier.price > 0 && <span className="text-xs font-normal text-muted-foreground">/mo</span>}
+                      {`$${tier.price.toFixed(2)}`}
                     </p>
+                    <p className="text-xs text-muted-foreground">{tier.durationLabel}</p>
                     <ul className="mt-3 space-y-1.5">
                       {tier.features.map((f) => (
                         <li key={f} className="flex items-start gap-1.5 text-xs text-muted-foreground">
@@ -270,10 +274,10 @@ export function SettingsScreen() {
             </div>
 
             <button
-              disabled={selectedTier === "premium"}
+              disabled={false}
               className="mt-4 w-full rounded-lg bg-vault-teal py-2.5 text-sm font-semibold text-white transition-colors hover:bg-vault-teal/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {selectedTier === "premium" ? "Current plan" : "Switch to " + subscriptionTiers.find(t => t.id === selectedTier)?.name}
+              {`Switch to ${subscriptionTiers.find(t => t.id === selectedTier)?.name}`}
             </button>
           </div>
         </div>

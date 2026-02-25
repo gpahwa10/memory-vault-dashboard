@@ -28,30 +28,22 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { BASE_SUBSCRIPTION_PLANS } from "@/lib/subscription-plans";
 
-const giftOptions = [
-  {
-    id: "digital",
-    name: "Digital Gift",
-    description: "Send a beautiful digital memory book via email",
-    price: "$29",
-    icon: Mail,
-  },
-  {
-    id: "printed",
-    name: "Printed Book",
-    description: "Ship a professionally printed hardcover book",
-    price: "$79",
-    icon: BookOpen,
-  },
-  {
-    id: "premium",
-    name: "Premium Bundle",
-    description: "Digital book + Printed book + Gift wrapping",
-    price: "$119",
-    icon: Gift,
-  },
-];
+const giftOptions = BASE_SUBSCRIPTION_PLANS.map((plan, index) => {
+  const bookLabel = `${plan.booksIncluded} book${plan.booksIncluded > 1 ? "s" : ""}`;
+  const reelLabel = `${plan.reelsIncluded} reel${plan.reelsIncluded > 1 ? "s" : ""}`;
+
+  const icon = index === 0 ? Mail : index === BASE_SUBSCRIPTION_PLANS.length - 1 ? Gift : BookOpen;
+
+  return {
+    id: plan.id,
+    name: `${plan.name} Subscription`,
+    description: `Gift ${plan.durationLabel} of Memory Vault with ${bookLabel} and ${reelLabel}.`,
+    price: `$${plan.price.toFixed(2)}`,
+    icon,
+  };
+});
 
 const memoryBooks = [
   { id: "1", name: "Our Family Story 2024" },
@@ -60,7 +52,7 @@ const memoryBooks = [
 ];
 
 export default function GiveGiftScreen() {
-  const [selectedOption, setSelectedOption] = useState("digital");
+  const [selectedOption, setSelectedOption] = useState(giftOptions[0]?.id ?? "");
   const [selectedBook, setSelectedBook] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({

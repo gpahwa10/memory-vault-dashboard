@@ -3,7 +3,9 @@
 import { useState, useRef } from "react"
 import Image from "next/image"
 import {
+  Camera,
   Check,
+  Eye,
   HelpCircle,
   ImageIcon,
   Video,
@@ -11,8 +13,19 @@ import {
   Trash2,
   Pencil,
   GripVertical,
+  Sparkles,
   X,
 } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 interface MediaItem {
   id: string
@@ -74,10 +87,14 @@ export function EditVaultContent() {
   const [questions, setQuestions] = useState<QuestionItem[]>(initialQuestions)
   const [editingMediaKey, setEditingMediaKey] = useState<string | null>(null)
   const [addMediaForQuestionId, setAddMediaForQuestionId] = useState<string | null>(null)
+  const [selectedQ, setSelectedQ] = useState<QuestionItem | null>(null)
+  const [isEnhancing, setIsEnhancing] = useState(false)
   const addImageInputRef = useRef<HTMLInputElement>(null)
   const addVideoInputRef = useRef<HTMLInputElement>(null)
   const replaceImageInputRef = useRef<HTMLInputElement>(null)
   const replaceVideoInputRef = useRef<HTMLInputElement>(null)
+  const modalAddImageRef = useRef<HTMLInputElement>(null)
+  const modalAddVideoRef = useRef<HTMLInputElement>(null)
 
   const updateAnswer = (questionId: string, answer: string) => {
     setQuestions((prev) =>
@@ -221,6 +238,60 @@ export function EditVaultContent() {
     addVideoInputRef.current?.click()
   }
 
+  const handleEnhance = () => {
+    if (!selectedQ) return
+    const raw = selectedQ.answer.trim()
+    if (!raw) return
+    setIsEnhancing(true)
+    setTimeout(() => {
+      const base = raw.charAt(0).toUpperCase() + raw.slice(1).replace(/\s+/g, " ")
+      const enhanced = /[.!?]$/.test(base) ? base : `${base}.`
+      const updated = { ...selectedQ, answer: enhanced }
+      setSelectedQ(updated)
+      setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
+      setIsEnhancing(false)
+    }, 400)
+  }
+
+  const handleModalAnswerChange = (value: string) => {
+    if (!selectedQ) return
+    const updated = { ...selectedQ, answer: value, answered: value.trim().length > 0 }
+    setSelectedQ(updated)
+    setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
+  }
+
+  const handleModalDeleteMedia = (mediaId: string) => {
+    if (!selectedQ) return
+    const updated = { ...selectedQ, media: selectedQ.media.filter((m) => m.id !== mediaId) }
+    setSelectedQ(updated)
+    setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
+  }
+
+  const handleModalAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !selectedQ) return
+    const url = URL.createObjectURL(file)
+    const newMedia: MediaItem = { id: crypto.randomUUID(), type: "image", url, name: file.name }
+    const updated = { ...selectedQ, media: [...selectedQ.media, newMedia] }
+    setSelectedQ(updated)
+    setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
+    e.target.value = ""
+  }
+
+  const handleModalAddVideo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !selectedQ) return
+    const newMedia: MediaItem = { id: crypto.randomUUID(), type: "video", url: "#", name: file.name }
+    const updated = { ...selectedQ, media: [...selectedQ.media, newMedia] }
+    setSelectedQ(updated)
+    setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
+    e.target.value = ""
+  }
+
+  const handleModalSave = () => {
+    setSelectedQ(null)
+  }
+
   return (
     <div className="animate-fade-in-up flex flex-col gap-8 pb-2">
       <div>
@@ -232,6 +303,116 @@ export function EditVaultContent() {
         </p> */}
       </div>
 
+      {/* ── Card grid (new) ──────────────────────────────────────────────── */}
+      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-vault-teal" />
+            <h2 className="font-serif text-xl font-semibold text-foreground">
+              Questions &amp; answers
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              {questions.filter((q) => q.answered).length} of {questions.length} answered
+            </span>
+            <button
+              type="button"
+              onClick={addQuestion}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add question
+            </button>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {questions.map((q, idx) => {
+            const firstMedia = q.media[0]
+            const mediaCount = q.media.length
+            const preview =
+              q.answer.trim().length > 0
+                ? q.answer.trim().length > 120
+                  ? q.answer.trim().slice(0, 117) + "..."
+                  : q.answer.trim()
+                : "No answer yet."
+
+            return (
+              <button
+                key={q.id}
+                type="button"
+                onClick={() => setSelectedQ(q)}
+                className={cn(
+                  "group relative flex h-full flex-col overflow-hidden rounded-xl border text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-vault-teal/40",
+                  q.answered
+                    ? "border-vault-teal/40 bg-vault-teal/5"
+                    : "border-border bg-muted/20"
+                )}
+              >
+                {/* Thumbnail area */}
+                <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-vault-teal/10 to-vault-gold/5">
+                  {firstMedia ? (
+                    firstMedia.type === "image" ? (
+                      <Image
+                        src={firstMedia.url}
+                        alt={q.question || `Memory ${idx + 1}`}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-muted">
+                        <Video className="h-10 w-10 text-vault-teal/60" />
+                      </div>
+                    )
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Camera className="h-10 w-10 text-vault-teal/30" />
+                    </div>
+                  )}
+
+                  {/* Status badge */}
+                  <span
+                    className={cn(
+                      "absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+                      q.answered
+                        ? "bg-vault-teal text-primary-foreground"
+                        : "bg-muted/90 text-muted-foreground backdrop-blur-sm"
+                    )}
+                  >
+                    {q.answered ? "Answered" : "Pending"}
+                  </span>
+
+                  {/* Media count badge */}
+                  {mediaCount > 0 && (
+                    <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
+                      <Camera className="h-3 w-3" />
+                      {mediaCount}
+                    </span>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-1 flex-col p-4">
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-vault-teal/10 text-[11px] font-bold text-vault-teal">
+                      {idx + 1}
+                    </span>
+                    <p className="line-clamp-2 text-sm font-semibold text-foreground">
+                      {q.question || `Question ${idx + 1}`}
+                    </p>
+                  </div>
+                  <p className="line-clamp-2 text-xs text-muted-foreground">{preview}</p>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ── Old list section (commented out) ────────────────────────────── */}
+      {/* 
       <section className="rounded-xl border border-border bg-card p-2 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <HelpCircle className="h-5 w-5 text-vault-teal" />
@@ -242,132 +423,154 @@ export function EditVaultContent() {
         <p className="mb-6 text-sm text-muted-foreground">
           Edit each question and answer, and add or remove images/videos for that question.
         </p>
-        <div className="flex flex-col gap-6">
-          {questions.map((q) => (
-            <div
-              key={q.id}
-              className="flex flex-col gap-4 rounded-xl border border-border bg-background p-5"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" aria-hidden>
-                    {q.answered ? (
-                      <Check className="h-5 w-5 text-green-600 dark:text-green-500" />
-                    ) : (
-                      <X className="h-5 w-5 text-red-600 dark:text-red-500" />
-                    )}
-                  </span>
-                  <input
-                    type="text"
-                    value={q.question}
-                    onChange={(e) => updateQuestionText(q.id, e.target.value)}
-                    placeholder="Question"
-                    className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
-                  />
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
+        ... (old list layout removed)
+      </section>
+      */}
+
+      {/* ── Question detail modal ────────────────────────────────────────── */}
+      <Dialog open={!!selectedQ} onOpenChange={(open) => !open && setSelectedQ(null)}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl">
+              {selectedQ?.question || `#Question`}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedQ && (
+            <div className="space-y-5 py-2">
+              {/* Answer */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                  Description
+                </label>
+                <Textarea
+                  value={selectedQ.answer}
+                  onChange={(e) => handleModalAnswerChange(e.target.value)}
+                  placeholder="Write your answer here..."
+                  className="min-h-[130px] resize-none"
+                />
+                <div className="flex justify-end">
+                  <Button
                     type="button"
-                    onClick={() => removeQuestion(q.id)}
-                    className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    aria-label="Remove question"
+                    size="sm"
+                    onClick={handleEnhance}
+                    disabled={isEnhancing || !selectedQ.answer.trim()}
+                    className="inline-flex items-center gap-1 rounded-md bg-vault-teal px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-vault-teal/90 disabled:opacity-60"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                  <span className="cursor-grab text-muted-foreground" aria-hidden>
-                    <GripVertical className="h-4 w-4" />
-                  </span>
+                    {isEnhancing ? (
+                      "Enhancing..."
+                    ) : (
+                      <>
+                        <Sparkles className="h-3 w-3" />
+                        Enhance text
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
-              <textarea
-                value={q.answer}
-                onChange={(e) => updateAnswer(q.id, e.target.value)}
-                placeholder="Your answer..."
-                rows={2}
-                className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
-              />
-              {/* Media attached to this question */}
-              <div>
-                <p className="mb-2 text-xs font-medium text-muted-foreground">
-                  Images & videos for this question
-                </p>
-                <div className="flex flex-wrap items-start gap-3">
-                  {q.media.map((item) => (
-                    <div
-                      key={item.id}
-                      className="group relative w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted"
+
+              {/* Media */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                    Media attached
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => modalAddImageRef.current?.click()}
+                      className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
                     >
-                      <div className="relative aspect-square">
-                        {item.type === "image" ? (
-                          <Image
-                            src={item.url}
-                            alt={item.name ?? "Attachment"}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-muted">
-                            <Video className="h-8 w-8 text-vault-teal/60" />
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      Image
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => modalAddVideoRef.current?.click()}
+                      className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                    >
+                      <Video className="h-3.5 w-3.5" />
+                      Video
+                    </button>
+                  </div>
+                </div>
+
+                {selectedQ.media.length > 0 ? (
+                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                    {selectedQ.media.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group relative overflow-hidden rounded-lg border border-border bg-muted"
+                      >
+                        <div className="relative aspect-square">
+                          {item.type === "image" ? (
+                            <Image
+                              src={item.url}
+                              alt={item.name ?? "Attachment"}
+                              fill
+                              className="object-cover transition-transform group-hover:scale-105"
+                              sizes="200px"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-muted">
+                              <Video className="h-10 w-10 text-vault-teal/60" />
+                            </div>
+                          )}
+
+                          {/* Hover actions */}
+                          <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                            <button
+                              type="button"
+                              onClick={() => replaceMedia(selectedQ.id, item.id, item.type)}
+                              className="flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-foreground shadow backdrop-blur-sm hover:bg-vault-teal hover:text-primary-foreground"
+                              aria-label="Replace media"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleModalDeleteMedia(item.id)}
+                              className="flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-foreground shadow backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground"
+                              aria-label="Delete media"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {item.name && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                            <p className="truncate text-[11px] text-white">{item.name}</p>
                           </div>
                         )}
-                        <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                          <button
-                            type="button"
-                            onClick={() => replaceMedia(q.id, item.id, item.type)}
-                            className="rounded bg-background/90 p-1.5 text-foreground hover:bg-vault-teal hover:text-primary-foreground"
-                            aria-label="Replace"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeMedia(q.id, item.id)}
-                            className="rounded bg-background/90 p-1.5 text-foreground hover:bg-destructive hover:text-primary-foreground"
-                            aria-label="Delete"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
                       </div>
-                      {item.name && (
-                        <p className="truncate px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                          {item.name}
-                        </p>
-                      )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex h-28 items-center justify-center rounded-lg border-2 border-dashed border-border">
+                    <div className="text-center">
+                      <Camera className="mx-auto mb-1 h-7 w-7 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">No media attached</p>
                     </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => triggerAddImage(q.id)}
-                    className="flex h-24 w-24 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border bg-background text-muted-foreground transition-colors hover:border-vault-gold/40 hover:text-vault-gold"
-                    aria-label="Add image"
-                  >
-                    <ImageIcon className="h-5 w-5" />
-                    <span className="text-[10px] font-medium">Image</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => triggerAddVideo(q.id)}
-                    className="flex h-24 w-24 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border bg-background text-muted-foreground transition-colors hover:border-vault-teal/40 hover:text-vault-teal"
-                    aria-label="Add video"
-                  >
-                    <Video className="h-5 w-5" />
-                    <span className="text-[10px] font-medium">Video</span>
-                  </button>
-                </div>
+                  </div>
+                )}
               </div>
             </div>
-          ))}
-          <button
-            type="button"
-            onClick={addQuestion}
-            className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 py-3 text-sm font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
-          >
-            <Plus className="h-4 w-4" />
-            Add question
-          </button>
-        </div>
-      </section>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedQ(null)}>
+              Close
+            </Button>
+            <Button onClick={handleModalSave}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <input ref={modalAddImageRef} type="file" accept="image/*" className="hidden" onChange={handleModalAddImage} />
+      <input ref={modalAddVideoRef} type="file" accept="video/*" className="hidden" onChange={handleModalAddVideo} />
 
       <input
         ref={addImageInputRef}
