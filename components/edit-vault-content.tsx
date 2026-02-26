@@ -26,6 +26,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useAddMemory } from "@/app/(dashboard)/add-memory-context"
 
 interface MediaItem {
   id: string
@@ -89,12 +90,15 @@ export function EditVaultContent() {
   const [addMediaForQuestionId, setAddMediaForQuestionId] = useState<string | null>(null)
   const [selectedQ, setSelectedQ] = useState<QuestionItem | null>(null)
   const [isEnhancing, setIsEnhancing] = useState(false)
+  const [searchTerm, setSearchTerm] = useState<string>("")
   const addImageInputRef = useRef<HTMLInputElement>(null)
   const addVideoInputRef = useRef<HTMLInputElement>(null)
   const replaceImageInputRef = useRef<HTMLInputElement>(null)
   const replaceVideoInputRef = useRef<HTMLInputElement>(null)
   const modalAddImageRef = useRef<HTMLInputElement>(null)
   const modalAddVideoRef = useRef<HTMLInputElement>(null)
+
+  const openAddMemory = useAddMemory()
 
   const updateAnswer = (questionId: string, answer: string) => {
     setQuestions((prev) =>
@@ -294,39 +298,61 @@ export function EditVaultContent() {
 
   return (
     <div className="animate-fade-in-up flex flex-col gap-8 pb-2">
-      <div>
+      <div className="flex flex-row items-center justify-between">
         <h1 className="font-serif text-3xl font-bold text-foreground">
           Your Memories
         </h1>
-        {/* <p className="mt-1 text-muted-foreground">
-          Change answers and attach images or videos to each question
-        </p> */}
-      </div>
-
-      {/* ── Card grid (new) ──────────────────────────────────────────────── */}
-      <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5 text-vault-teal" />
-            <h2 className="font-serif text-xl font-semibold text-foreground">
-              Questions &amp; answers
-            </h2>
-          </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">
               {questions.filter((q) => q.answered).length} of {questions.length} answered
             </span>
-            <button
+            {/* <button
               type="button"
               onClick={addQuestion}
               className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
             >
               <Plus className="h-3.5 w-3.5" />
               Add question
-            </button>
+            </button> */}
+            <Button
+            type="button"
+            onClick={() => openAddMemory()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add a new memory
+          </Button>
           </div>
         </div>
+        {/* <p className="mt-1 text-muted-foreground">
+          Change answers and attach images or videos to each question
+        </p> */}
+      </div>
 
+      <div className="flex items-center mb-2 max-w-md w-full">
+        <input
+          type="text"
+          placeholder="Search memories..."
+          className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20 transition-all"
+          value={searchTerm || ""}
+          onChange={e => setSearchTerm(e.target.value)}
+        />
+        {searchTerm?.length > 0 && (
+          <button
+            type="button"
+            className="ml-2 p-1 rounded hover:bg-muted/50"
+            onClick={() => setSearchTerm("")}
+            aria-label="Clear search"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+        )}
+      </div>
+
+      {/* ── Card grid (new) ──────────────────────────────────────────────── */}
+      <section>
+      
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {questions.map((q, idx) => {
             const firstMedia = q.media[0]
@@ -600,15 +626,6 @@ export function EditVaultContent() {
         className="hidden"
         onChange={handleReplaceVideo}
       />
-
-      <div className="flex justify-end">
-        <button
-          type="button"
-          className="rounded-xl bg-vault-teal px-6 py-3 font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark"
-        >
-          Save changes
-        </button>
-      </div>
     </div>
   )
 }

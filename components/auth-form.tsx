@@ -18,7 +18,7 @@ interface AuthFormProps {
   footerText?: ReactNode
   onSubmit?: (data: Record<string, string>) => void
   /** 'stack' = one column, 'grid' = 2 columns on sm+ */
-  fieldLayout?: 'stack' | 'grid'
+  fieldLayout?: 'stack' | 'grid' | 'column'
   /** When set, shows a "Sign up with Google" (or custom label) button above the form */
   onGoogleClick?: () => void
   googleButtonLabel?: string
@@ -117,7 +117,7 @@ export function AuthForm({
 
       <div
         className={
-          fieldLayout === 'grid'
+          fieldLayout === 'grid' || fieldLayout === 'column'
             ? 'grid grid-cols-1 sm:grid-cols-2 gap-4'
             : 'space-y-3'
         }

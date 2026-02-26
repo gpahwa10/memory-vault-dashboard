@@ -211,84 +211,35 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
         </p>
       </div>
 
-      {/* Your Subscription - full width */}
-      {/* <section className="w-full rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="mb-4 font-serif text-xl font-semibold text-foreground">
-          Your Subscription
-        </h2>
-        <div className="flex flex-wrap items-center gap-6 sm:gap-8">
-          <div className="flex flex-1 flex-col gap-3 min-w-0">
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-muted-foreground">Segment</span>
-              <span className="font-medium text-foreground">Baby</span>
-            </div>
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-muted-foreground">Membership</span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-vault-gold/15 px-2.5 py-0.5 font-semibold text-vault-warm">
-                <Crown className="h-3 w-3" />
-                Premium
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-muted-foreground">Active since</span>
-              <span className="font-medium text-foreground">Jan 2026</span>
-            </div>
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-muted-foreground">Valid until</span>
-              <span className="font-medium text-foreground">Jan 2027</span>
-            </div>
+
+      <div
+          className="group flex flex-col justify-center items-center w-full
+  bg-gradient-to-b from-vault-teal/10 to-vault-gold/5
+    py-6 px-4
+  border-2 border-dashed border-vault-teal/40
+  rounded-2xl
+  cursor-pointer
+  transition-all duration-300
+  hover:border-vault-teal
+  hover:bg-vault-gold/10
+  hover:scale-[1.01]"
+          onClick={() => onNavigate("add-vault")}
+        >
+
+          <div className="flex items-center justify-center h-12 w-12 rounded-full
+    bg-white/80 backdrop-blur-sm shadow-sm
+    group-hover:scale-110 transition-transform duration-300">
+            <PlusCircle className="h-6 w-6 text-vault-gold" />
           </div>
 
-        </div>
-        <button className="shrink-0 rounded-lg bg-vault-teal px-5 py-2.5 mt-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark" onClick={() => router.push("/settings?tab=subscription")}>
-          Extend Membership
-        </button>
-      </section> */}
-      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-border bg-card px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <Crown className="h-4 w-4 text-vault-gold" />
-            <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Subscription
-            </h2>
-          </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-vault-gold/30 bg-vault-gold/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-vault-gold">
-            <span className="h-1.5 w-1.5 rounded-full bg-vault-gold animate-pulse" />
-            Premium
+          <span className="mt-3 text-sm font-semibold text-foreground tracking-wide">
+            Create Memory Book
+          </span>
+
+          <span className="text-xs text-muted-foreground mt-1">
+            Capture moments that matter
           </span>
         </div>
-
-        {/* Metadata grid */}
-        <div className="grid grid-cols-2 gap-px border-b border-border bg-border">
-          {[
-            { label: "Segment", value: "Baby" },
-            { label: "Active since", value: "Jan 2026" },
-            { label: "Valid until", value: "Jan 2027" },
-            { label: "Status", value: "Active" },
-          ].map(({ label, value }) => (
-            <div key={label} className="flex flex-col gap-1 bg-card px-5 py-3.5">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                {label}
-              </span>
-              <span className="text-sm font-semibold text-foreground">{value}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer action */}
-        <div className="flex items-center justify-between border-t border-border bg-card px-5 py-3.5">
-          <p className="text-[11px] tabular-nums text-muted-foreground">
-            Renews · <span className="text-foreground">Jan 2027</span>
-          </p>
-          <button
-            onClick={() => router.push("/settings?tab=subscription")}
-            className="rounded-lg border border-vault-teal/30 bg-vault-teal/10 px-4 py-1.5 text-[12px] font-semibold text-vault-teal transition-all hover:bg-vault-teal/20 hover:border-vault-teal/50"
-          >
-            Extend →
-          </button>
-        </div>
-      </section>
 
       <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
         <div className="flex flex-row justify-between items-center">
@@ -507,37 +458,86 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
         )}
 
 
-        <div
-          className="group flex flex-col justify-center items-center w-full
-  bg-gradient-to-b from-vault-teal/10 to-vault-gold/5
-    py-6 px-4
-  border-2 border-dashed border-vault-teal/40
-  rounded-2xl
-  cursor-pointer
-  transition-all duration-300
-  hover:border-vault-teal
-  hover:bg-vault-gold/10
-  hover:scale-[1.01]"
-          onClick={() => onNavigate("add-vault")}
-        >
 
-          <div className="flex items-center justify-center h-12 w-12 rounded-full
-    bg-white/80 backdrop-blur-sm shadow-sm
-    group-hover:scale-110 transition-transform duration-300">
-            <PlusCircle className="h-6 w-6 text-vault-gold" />
+      </div>
+      {/* Your Subscription - full width */}
+      {/* <section className="w-full rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h2 className="mb-4 font-serif text-xl font-semibold text-foreground">
+          Your Subscription
+        </h2>
+        <div className="flex flex-wrap items-center gap-6 sm:gap-8">
+          <div className="flex flex-1 flex-col gap-3 min-w-0">
+            <div className="flex items-center justify-between gap-4 text-sm">
+              <span className="text-muted-foreground">Segment</span>
+              <span className="font-medium text-foreground">Baby</span>
+            </div>
+            <div className="flex items-center justify-between gap-4 text-sm">
+              <span className="text-muted-foreground">Membership</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-vault-gold/15 px-2.5 py-0.5 font-semibold text-vault-warm">
+                <Crown className="h-3 w-3" />
+                Premium
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-4 text-sm">
+              <span className="text-muted-foreground">Active since</span>
+              <span className="font-medium text-foreground">Jan 2026</span>
+            </div>
+            <div className="flex items-center justify-between gap-4 text-sm">
+              <span className="text-muted-foreground">Valid until</span>
+              <span className="font-medium text-foreground">Jan 2027</span>
+            </div>
           </div>
 
-          <span className="mt-3 text-sm font-semibold text-foreground tracking-wide">
-            Create Memory Vault
-          </span>
-
-          <span className="text-xs text-muted-foreground mt-1">
-            Capture moments that matter
+        </div>
+        <button className="shrink-0 rounded-lg bg-vault-teal px-5 py-2.5 mt-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark" onClick={() => router.push("/settings?tab=subscription")}>
+          Extend Membership
+        </button>
+      </section> */}
+      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border bg-card px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <Crown className="h-4 w-4 text-vault-gold" />
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Subscription
+            </h2>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-vault-gold/30 bg-vault-gold/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-vault-gold">
+            <span className="h-1.5 w-1.5 rounded-full bg-vault-gold animate-pulse" />
+            Premium
           </span>
         </div>
 
-      </div>
+        {/* Metadata grid */}
+        <div className="grid grid-cols-2 gap-px border-b border-border bg-border">
+          {[
+            { label: "Segment", value: "Baby" },
+            { label: "Active since", value: "Jan 2026" },
+            { label: "Valid until", value: "Jan 2027" },
+            { label: "Status", value: "Active" },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex flex-col gap-1 bg-card px-5 py-3.5">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {label}
+              </span>
+              <span className="text-sm font-semibold text-foreground">{value}</span>
+            </div>
+          ))}
+        </div>
 
+        {/* Footer action */}
+        <div className="flex items-center justify-between border-t border-border bg-card px-5 py-3.5">
+          <p className="text-[11px] tabular-nums text-muted-foreground">
+            Renews · <span className="text-foreground">Jan 2027</span>
+          </p>
+          <button
+            onClick={() => router.push("/settings?tab=subscription")}
+            className="rounded-lg border border-vault-teal/30 bg-vault-teal/10 px-4 py-1.5 text-[12px] font-semibold text-vault-teal transition-all hover:bg-vault-teal/20 hover:border-vault-teal/50"
+          >
+            Extend →
+          </button>
+        </div>
+      </section>
     </div>
   )
 }

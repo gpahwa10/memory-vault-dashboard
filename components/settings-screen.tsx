@@ -158,17 +158,6 @@ export function SettingsScreen() {
               <Field icon={<Phone className="h-4 w-4 text-vault-teal" />} label="Phone number" type="tel" defaultValue="+1 (555) 000-0000" />
               <Field icon={<MapPin className="h-4 w-4 text-vault-teal" />} label="Location" type="text" defaultValue="New York, USA" />
               <Field icon={<Calendar className="h-4 w-4 text-vault-teal" />} label="Date of birth" type="date" defaultValue="1990-06-15" />
-              <div className="flex flex-col gap-1.5">
-                <label className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <User className="h-4 w-4 text-vault-teal" />
-                  Bio
-                </label>
-                <textarea
-                  rows={2}
-                  defaultValue="Parent, storyteller, memory keeper."
-                  className="resize-none rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
-                />
-              </div>
             </div>
             <button className="mt-5 rounded-lg bg-vault-teal px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-vault-teal/90 transition-colors">
               Save changes

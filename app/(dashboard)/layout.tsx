@@ -6,6 +6,7 @@ import { AddMemoryModal } from "@/components/add-memory-modal"
 import { AddVaultModal } from "@/components/add-vault-modal"
 import { AddMemoryProvider } from "./add-memory-context"
 import { AddVaultProvider } from "./add-vault-context"
+import { getMemories } from "@/lib/memories"
 
 export default function DashboardLayout({
   children,
@@ -17,11 +18,15 @@ export default function DashboardLayout({
   const openAddMemory = useCallback(() => setMemoryModalOpen(true), [])
   const [vaultModalOpen, setVaultModalOpen] = useState(false)
   const openAddVault = useCallback(() => setVaultModalOpen(true), [])
+
+  const books = getMemories().map((m) => ({ id: m.id, name: m.title }))
+
   return (
     <AddMemoryProvider value={{ openAddMemory }}>
       <AddVaultProvider value={{ openAddVault }}>
         <div className="paper-texture flex h-screen overflow-hidden">
           <AppSidebar
+            books={books}
             mobileOpen={mobileOpen}
             onMobileToggle={() => setMobileOpen(false)}
             onAddMemory={openAddMemory}

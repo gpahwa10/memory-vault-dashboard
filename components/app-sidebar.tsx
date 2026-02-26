@@ -24,6 +24,7 @@ import {
   Menu,
   X,
   LogOutIcon,
+  ChevronDown,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
@@ -61,6 +62,9 @@ function isActive(pathname: string, item: (typeof mainNavItems)[0]) {
 export function AppSidebar({
   userName = "John Doe",
   userEmail = "john@memoryvault.com",
+  books = [],
+  activeBookId,
+  onBookSelect,
   mobileOpen = false,
   onMobileToggle,
   onAddMemory,
@@ -68,6 +72,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [vaultsOpen, setVaultsOpen] = useState(true)
   return (
     <>
       {/* Mobile overlay */}
@@ -136,17 +141,65 @@ export function AppSidebar({
                 if (item.id === "add-vault") {
                   return (
                     <li key={item.id}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onAddVault?.()
-                          onMobileToggle?.()
-                        }}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/80 transition-all duration-200 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                      >
-                        <item.icon className="h-4 w-4 shrink-0 text-sidebar-foreground/60" />
-                        {item.label}
-                      </button>
+                      <div className="flex flex-col gap-1 rounded-lg px-3 py-2">
+                        <button
+                          type="button"
+                          onClick={() => setVaultsOpen((open) => !open)}
+                          className="flex w-full items-center justify-between rounded-md px-1 py-1.5 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:text-sidebar-foreground"
+                        >
+                          <div className="flex items-center gap-3">
+                            <item.icon className="h-4 w-4 shrink-0 text-sidebar-foreground/60" />
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronDown
+                            className={cn(
+                              "h-4 w-4 shrink-0 text-sidebar-foreground/60 transition-transform",
+                              vaultsOpen ? "rotate-180" : "rotate-0"
+                            )}
+                          />
+                        </button>
+
+                        {vaultsOpen && (
+                          <ul className="mt-1 space-y-0.5 pl-7">
+                            {books.map((book) => {
+                              const isActive = activeBookId === book.id
+                              return (
+                                <li key={book.id}>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      onBookSelect?.(book.id)
+                                      router.push(`/memory-detail/${book.id}`)
+                                      onMobileToggle?.()
+                                    }}
+                                    className={cn(
+                                      "flex w-full items-center justify-between rounded-md px-2 py-1 text-xs transition-colors",
+                                      isActive
+                                        ? "bg-sidebar-accent text-vault-gold"
+                                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                                    )}
+                                  >
+                                    <span className="truncate">{book.name}</span>
+                                  </button>
+                                </li>
+                              )
+                            })}
+                            <li>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  onAddVault?.()
+                                  onMobileToggle?.()
+                                }}
+                                className="mt-1 inline-flex w-full items-center gap-2 rounded-md border border-dashed border-vault-gold/40 bg-vault-gold/10 px-2 py-1 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/20"
+                              >
+                                <PlusCircle className="h-3 w-3" />
+                                New memory vault
+                              </button>
+                            </li>
+                          </ul>
+                        )}
+                      </div>
                     </li>
                   )
                 }

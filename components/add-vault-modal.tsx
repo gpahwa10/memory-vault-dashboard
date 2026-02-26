@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -8,30 +7,26 @@ import { MEMORY_CATEGORIES } from "@/lib/memories"
 
 const CATEGORY_CONFIG: Record<
   (typeof MEMORY_CATEGORIES)[number],
-  { image: string; label: string; accent: string; emoji: string }
+  { image: string; label: string; emoji: string }
 > = {
   "Wedding Albums": {
     image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80&fit=crop",
     label: "Wedding Albums",
-    accent: "from-rose-900/80",
     emoji: "💍",
   },
   "Travel Journey": {
     image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&q=80&fit=crop",
     label: "Travel Journey",
-    accent: "from-sky-900/80",
     emoji: "✈️",
   },
   "Baby Milestones": {
     image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&q=80&fit=crop",
     label: "Baby Milestones",
-    accent: "from-amber-900/70",
     emoji: "🍼",
   },
   "Graduation Books": {
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&q=80&fit=crop",
+    image: "https://plus.unsplash.com/premium_photo-1713296255442-e9338f42aad8?q=80&w=844&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     label: "Graduation Books",
-    accent: "from-emerald-900/80",
     emoji: "🎓",
   },
 }
@@ -66,72 +61,64 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/0 p-4 backdrop-blur-sm">
-      {/* Backdrop click */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div className="absolute inset-0" onClick={handleClose} />
 
       <div
-        className="relative w-full max-w-lg animate-fade-in-up rounded-3xl border border-white/10 bg-secondary shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg animate-fade-in-up rounded-2xl bg-white shadow-2xl overflow-hidden"
         role="dialog"
-        aria-label="Add a New Book"
-        style={{
-          boxShadow: "0 0 80px -20px rgba(80,220,200,0.15), 0 25px 50px -12px rgba(0,0,0,0.8)",
-        }}
+        aria-label="Add a New Memory Book"
       >
-        {/* Subtle top gradient accent */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-vault-teal/60 to-transparent" />
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-vault-teal/5 to-transparent pointer-events-none" />
-
         {/* Header */}
-        <div className="relative flex items-center justify-between px-7 py-5 border-b border-border">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-muted-foreground mb-0.5">
-              Memory Book
-            </p>
-            <h2 className="font-serif text-2xl font-bold text-foreground tracking-tight">
-              Add a New Book
-            </h2>
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-1">
+                Create Memory Book
+              </h2>
+              <p className="text-sm text-gray-500">
+                Add a new collection to preserve your precious moments
+              </p>
+            </div>
+            <button
+              onClick={handleClose}
+              className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <button
-            onClick={handleClose}
-            className="rounded-xl p-2 text-muted-foreground transition-all hover:bg-white/8 hover:text-white"
-            aria-label="Close"
-          >
-            <X className="h-5 w-5" />
-          </button>
         </div>
 
-        <div className="relative flex flex-col gap-7 px-7 py-6">
+        <div className="px-6 py-4 space-y-6">
           {/* Vault Name Input */}
-          <div className="flex flex-col gap-2.5">
-            <label className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
               Memory Book Name
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={vaultName}
-                onChange={(e) => setVaultName(e.target.value)}
-                placeholder="e.g. Summer in Santorini 2024"
-                maxLength={60}
-                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20 transition-all"
-              />
-              {vaultName.length > 0 && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground tabular-nums">
-                  {vaultName.length}/60
-                </span>
-              )}
-            </div>
+            <input
+              type="text"
+              value={vaultName}
+              onChange={(e) => setVaultName(e.target.value)}
+              placeholder="e.g., Summer in Santorini 2024"
+              maxLength={60}
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+            />
+            {vaultName.length > 0 && (
+              <p className="text-xs text-gray-400 text-right tabular-nums">
+                {vaultName.length}/60 characters
+              </p>
+            )}
           </div>
 
           {/* Category Selection */}
-          <div className="flex flex-col gap-3">
-            <label className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              Category
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700">
+              Select Category
             </label>
             <div className="grid grid-cols-2 gap-3">
               {MEMORY_CATEGORIES.map((cat) => {
-                const { image, label, accent, emoji } = CATEGORY_CONFIG[cat]
+                const { image, label, emoji } = CATEGORY_CONFIG[cat]
                 const isSelected = category === cat
                 return (
                   <button
@@ -139,54 +126,54 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
                     type="button"
                     onClick={() => setCategory(cat)}
                     className={cn(
-                      "group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 focus:outline-none",
-                      "hover:shadow-lg hover:-translate-y-0.5",
+                      "relative group rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20",
                       isSelected
-                        ? "border-vault-teal shadow-vault-teal/20 shadow-lg scale-[1.02]"
-                        : "border-border hover:border-vault-gold/40"
+                        ? "border-teal-500 shadow-md"
+                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
                     )}
-                    style={{ aspectRatio: "16 / 9" }}
                   >
-                    {/* Background image */}
-                    <img
-                      src={image}
-                      alt={label}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-
-                    {/* Gradient overlay */}
-                    <div
-                      className={cn(
-                        "absolute inset-0 bg-gradient-to-t to-transparent transition-opacity duration-300",
-                        accent,
-                        isSelected ? "opacity-95" : "opacity-75 group-hover:opacity-85"
-                      )}
-                    />
-
-                    {/* Selected teal ring */}
-                    {isSelected && (
-                      <div className="absolute inset-0 rounded-[14px] ring-1 ring-inset ring-vault-teal/50" />
-                    )}
-
-                    {/* Content */}
-                    <div className="absolute inset-0 flex items-end justify-between p-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-base leading-none">{emoji}</span>
-                        <span className="text-xs font-bold text-foreground drop-shadow-sm leading-tight">
-                          {label}
-                        </span>
-                      </div>
-
-                      {/* Checkmark */}
+                    {/* Radio indicator */}
+                    <div className="absolute top-3 right-3 z-10">
                       <div
                         className={cn(
-                          "flex h-5 w-5 items-center justify-center rounded-full transition-all duration-200",
+                          "h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all duration-200",
                           isSelected
-                            ? "bg-vault-teal scale-100 opacity-100"
-                            : "bg-white/20 scale-75 opacity-0 group-hover:opacity-50 group-hover:scale-90"
+                            ? "border-teal-500 bg-teal-500"
+                            : "border-gray-300 bg-white group-hover:border-gray-400"
                         )}
                       >
-                        <Check className="h-3 w-3 text-foreground" strokeWidth={3} />
+                        {isSelected && (
+                          <div className="h-2 w-2 rounded-full bg-white" />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-4 space-y-3">
+                      {/* Image thumbnail */}
+                      <div className="relative overflow-hidden rounded-lg" style={{ aspectRatio: "16 / 10" }}>
+                        <img
+                          src={image}
+                          alt={label}
+                          className={cn(
+                            "h-full w-full object-cover transition-all duration-300",
+                            isSelected ? "scale-105" : "group-hover:scale-105"
+                          )}
+                        />
+                        <div className={cn(
+                          "absolute inset-0 bg-gradient-to-t from-black/40 to-transparent transition-opacity duration-200",
+                          isSelected ? "opacity-30" : "opacity-20 group-hover:opacity-30"
+                        )} />
+                      </div>
+
+                      {/* Label */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg leading-none">{emoji}</span>
+                        <span className={cn(
+                          "text-sm font-medium transition-colors duration-200",
+                          isSelected ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
+                        )}>
+                          {label}
+                        </span>
                       </div>
                     </div>
                   </button>
@@ -197,10 +184,10 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
         </div>
 
         {/* Footer */}
-            <div className="relative flex items-center justify-between px-7 py-5 border-t border-border">
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
           <button
             onClick={handleClose}
-            className="rounded-xl px-5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
           >
             Cancel
           </button>
@@ -209,19 +196,25 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
             onClick={handleSave}
             disabled={!isValid || isSaving}
             className={cn(
-              "inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold transition-all duration-200",
+              "inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-semibold transition-all duration-200",
               isValid && !isSaving
-                ? "bg-vault-teal text-black hover:bg-vault-teal/90 shadow-lg shadow-vault-teal/25 hover:-translate-y-0.5"
-                : "bg-card text-muted-foreground cursor-not-allowed"
+                ? "bg-teal-600 text-white hover:bg-teal-700 shadow-sm hover:shadow-md active:scale-[0.98]"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
             )}
           >
-            <Save className="h-4 w-4" />
-            {isSaving ? "Creating..." : "Create Book"}
+            {isSaving ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Create Book
+              </>
+            )}
           </button>
         </div>
-
-        {/* Bottom accent line */}
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
       </div>
     </div>
   )

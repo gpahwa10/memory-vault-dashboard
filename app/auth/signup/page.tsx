@@ -49,10 +49,10 @@ const PLANS: Plan[] = BASE_SUBSCRIPTION_PLANS.map((base, index) => {
       base.id === '1m'
         ? 'Perfect for trying Memory Vault with a single book and reel'
         : base.id === '3m'
-        ? 'Great for capturing a season of memories with multiple books and reels'
-        : base.id === '6m'
-        ? 'Ideal for families capturing milestones over half a year'
-        : 'Best for gifting a full year of books and reels',
+          ? 'Great for capturing a season of memories with multiple books and reels'
+          : base.id === '6m'
+            ? 'Ideal for families capturing milestones over half a year'
+            : 'Best for gifting a full year of books and reels',
     icon,
     highlight: isMostPopular,
     badge: isMostPopular ? 'Most Popular' : isBestValue ? 'Best Value' : undefined,
@@ -84,8 +84,8 @@ function StepIndicator({ current }: { current: Step }) {
                   done
                     ? 'bg-vault-teal border-vault-teal text-white'
                     : active
-                    ? 'bg-vault-teal/10 border-vault-teal text-vault-teal'
-                    : 'bg-muted border-border text-muted-foreground'
+                      ? 'bg-vault-teal/10 border-vault-teal text-vault-teal'
+                      : 'bg-muted border-border text-muted-foreground'
                 )}
               >
                 {done ? <Check className="h-4 w-4" /> : i + 1}
@@ -135,24 +135,10 @@ function PlanCard({
         selected
           ? 'border-vault-teal bg-vault-teal/5 shadow-lg shadow-vault-teal/10'
           : plan.highlight
-          ? 'border-vault-gold/40 bg-vault-gold/5 hover:border-vault-gold/70'
-          : 'border-border bg-card hover:border-vault-teal/40 hover:shadow-md'
+            ? 'border-vault-gold/40 bg-vault-gold/5 hover:border-vault-gold/70'
+            : 'border-border bg-card hover:border-vault-teal/40 hover:shadow-md'
       )}
     >
-      {/* Badge */}
-      {plan.badge && (
-        <span
-          className={cn(
-            'absolute -top-3 left-4 rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest',
-            plan.highlight
-              ? 'bg-vault-gold text-white'
-              : 'bg-vault-teal text-white'
-          )}
-        >
-          {plan.badge}
-        </span>
-      )}
-
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           {/* Radio */}
@@ -440,7 +426,7 @@ export default function SignupPage() {
           </div> */}
 
           <AuthForm
-            fieldLayout="grid"
+            fieldLayout="stack"
             fields={[
               {
                 name: 'fullName',
@@ -470,7 +456,7 @@ export default function SignupPage() {
                 placeholder: 'Create a strong password',
                 required: true,
               },
-              
+
             ]}
             buttonText={
               'Continue to Plan Selection'
@@ -486,11 +472,18 @@ export default function SignupPage() {
             }
           />
 
-          <p className="text-center text-xs text-muted-foreground">
-            By creating an account, you agree to our{' '}
-            <Link href="#" className="text-vault-teal hover:underline">Terms of Service</Link>{' '}
-            and{' '}
-            <Link href="#" className="text-vault-teal hover:underline">Privacy Policy</Link>
+          <p className="mt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <input
+              id="accept-terms"
+              type="checkbox"
+              className="h-3 w-3 rounded border-border text-vault-teal focus:ring-vault-teal/50"
+            />
+            <label htmlFor="accept-terms" className="cursor-pointer">
+              By creating an account, you agree to our{' '}
+              <Link href="#" className="text-vault-teal hover:underline">Terms of Service</Link>{' '}
+              and{' '}
+              <Link href="#" className="text-vault-teal hover:underline">Privacy Policy</Link>.
+            </label>
           </p>
         </div>
       )}
@@ -506,14 +499,33 @@ export default function SignupPage() {
           <Accordion type="single" collapsible className="w-full space-y-3">
             {PLANS.map((plan) => (
               <AccordionItem key={plan.id} value={plan.id} className="border-none">
-                <AccordionTrigger className="rounded-xl border border-border bg-muted/50 px-4 py-3 hover:no-underline hover:bg-muted">
-                  <div className="flex w-full items-center justify-between pr-2 text-left">
-                    <span className="font-semibold text-foreground">{plan.name}</span>
+                <AccordionTrigger className="rounded-xl border border-border bg-muted/50 px-4 py-3 hover:no-underline hover:bg-muted relative">
+                  <div className="flex w-full items-center justify-between pr-2 text-left relative pt-3">
+
+                    {/* Badge - top left */}
+                    {plan.badge && (
+                      <span
+                        className={cn(
+                          "absolute -top-5 left-1 rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest",
+                          plan.highlight
+                            ? "bg-vault-gold text-white"
+                            : "bg-vault-teal text-white"
+                        )}
+                      >
+                        {plan.badge}
+                      </span>
+                    )}
+
+                    <span className="font-semibold text-foreground">
+                      {plan.name}
+                    </span>
+
                     <span className="text-sm text-muted-foreground">
                       ${plan.price} / {plan.period}
                     </span>
                   </div>
                 </AccordionTrigger>
+
                 <AccordionContent className="pt-3">
                   <PlanCard
                     plan={plan}

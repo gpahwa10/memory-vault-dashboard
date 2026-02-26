@@ -27,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Textarea } from "@/components/ui/textarea"
 import { useAddMemory } from "../../add-memory-context"
 import { useAddVault } from "../../add-vault-context"
@@ -34,7 +35,7 @@ import { cn } from "@/lib/utils"
 import type { Memory as MemoryType, MemoryQuestion, MemoryQuestionMedia } from "@/lib/memories"
 import { Button } from "@/components/ui/button"
 import { EditVaultContent } from "@/components/edit-vault-content"
-import { useRouter } from "next/navigation"   
+import { useRouter } from "next/navigation"
 
 interface SerializedMemory extends Omit<MemoryType, "date"> {
   date: string
@@ -44,11 +45,11 @@ interface SerializedMemory extends Omit<MemoryType, "date"> {
 // Quick Actions config
 // ─────────────────────────────────────────────
 const quickActions = [
-  { id: "add-memory",  label: "Add a new memory",    icon: PlusCircle, color: "teal" as const, href: null },
+  { id: "add-memory", label: "Add a new memory", icon: PlusCircle, color: "teal" as const, href: null },
   // { id: "preview",     label: "Preview your book",   icon: Eye,        color: "gold" as const, href: "/preview" },
-  { id: "generate",    label: "Generate your book",  icon: BookOpen,   color: "gold" as const, href: "/preview" },
-  { id: "edit-vault",  label: "Edit the vault",      icon: Edit3,      color: "teal" as const, href: "/edit-vault" },
-  { id: "create-reel", label: "Create a reel",       icon: Film,       color: "teal" as const, href: "/make-reel" },
+  { id: "generate", label: "Generate your book", icon: BookOpen, color: "gold" as const, href: "/preview" },
+  { id: "edit-vault", label: "Edit the vault", icon: Edit3, color: "teal" as const, href: "/edit-vault" },
+  { id: "create-reel", label: "Create a reel", icon: Film, color: "teal" as const, href: "/make-reel" },
 ]
 
 const actionColorMap = {
@@ -67,20 +68,20 @@ const actionColorMap = {
 // ─────────────────────────────────────────────
 const metricColorMap = {
   teal: {
-    bar:    "bg-vault-teal",
-    text:   "text-vault-teal",
-    bg:     "bg-vault-teal/8",
+    bar: "bg-vault-teal",
+    text: "text-vault-teal",
+    bg: "bg-vault-teal/8",
     border: "border-vault-teal/15",
-    glow:   "hover:shadow-vault-teal/15",
-    track:  "bg-vault-teal/12",
+    glow: "hover:shadow-vault-teal/15",
+    track: "bg-vault-teal/12",
   },
   gold: {
-    bar:    "bg-vault-gold",
-    text:   "text-vault-gold",
-    bg:     "bg-vault-gold/8",
+    bar: "bg-vault-gold",
+    text: "text-vault-gold",
+    bg: "bg-vault-gold/8",
     border: "border-vault-gold/15",
-    glow:   "hover:shadow-vault-gold/15",
-    track:  "bg-vault-gold/12",
+    glow: "hover:shadow-vault-gold/15",
+    track: "bg-vault-gold/12",
   },
 }
 
@@ -148,7 +149,7 @@ function ProgressMetric({ icon, label, current, total, suffix, color, href }: Pr
 // ─────────────────────────────────────────────
 export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
   const openAddMemory = useAddMemory()
-  const openAddVault  = useAddVault()
+  const openAddVault = useAddVault()
   const [fullScreenMedia, setFullScreenMedia] = useState<MemoryQuestionMedia | null>(null)
   const router = useRouter()
   const questions: MemoryQuestion[] = memory.memoryQuestions ?? [
@@ -158,14 +159,21 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
   ]
 
   const answeredCount = questions.filter((q) => q.answer?.trim()).length
-  const photoCount    = memory.images?.length ?? 0
-  const videoCount    = memory.hasVideo ? 1 : 0
+  const photoCount = memory.images?.length ?? 0
+  const videoCount = memory.hasVideo ? 1 : 0
 
   const overallPct = Math.round(
     ((answeredCount / Math.max(questions.length, 1)) * 0.5 +
       (photoCount / 100) * 0.35 +
       (videoCount / 10) * 0.15) * 100
   )
+
+  const questionsPct = Math.min(
+    (answeredCount / Math.max(questions.length, 1)) * 100,
+    100
+  )
+  const photosPct = Math.min((photoCount / 100) * 100, 100)
+  const videosPct = Math.min((videoCount / 10) * 100, 100)
 
   return (
     <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
@@ -181,20 +189,27 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
       {/* Page title */}
       <header className="flex fkex-row items-center justify-between">
         <div className="flex flex-row items-center gap-2">
-        <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
-          {memory.title}
-        </h1>
-        <Button className="border border-1 bg-transparent text-foreground"> <Edit3 className="h-4 w-4" /></Button>
+          <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
+            {memory.title}
+          </h1>
+          <Button className="border border-1 bg-transparent text-foreground"> <Edit3 className="h-4 w-4" /></Button>
         </div>
         <div className="flex flex-row gap-2">
-        <Button   type="button" onClick={() => openAddMemory()} className="border-2 border-vault-gold/50 bg-transparent text-foreground hover:bg-vault-gold/10">
-                  <Plus className="h-4 w-4" /> Add a new memory
-                </Button>
-          <Button className="border-2 border-vault-gold/50 bg-transparent text-foreground hover:bg-vault-gold/10" onClick={() => router.push("/preview")}>
-            <Sparkles className="h-4 w-4" /> Generate Book
+          <Button
+            type="button"
+            onClick={() => router.push(`/memory-detail/${memory.id}/preview`)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            Generate Book
           </Button>
-          <Button className="border-2 border-transparent bg-gradient-to-r from-vault-teal to-vault-gold text-white shadow-md hover:opacity-90 hover:shadow-lg" onClick={() => router.push("/make-reel")}>
-            <Film className="h-4 w-4" /> Create Reel
+          <Button
+            type="button"
+            onClick={() => router.push("/make-reel")}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+          >
+            <Film className="h-3.5 w-3.5" />
+            Create Reel
           </Button>
         </div>
       </header>
@@ -221,33 +236,95 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
           </div> */}
         </div>
 
-        {/* Metric rows */}
-        <div className="flex flex-col gap-2.5 p-4">
-          <ProgressMetric
-            icon={<HelpCircle className="h-3.5 w-3.5" />}
-            label="Questions"
-            current={answeredCount}
-            total={questions.length}
-            color="teal"
-            // href={`/memory-detail/${memory.id}/questions`}
-          />
-          <ProgressMetric
-            icon={<Camera className="h-3.5 w-3.5" />}
-            label="Photos"
-            current={photoCount}
-            total={100}
-            suffix="max"
-            color="gold"
-            // href={`/memory-detail/${memory.id}/media`}
-          />
-          <ProgressMetric
-            icon={<Video className="h-3.5 w-3.5" />}
-            label="Videos"
-            current={videoCount}
-            total={10}
-            color="teal"
-          />
-        </div>
+        {/* Compact accordion metrics */}
+        <Accordion type="single" collapsible className="px-4 py-3 space-y-1">
+          <AccordionItem value="questions" className="border-none">
+            <AccordionTrigger className="rounded-lg px-2 py-1.5 text-xs hover:no-underline hover:bg-muted">
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vault-teal/10">
+                    <HelpCircle className="h-3.5 w-3.5 text-vault-teal" />
+                  </span>
+                  <span className="font-medium text-foreground">Questions</span>
+                </div>
+                <span className="text-[11px] tabular-nums text-muted-foreground">
+                  {answeredCount}/{questions.length}
+                </span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-2">
+              <div className="space-y-1.5">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-vault-teal transition-all"
+                    style={{ width: `${questionsPct}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {Math.round(questionsPct)}% of questions answered
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="photos" className="border-none">
+            <AccordionTrigger className="rounded-lg px-2 py-1.5 text-xs hover:no-underline hover:bg-muted">
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vault-gold/10">
+                    <Camera className="h-3.5 w-3.5 text-vault-gold" />
+                  </span>
+                  <span className="font-medium text-foreground">Photos</span>
+                </div>
+                <span className="text-[11px] tabular-nums text-muted-foreground">
+                  {photoCount}/100 max
+                </span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-2">
+              <div className="space-y-1.5">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-vault-gold transition-all"
+                    style={{ width: `${photosPct}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {photoCount} of 100 photos used
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="videos" className="border-none">
+            <AccordionTrigger className="rounded-lg px-2 py-1.5 text-xs hover:no-underline hover:bg-muted">
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vault-teal/10">
+                    <Video className="h-3.5 w-3.5 text-vault-teal" />
+                  </span>
+                  <span className="font-medium text-foreground">Videos</span>
+                </div>
+                <span className="text-[11px] tabular-nums text-muted-foreground">
+                  {videoCount}/10
+                </span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-2">
+              <div className="space-y-1.5">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-vault-teal transition-all"
+                    style={{ width: `${videosPct}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {videoCount} of 10 videos added
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </section>
 
       {/* ── Questions Answered ────────────────────── */}
@@ -398,13 +475,13 @@ function QuestionsAnsweredSection({
   // return (
   //   <section className="space-y-6">
   //     <h2 className="font-serif text-xl font-semibold text-foreground">Questions answered</h2>
-      
+
   //     {/* Card Grid */}
   //     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
   //       {localQuestions.map((q, idx) => {
   //         const answered = !!q.answer?.trim()
   //         const firstMedia = q.media?.[0]
-          
+
   //         return (
   //           <button
   //             key={idx}
@@ -433,7 +510,7 @@ function QuestionsAnsweredSection({
   //                   <Camera className="h-12 w-12 text-vault-teal/30" />
   //                 </div>
   //               )}
-                
+
   //               {/* Status Badge */}
   //               <div className="absolute left-4 top-4">
   //                 <span
@@ -464,7 +541,7 @@ function QuestionsAnsweredSection({
   //               <h3 className="mb-2 font-serif text-lg font-semibold text-foreground line-clamp-2">
   //                 {q.question || `#Memory${idx + 1}`}
   //               </h3>
-                
+
   //               {answered && (
   //                 <p className="text-sm text-muted-foreground line-clamp-2">
   //                   {q.answer}
