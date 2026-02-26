@@ -1,8 +1,16 @@
 'use client'
 
-import { useState, ReactNode } from 'react'
+import { useState, ReactNode, useMemo } from 'react'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import Link from 'next/link'
+import CountryList from 'country-list-with-dial-code-and-flag'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface AuthFormProps {
   title?: string
@@ -58,15 +66,35 @@ export function AuthForm({
   onGoogleClick,
   googleButtonLabel = 'Continue with Google',
 }: AuthFormProps) {
+  type CountryOption = { code: string; dial_code: string; name: string; flag: string }
+  const countryOptions: CountryOption[] = useMemo(() => {
+    const list = CountryList.getAll() || []
+    return list
+      .map((c: unknown) => (c as { data: CountryOption }).data)
+      .filter((d): d is CountryOption => Boolean(d))
+  }, [])
+  const defaultDialCode = countryOptions[0]?.dial_code ?? '+1'
   const [formData, setFormData] = useState<Record<string, string>>(
     fields.reduce((acc, field) => ({ ...acc, [field.name]: '' }), {})
   )
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({})
   const [isLoading, setIsLoading] = useState(false)
+  const [phoneDialCode, setPhoneDialCode] = useState(defaultDialCode)
+  const [phoneNational, setPhoneNational] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
+    if (name === 'phone') {
+      setPhoneNational(value)
+      setFormData((prev) => ({ ...prev, phone: `${phoneDialCode} ${value}`.trim() }))
+      return
+    }
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handlePhoneCountryChange = (dialCode: string) => {
+    setPhoneDialCode(dialCode)
+    setFormData((prev) => ({ ...prev, phone: `${dialCode} ${phoneNational}`.trim() }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -130,41 +158,95 @@ export function AuthForm({
             <label htmlFor={field.name} className="text-sm font-medium text-foreground">
               {field.label}
             </label>
-            <div className="relative">
-              <div className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center text-muted-foreground">
-                {getFieldIcon(field)}
-              </div>
-              <input
-                id={field.name}
-                type={
-                  isPasswordField(field.name) && !showPassword[field.name] ? 'password' : 'text'
-                }
-                name={field.name}
-                value={formData[field.name]}
-                onChange={handleChange}
-                placeholder={field.placeholder}
-                required={field.required !== false}
-                className="w-full rounded-lg border border-border bg-background pl-10 pr-10 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
-              />
-              {isPasswordField(field.name) && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowPassword((prev) => ({
-                      ...prev,
-                      [field.name]: !prev[field.name],
-                    }))
-                  }
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            {field.name === 'phone' ? (
+              <div className="flex gap-2">
+                {/* <Select value={phoneDialCode} onValueChange={handlePhoneCountryChange}>
+                  <SelectTrigger
+                    className="w-[140px] shrink-0 rounded-lg border-border bg-background focus:border-vault-teal focus:ring-2 focus:ring-vault-teal/20"
+                    size="default"
+                  >
+                    <SelectValue placeholder="Country">
+                      {(() => {
+                        const c = countryOptions.find((o) => o.dial_code === phoneDialCode)
+                        return c ? (
+                          <span>{c.flag} {c.dial_code}</span>
+                        ) : (
+                          'Country'
+                        )
+                      })()}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countryOptions.map((c, i) => (
+                      <SelectItem key={`${c.code}-${i}`} value={c.dial_code}>
+                        <span className="flex items-center gap-2">
+                          <span>{c.flag}</span>
+                          <span>{c.dial_code}</span>
+                          <span className="truncate">{c.name}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select> */}
+                <select
+                  className="w-[140px] shrink-0 rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20 cursor-pointer"
+                  value={phoneDialCode}
+                  onChange={(e) => handlePhoneCountryChange(e.target.value)}
                 >
-                  {showPassword[field.name] ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              )}
-            </div>
+                  {countryOptions.map((country, index) => (
+                    <option key={`${country.code}-${index}`} value={country.dial_code}>
+                      {country.flag} {country.dial_code} {country.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  id={field.name}
+                  type="tel"
+                  name={field.name}
+                  value={phoneNational}
+                  onChange={handleChange}
+                  placeholder={field.placeholder}
+                  required={field.required !== false}
+                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                />
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center text-muted-foreground">
+                  {getFieldIcon(field)}
+                </div>
+                <input
+                  id={field.name}
+                  type={
+                    isPasswordField(field.name) && !showPassword[field.name] ? 'password' : 'text'
+                  }
+                  name={field.name}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  placeholder={field.placeholder}
+                  required={field.required !== false}
+                  className="w-full rounded-lg border border-border bg-background pl-10 pr-10 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                />
+                {isPasswordField(field.name) && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword((prev) => ({
+                        ...prev,
+                        [field.name]: !prev[field.name],
+                      }))
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword[field.name] ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
