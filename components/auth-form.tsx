@@ -189,13 +189,13 @@ export function AuthForm({
                   </SelectContent>
                 </Select> */}
                 <select
-                  className="w-[140px] shrink-0 rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20 cursor-pointer"
+                  className="w-fit shrink-0 rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20 cursor-pointer"
                   value={phoneDialCode}
                   onChange={(e) => handlePhoneCountryChange(e.target.value)}
                 >
                   {countryOptions.map((country, index) => (
                     <option key={`${country.code}-${index}`} value={country.dial_code}>
-                      {country.flag} {country.dial_code} {country.name}
+                      {country.flag} {country.dial_code}
                     </option>
                   ))}
                 </select>

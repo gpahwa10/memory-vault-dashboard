@@ -40,7 +40,26 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
   const [vaultName, setVaultName] = useState("")
   const [category, setCategory] = useState<(typeof MEMORY_CATEGORIES)[number] | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [travelName, setTravelName] = useState("")
+  const [travelDestination, setTravelDestination] = useState("")
+  const [travelPurpose, setTravelPurpose] = useState("")
+  const [travelDuration, setTravelDuration] = useState("")
+  const [weddingCoupleNames, setWeddingCoupleNames] = useState("")
+  const [weddingDate, setWeddingDate] = useState("")
+  const [weddingVenue, setWeddingVenue] = useState("")
+  const [babyName, setBabyName] = useState("")
+  const [babyBirthDate, setBabyBirthDate] = useState("")
+  const [babyFocus, setBabyFocus] = useState("")
+  const [gradName, setGradName] = useState("")
+  const [gradInstitution, setGradInstitution] = useState("")
+  const [gradYear, setGradYear] = useState("")
 
+  const isTravel = category === "Travel Journey"
+  const isWedding = category === "Wedding Albums"
+  const isBaby = category === "Baby Milestones"
+  const isGraduation = category === "Graduation Books"
+
+  // For now, additional questions are optional – main requirements:
   const isValid = vaultName.trim().length > 0 && category !== null
 
   const handleSave = () => {
@@ -55,6 +74,19 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
   const handleClose = () => {
     setVaultName("")
     setCategory(null)
+    setTravelName("")
+    setTravelDestination("")
+    setTravelPurpose("")
+    setTravelDuration("")
+    setWeddingCoupleNames("")
+    setWeddingDate("")
+    setWeddingVenue("")
+    setBabyName("")
+    setBabyBirthDate("")
+    setBabyFocus("")
+    setGradName("")
+    setGradInstitution("")
+    setGradYear("")
     onClose()
   }
 
@@ -65,7 +97,7 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
       <div className="absolute inset-0" onClick={handleClose} />
 
       <div
-        className="relative w-full max-w-lg animate-fade-in-up rounded-2xl bg-white shadow-2xl overflow-hidden"
+        className="relative flex w-full max-w-lg animate-fade-in-up flex-col rounded-2xl bg-white shadow-2xl"
         role="dialog"
         aria-label="Add a New Memory Book"
       >
@@ -90,7 +122,8 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
           </div>
         </div>
 
-        <div className="px-6 py-4 space-y-6">
+        {/* Scrollable content */}
+        <div className="flex-1 px-6 py-4 space-y-6 overflow-y-auto max-h-[70vh]">
           {/* Vault Name Input */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">
@@ -181,6 +214,203 @@ export function AddVaultModal({ open, onClose }: AddVaultModalProps) {
               })}
             </div>
           </div>
+
+          {/* Additional details by category */}
+          {isWedding && (
+            <div className="space-y-3 rounded-xl bg-gray-50 p-4 border border-gray-200">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                Wedding details
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Couple names
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Alex & Priya"
+                    value={weddingCoupleNames}
+                    onChange={(e) => setWeddingCoupleNames(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Wedding date
+                  </label>
+                  <input
+                    type="date"
+                    value={weddingDate}
+                    onChange={(e) => setWeddingDate(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">
+                  Venue
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., Lakeside Garden, Mumbai"
+                  value={weddingVenue}
+                  onChange={(e) => setWeddingVenue(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                />
+              </div>
+            </div>
+          )}
+
+          {isTravel && (
+            <div className="space-y-3 rounded-xl bg-gray-50 p-4 border border-gray-200">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                Travel details
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Trip name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Summer in Santorini"
+                    value={travelName}
+                    onChange={(e) => setTravelName(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Travel destination
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Paris, France"
+                    value={travelDestination}
+                    onChange={(e) => setTravelDestination(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Purpose of travel
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Family vacation, work trip, etc."
+                    value={travelPurpose}
+                    onChange={(e) => setTravelPurpose(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Duration
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., 7 days in June 2026"
+                    value={travelDuration}
+                    onChange={(e) => setTravelDuration(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isBaby && (
+            <div className="space-y-3 rounded-xl bg-gray-50 p-4 border border-gray-200">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                Baby details
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Baby's name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Aanya"
+                    value={babyName}
+                    onChange={(e) => setBabyName(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Birth date
+                  </label>
+                  <input
+                    type="date"
+                    value={babyBirthDate}
+                    onChange={(e) => setBabyBirthDate(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">
+                  Milestones focus
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., First year milestones, first words, etc."
+                  value={babyFocus}
+                  onChange={(e) => setBabyFocus(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                />
+              </div>
+            </div>
+          )}
+
+          {isGraduation && (
+            <div className="space-y-3 rounded-xl bg-gray-50 p-4 border border-gray-200">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                Graduation details
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Graduate's name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Rohan Mehta"
+                    value={gradName}
+                    onChange={(e) => setGradName(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-700">
+                    Institution
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Stanford University"
+                    value={gradInstitution}
+                    onChange={(e) => setGradInstitution(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">
+                  Class of / Year
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., Class of 2026"
+                  value={gradYear}
+                  onChange={(e) => setGradYear(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}

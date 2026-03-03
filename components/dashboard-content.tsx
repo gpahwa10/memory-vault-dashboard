@@ -183,10 +183,13 @@ type ViewMode = "grid" | "list"
 export function DashboardContent({ onNavigate, userName = "John" }: DashboardContentProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [searchQuery, setSearchQuery] = useState("")
-  const [memories, setMemories] = useState(sampleMemories)
+  const [memories] = useState(sampleMemories)
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null)
+  const [sortOption, setSortOption] = useState<"newest" | "oldest" | "title-az">("newest")
+  const [fromDate, setFromDate] = useState<string>("")
+  const [toDate, setToDate] = useState<string>("")
   const router = useRouter();
   const categories = ["all", "Milestone", "Celebration", "Family", "Daily"]
 
@@ -196,7 +199,23 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
       m.description.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory =
       selectedCategory === "all" || m.category === selectedCategory
-    return matchesSearch && matchesCategory
+
+    const time = m.date.getTime()
+    const fromOk = fromDate ? time >= new Date(fromDate).getTime() : true
+    const toOk = toDate ? time <= new Date(toDate).getTime() : true
+
+    return matchesSearch && matchesCategory && fromOk && toOk
+  })
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortOption === "title-az") {
+      return a.title.localeCompare(b.title)
+    }
+    if (sortOption === "newest") {
+      return b.date.getTime() - a.date.getTime()
+    }
+    // oldest
+    return a.date.getTime() - b.date.getTime()
   })
 
   return (
@@ -282,8 +301,44 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
             ))}
           </div>
 
-          {/* View toggles */}
-          <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+          {/* Date filter */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <span>From</span>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              <span>To</span>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
+              />
+            </div>
+          </div>
+
+          {/* Sort + view toggles */}
+          <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1">
+              <span className="text-[11px] text-muted-foreground">Sort</span>
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value as typeof sortOption)}
+                className="h-7 rounded-md bg-transparent text-[11px] font-medium text-foreground focus:outline-none"
+              >
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="title-az">Title A–Z</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
             {[
               { mode: "grid" as ViewMode, icon: Grid3X3 },
               { mode: "list" as ViewMode, icon: List },
@@ -302,13 +357,14 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
                 <Icon className="h-4 w-4" />
               </button>
             ))}
+            </div>
           </div>
         </div>
 
         {/* Grid View */}
         {viewMode === "grid" && (
           <div className="stagger-children grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((memory) => (
+            {sorted.map((memory) => (
               <div
                 key={memory.id}
                 role="button"
@@ -402,7 +458,7 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
         {/* List View */}
         {viewMode === "list" && (
           <div className="stagger-children flex flex-col gap-3">
-            {filtered.map((memory) => (
+            {sorted.map((memory) => (
               <div
                 key={memory.id}
                 role="button"

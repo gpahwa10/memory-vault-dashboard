@@ -177,42 +177,44 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
 
   return (
     <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
-      {/* Back link */}
-      <Link
-        href="/gallery"
-        className="inline-flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Memory Vault
-      </Link>
+      {/* Sticky: Back link + Page title — does not scroll */}
+      <div className="sticky top-0 z-10 flex flex-col gap-4 border-b border-border bg-background pb-4">
+        <Link
+          href="/"
+          className="inline-flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Memory Vault
+        </Link>
 
-      {/* Page title */}
-      <header className="flex fkex-row items-center justify-between">
-        <div className="flex flex-row items-center gap-2">
-          <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
-            {memory.title}
-          </h1>
-          <Button className="border border-1 bg-transparent text-foreground"> <Edit3 className="h-4 w-4" /></Button>
-        </div>
-        <div className="flex flex-row gap-2">
-          <Button
-            type="button"
-            onClick={() => router.push(`/memory-detail/${memory.id}/preview`)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            Generate Book
-          </Button>
-          <Button
-            type="button"
-            onClick={() => router.push("/make-reel")}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
-          >
-            <Film className="h-3.5 w-3.5" />
-            Create Reel
-          </Button>
-        </div>
-      </header>
+        <header className="flex flex-row items-center justify-between">
+          <div className="flex flex-row items-center gap-2">
+            <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
+              {memory.title}
+            </h1>
+            <Button className="border border-1 bg-transparent text-foreground"> <Edit3 className="h-4 w-4" /></Button>
+          </div>
+          <div className="flex flex-row gap-2">
+            <Button
+              type="button"
+              onClick={() => router.push(`/memory-detail/${memory.id}/preview`)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Generate Book
+            </Button>
+            <Button
+              type="button"
+              onClick={() => router.push("/make-reel")}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+            >
+              <Film className="h-3.5 w-3.5" />
+              Create Reel
+            </Button>
+          </div>
+        </header>
+      </div>
+
       {/* ── Memory Progress ───────────────────────── */}
       <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         {/* Header row */}
@@ -266,7 +268,7 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
               </div>
             </AccordionContent>
           </AccordionItem>
-
+{/* 
           <AccordionItem value="photos" className="border-none">
             <AccordionTrigger className="rounded-lg px-2 py-1.5 text-xs hover:no-underline hover:bg-muted">
               <div className="flex w-full items-center justify-between">
@@ -323,7 +325,7 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
                 </p>
               </div>
             </AccordionContent>
-          </AccordionItem>
+          </AccordionItem> */}
         </Accordion>
       </section>
 
@@ -471,318 +473,4 @@ function QuestionsAnsweredSection({
       </section>
     )
   }
-
-  // return (
-  //   <section className="space-y-6">
-  //     <h2 className="font-serif text-xl font-semibold text-foreground">Questions answered</h2>
-
-  //     {/* Card Grid */}
-  //     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-  //       {localQuestions.map((q, idx) => {
-  //         const answered = !!q.answer?.trim()
-  //         const firstMedia = q.media?.[0]
-
-  //         return (
-  //           <button
-  //             key={idx}
-  //             onClick={() => setSelectedQuestion({ question: q, index: idx })}
-  //             className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-vault-teal/40"
-  //           >
-  //             {/* Image/Media Section */}
-  //             <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-vault-teal/10 to-vault-teal/5">
-  //               {firstMedia ? (
-  //                 firstMedia.type === "image" ? (
-  //                   <Image
-  //                     src={firstMedia.url}
-  //                     alt={q.question || `Memory ${idx + 1}`}
-  //                     fill
-  //                     className="object-cover transition-transform group-hover:scale-105"
-  //                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-  //                     unoptimized={firstMedia.url.startsWith("#")}
-  //                   />
-  //                 ) : (
-  //                   <div className="flex h-full w-full items-center justify-center bg-muted">
-  //                     <Video className="h-12 w-12 text-vault-teal/60" />
-  //                   </div>
-  //                 )
-  //               ) : (
-  //                 <div className="flex h-full w-full items-center justify-center">
-  //                   <Camera className="h-12 w-12 text-vault-teal/30" />
-  //                 </div>
-  //               )}
-
-  //               {/* Status Badge */}
-  //               <div className="absolute left-4 top-4">
-  //                 <span
-  //                   className={cn(
-  //                     "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide",
-  //                     answered
-  //                       ? "bg-vault-teal text-primary-foreground"
-  //                       : "bg-muted/90 text-muted-foreground backdrop-blur-sm"
-  //                   )}
-  //                 >
-  //                   {answered ? "Answered" : "Pending"}
-  //                 </span>
-  //               </div>
-
-  //               {/* Media Count Badge */}
-  //               {q.media && q.media.length > 1 && (
-  //                 <div className="absolute right-4 top-4">
-  //                   <span className="flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
-  //                     <Camera className="h-3 w-3" />
-  //                     {q.media.length}
-  //                   </span>
-  //                 </div>
-  //               )}
-  //             </div>
-
-  //             {/* Content Section */}
-  //             <div className="p-4 text-left">
-  //               <h3 className="mb-2 font-serif text-lg font-semibold text-foreground line-clamp-2">
-  //                 {q.question || `#Memory${idx + 1}`}
-  //               </h3>
-
-  //               {answered && (
-  //                 <p className="text-sm text-muted-foreground line-clamp-2">
-  //                   {q.answer}
-  //                 </p>
-  //               )}
-
-  //               {/* Question Number */}
-  //               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-  //                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vault-teal/10 text-xs font-bold text-vault-teal">
-  //                   {idx + 1}
-  //                 </span>
-  //                 <span>Question {idx + 1}</span>
-  //               </div>
-  //             </div>
-  //           </button>
-  //         )
-  //       })}
-  //     </div>
-
-  //     {/* Modal */}
-  //     {selectedQuestion && (
-  //       <Dialog open={!!selectedQuestion} onOpenChange={() => setSelectedQuestion(null)}>
-  //         <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
-  //           <DialogHeader>
-  //             <DialogTitle className="font-serif text-2xl">
-  //               {selectedQuestion.question.question || `#Memory${selectedQuestion.index + 1}`}
-  //             </DialogTitle>
-  //           </DialogHeader>
-
-  //           <div className="space-y-6 py-4">
-  //             {/* Answer Section */}
-  //             <div className="space-y-2">
-  //               <label className="text-sm font-medium text-foreground">Answer</label>
-  //               <Textarea
-  //                 value={selectedQuestion.question.answer || ""}
-  //                 onChange={(e) => {
-  //                   const updated = [...localQuestions]
-  //                   updated[selectedQuestion.index] = {
-  //                     ...updated[selectedQuestion.index],
-  //                     answer: e.target.value,
-  //                   }
-  //                   setLocalQuestions(updated)
-  //                   setSelectedQuestion({
-  //                     index: selectedQuestion.index,
-  //                     question: updated[selectedQuestion.index],
-  //                   })
-  //                 }}
-  //                 placeholder="Write your answer here..."
-  //                 className="min-h-[150px] resize-none"
-  //               />
-  //               <Button
-  //                 variant="outline"
-  //                 size="sm"
-  //                 className="w-full sm:w-auto"
-  //                 onClick={() => handleEnhanceText(selectedQuestion.index)}
-  //               >
-  //                 <Sparkles className="mr-2 h-4 w-4" />
-  //                 Enhance text
-  //               </Button>
-  //             </div>
-
-  //             {/* Media Section */}
-  //             <div className="space-y-3">
-  //               <div className="flex items-center justify-between">
-  //                 <label className="text-sm font-medium text-foreground">Media attached</label>
-  //                 <Button variant="outline" size="sm">
-  //                   <Plus className="mr-2 h-4 w-4" />
-  //                   Add media
-  //                 </Button>
-  //               </div>
-
-  //               {selectedQuestion.question.media && selectedQuestion.question.media.length > 0 ? (
-  //                 <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-  //                   {selectedQuestion.question.media.map((item) => (
-  //                     <div
-  //                       key={item.id}
-  //                       className="group relative overflow-hidden rounded-lg border border-border bg-muted"
-  //                     >
-  //                       {/* Media Preview */}
-  //                       <button
-  //                         type="button"
-  //                         onClick={() => setFullScreenMedia(item)}
-  //                         className="relative aspect-square w-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-vault-teal/40"
-  //                       >
-  //                         {item.type === "image" ? (
-  //                           <Image
-  //                             src={item.url}
-  //                             alt={item.name ?? "Attachment"}
-  //                             fill
-  //                             className="object-cover transition-transform group-hover:scale-105"
-  //                             sizes="200px"
-  //                             unoptimized={item.url.startsWith("#")}
-  //                           />
-  //                         ) : (
-  //                           <div className="flex h-full w-full items-center justify-center bg-muted">
-  //                             <Video className="h-12 w-12 text-vault-teal/60" />
-  //                           </div>
-  //                         )}
-  //                       </button>
-
-  //                       {/* Action Buttons */}
-  //                       <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-  //                         <Button
-  //                           size="icon"
-  //                           variant="secondary"
-  //                           className="h-8 w-8 bg-white/90 backdrop-blur-sm hover:bg-white"
-  //                           onClick={(e) => {
-  //                             e.stopPropagation()
-  //                             setFullScreenMedia(item)
-  //                           }}
-  //                         >
-  //                           <Eye className="h-4 w-4" />
-  //                         </Button>
-  //                         <Button
-  //                           size="icon"
-  //                           variant="secondary"
-  //                           className="h-8 w-8 bg-white/90 backdrop-blur-sm hover:bg-white"
-  //                           onClick={(e) => {
-  //                             e.stopPropagation()
-  //                             handleEditMedia(selectedQuestion.index, item.id)
-  //                           }}
-  //                         >
-  //                           <Pencil className="h-4 w-4" />
-  //                         </Button>
-  //                         <Button
-  //                           size="icon"
-  //                           variant="secondary"
-  //                           className="h-8 w-8 bg-white/90 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground"
-  //                           onClick={(e) => {
-  //                             e.stopPropagation()
-  //                             handleDeleteMedia(selectedQuestion.index, item.id)
-  //                           }}
-  //                         >
-  //                           <Trash2 className="h-4 w-4" />
-  //                         </Button>
-  //                       </div>
-
-  //                       {/* Media Name */}
-  //                       {item.name && (
-  //                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-  //                           <p className="truncate text-xs text-white">{item.name}</p>
-  //                         </div>
-  //                       )}
-  //                     </div>
-  //                   ))}
-  //                 </div>
-  //               ) : (
-  //                 <div className="flex h-32 items-center justify-center rounded-lg border-2 border-dashed border-border text-center">
-  //                   <div className="space-y-2">
-  //                     <Camera className="mx-auto h-8 w-8 text-muted-foreground" />
-  //                     <p className="text-sm text-muted-foreground">No media attached</p>
-  //                   </div>
-  //                 </div>
-  //               )}
-  //             </div>
-  //           </div>
-
-  //           <DialogFooter>
-  //             <Button variant="outline" onClick={() => setSelectedQuestion(null)}>
-  //               Close
-  //             </Button>
-  //             <Button onClick={() => handleSaveQuestion(selectedQuestion.index)}>
-  //               Save changes
-  //             </Button>
-  //           </DialogFooter>
-  //         </DialogContent>
-  //       </Dialog>
-  //     )}
-  //   </section>
-  //   // <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
-  //   //   <h2 className="mb-5 font-serif text-xl font-semibold text-foreground">Questions answered</h2>
-  //   //   <Accordion type="single" collapsible className="w-full">
-  //   //     {questions.map((q, idx) => {
-  //   //       const answered = !!q.answer?.trim()
-  //   //       return (
-  //   //         <AccordionItem
-  //   //           key={idx}
-  //   //           value={`q-${idx}`}
-  //   //           className={cn(
-  //   //             "mb-2 rounded-lg border border-border px-4 last:mb-0 transition-colors",
-  //   //             answered ? "bg-card" : "bg-muted/30"
-  //   //           )}
-  //   //         >
-  //   //           <AccordionTrigger className="py-4 hover:no-underline">
-  //   //             <div className="flex items-center gap-3 text-left">
-  //   //               <span
-  //   //                 className={cn(
-  //   //                   "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-  //   //                   answered
-  //   //                     ? "bg-vault-teal text-primary-foreground"
-  //   //                     : "bg-muted text-muted-foreground"
-  //   //                 )}
-  //   //               >
-  //   //                 {idx + 1}
-  //   //               </span>
-  //   //               <span className="font-medium text-foreground">{q.question}</span>
-  //   //             </div>
-  //   //           </AccordionTrigger>
-  //   //           <AccordionContent>
-  //   //             {answered ? (
-  //   //               <>
-  //   //                 <p className="text-sm leading-relaxed text-muted-foreground">{q.answer}</p>
-  //   //                 {q.media && q.media.length > 0 && (
-  //   //                   <div className="mt-4">
-  //   //                     <p className="mb-2 text-xs font-medium text-muted-foreground">Media attached</p>
-  //   //                     <div className="flex flex-wrap gap-2">
-  //   //                       {q.media.map((item) => (
-  //   //                         <button
-  //   //                           key={item.id}
-  //   //                           type="button"
-  //   //                           onClick={(e) => { e.stopPropagation(); setFullScreenMedia(item) }}
-  //   //                           className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-muted transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-vault-teal/40"
-  //   //                         >
-  //   //                           {item.type === "image" ? (
-  //   //                             <Image
-  //   //                               src={item.url}
-  //   //                               alt={item.name ?? "Attachment"}
-  //   //                               fill
-  //   //                               className="object-cover"
-  //   //                               sizes="80px"
-  //   //                               unoptimized={item.url.startsWith("#")}
-  //   //                             />
-  //   //                           ) : (
-  //   //                             <div className="flex h-full w-full items-center justify-center bg-muted">
-  //   //                               <Video className="h-8 w-8 text-vault-teal/60" />
-  //   //                             </div>
-  //   //                           )}
-  //   //                         </button>
-  //   //                       ))}
-  //   //                     </div>
-  //   //                   </div>
-  //   //                 )}
-  //   //               </>
-  //   //             ) : (
-  //   //               <p className="text-xs text-muted-foreground">Not answered</p>
-  //   //             )}
-  //   //           </AccordionContent>
-  //   //         </AccordionItem>
-  //   //       )
-  //   //     })}
-  //   //   </Accordion>
-  //   // </section>
-  // )
 }

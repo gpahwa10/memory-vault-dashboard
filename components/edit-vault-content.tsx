@@ -91,6 +91,10 @@ export function EditVaultContent() {
   const [selectedQ, setSelectedQ] = useState<QuestionItem | null>(null)
   const [isEnhancing, setIsEnhancing] = useState(false)
   const [searchTerm, setSearchTerm] = useState<string>("")
+  const [lowQualityMedia, setLowQualityMedia] = useState<Record<string, boolean>>({
+    // Mark one sample image as low quality so the badge appears in demo data
+    m1: true,
+  })
   const addImageInputRef = useRef<HTMLInputElement>(null)
   const addVideoInputRef = useRef<HTMLInputElement>(null)
   const replaceImageInputRef = useRef<HTMLInputElement>(null)
@@ -264,6 +268,13 @@ export function EditVaultContent() {
     setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
   }
 
+  const handleModalQuestionChange = (value: string) => {
+    if (!selectedQ) return
+    const updated = { ...selectedQ, question: value }
+    setSelectedQ(updated)
+    setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
+  }
+
   const handleModalDeleteMedia = (mediaId: string) => {
     if (!selectedQ) return
     const updated = { ...selectedQ, media: selectedQ.media.filter((m) => m.id !== mediaId) }
@@ -386,6 +397,17 @@ export function EditVaultContent() {
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, 33vw"
+                        onLoadingComplete={(img) => {
+                          const isLow =
+                            img.naturalWidth < 800 ||
+                            img.naturalHeight < 800
+                          if (isLow) {
+                            setLowQualityMedia((prev) => ({
+                              ...prev,
+                              [firstMedia.id]: true,
+                            }))
+                          }
+                        }}
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-muted">
@@ -415,6 +437,13 @@ export function EditVaultContent() {
                     <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
                       <Camera className="h-3 w-3" />
                       {mediaCount}
+                    </span>
+                  )}
+
+                  {/* Low-quality image badge (answered questions only) */}
+                  {q.answered && q.media.some((m) => lowQualityMedia[m.id]) && (
+                    <span className="absolute bottom-3 left-3 rounded-full bg-amber-600/95 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-50 shadow">
+                      Low-resolution image
                     </span>
                   )}
                 </div>
@@ -458,12 +487,25 @@ export function EditVaultContent() {
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl">
-              {selectedQ?.question || `#Question`}
+              Question details
             </DialogTitle>
           </DialogHeader>
 
           {selectedQ && (
             <div className="space-y-5 py-2">
+              {/* Question text */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                  Question
+                </label>
+                <Textarea
+                  value={selectedQ.question}
+                  onChange={(e) => handleModalQuestionChange(e.target.value)}
+                  placeholder="Edit the question text..."
+                  className="min-h-[80px] resize-none"
+                />
+              </div>
+
               {/* Answer */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
@@ -536,6 +578,17 @@ export function EditVaultContent() {
                               fill
                               className="object-cover transition-transform group-hover:scale-105"
                               sizes="200px"
+                              onLoadingComplete={(img) => {
+                                const isLow =
+                                  img.naturalWidth < 800 ||
+                                  img.naturalHeight < 800
+                                if (isLow) {
+                                  setLowQualityMedia((prev) => ({
+                                    ...prev,
+                                    [item.id]: true,
+                                  }))
+                                }
+                              }}
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-muted">
@@ -564,9 +617,21 @@ export function EditVaultContent() {
                           </div>
                         </div>
 
-                        {item.name && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                            <p className="truncate text-[11px] text-white">{item.name}</p>
+                        {(item.name || lowQualityMedia[item.id]) && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                            {lowQualityMedia[item.id] && (
+                                <span className="rounded-full bg-yellow-500 px-2 py-0.5 text-[6px] font-semibold uppercase tracking-wide text-black">
+                                  Low-resolution
+                                </span>
+                              )}
+                            <div className="flex items-center justify-between gap-2">
+                              {item.name && (
+                                <p className="truncate text-[11px] text-white">
+                                  {item.name}
+                                </p>
+                              )}
+                              
+                            </div>
                           </div>
                         )}
                       </div>

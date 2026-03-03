@@ -176,6 +176,7 @@ function CalendarDayButton({
   className,
   day,
   modifiers,
+  children,
   ...props
 }: React.ComponentProps<typeof DayButton>) {
   const defaultClassNames = getDefaultClassNames()
@@ -206,7 +207,12 @@ function CalendarDayButton({
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {modifiers.hasEvent && (
+        <span className="mx-auto mt-0.5 h-1.5 w-1.5 rounded-full bg-vault-gold" />
+      )}
+    </Button>
   )
 }
 
