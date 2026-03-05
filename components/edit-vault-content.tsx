@@ -41,6 +41,7 @@ interface QuestionItem {
   answer: string
   answered: boolean
   media: MediaItem[]
+  date?: string
 }
 
 const initialQuestions: QuestionItem[] = [
@@ -50,6 +51,7 @@ const initialQuestions: QuestionItem[] = [
     answer: "She said 'Dada' for the first time at 8 months!",
     answered: true,
     media: [{ id: "m1", type: "image", url: "/samples/memory-1.jpg", name: "memory-1.jpg" }],
+    date: "2026-01-15",
   },
   {
     id: "2",
@@ -60,6 +62,7 @@ const initialQuestions: QuestionItem[] = [
       { id: "m2", type: "image", url: "/samples/memory-2.jpg", name: "memory-2.jpg" },
       { id: "m3", type: "video", url: "#", name: "birthday-video.mp4" },
     ],
+    date: "2026-01-28",
   },
   {
     id: "3",
@@ -67,6 +70,7 @@ const initialQuestions: QuestionItem[] = [
     answer: "",
     answered: false,
     media: [],
+    date: "2026-02-02",
   },
   {
     id: "4",
@@ -74,6 +78,7 @@ const initialQuestions: QuestionItem[] = [
     answer: "We named her after her great-grandmother.",
     media: [{ id: "m4", type: "image", url: "/samples/memory-3.jpg", name: "memory-3.jpg" }],
     answered: true,
+    date: "2026-02-05",
   },
   {
     id: "5",
@@ -81,6 +86,7 @@ const initialQuestions: QuestionItem[] = [
     answer: "",
     media: [],
     answered: false,
+    date: "2026-02-10",
   },
 ]
 
@@ -91,6 +97,9 @@ export function EditVaultContent() {
   const [selectedQ, setSelectedQ] = useState<QuestionItem | null>(null)
   const [isEnhancing, setIsEnhancing] = useState(false)
   const [searchTerm, setSearchTerm] = useState<string>("")
+  const [sortOption, setSortOption] = useState<"newest" | "oldest" | "title-az">("newest")
+  const [fromDate, setFromDate] = useState<string>("")
+  const [toDate, setToDate] = useState<string>("")
   const [lowQualityMedia, setLowQualityMedia] = useState<Record<string, boolean>>({
     // Mark one sample image as low quality so the badge appears in demo data
     m1: true,
@@ -268,6 +277,13 @@ export function EditVaultContent() {
     setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
   }
 
+  const handleModalDateChange = (value: string) => {
+    if (!selectedQ) return
+    const updated = { ...selectedQ, date: value }
+    setSelectedQ(updated)
+    setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
+  }
+
   const handleModalQuestionChange = (value: string) => {
     if (!selectedQ) return
     const updated = { ...selectedQ, question: value }
@@ -307,6 +323,28 @@ export function EditVaultContent() {
     setSelectedQ(null)
   }
 
+  const filteredQuestions = questions.filter((q) => {
+    const matchesSearch =
+      q.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.answer.toLowerCase().includes(searchTerm.toLowerCase())
+
+    const time = q.date ? new Date(q.date).getTime() : null
+    const fromOk = fromDate && time !== null ? time >= new Date(fromDate).getTime() : true
+    const toOk = toDate && time !== null ? time <= new Date(toDate).getTime() : true
+
+    return matchesSearch && fromOk && toOk
+  })
+
+  const sortedQuestions = [...filteredQuestions].sort((a, b) => {
+    if (sortOption === "title-az") {
+      return a.question.localeCompare(b.question)
+    }
+
+    const aTime = a.date ? new Date(a.date).getTime() : 0
+    const bTime = b.date ? new Date(b.date).getTime() : 0
+    return sortOption === "newest" ? bTime - aTime : aTime - bTime
+  })
+
   return (
     <div className="animate-fade-in-up flex flex-col gap-8 pb-2">
       <div className="flex flex-row items-center justify-between">
@@ -341,31 +379,70 @@ export function EditVaultContent() {
         </p> */}
       </div>
 
-      <div className="flex items-center mb-2 max-w-md w-full">
-        <input
-          type="text"
-          placeholder="Search memories..."
-          className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20 transition-all"
-          value={searchTerm || ""}
-          onChange={e => setSearchTerm(e.target.value)}
-        />
-        {searchTerm?.length > 0 && (
-          <button
-            type="button"
-            className="ml-2 p-1 rounded hover:bg-muted/50"
-            onClick={() => setSearchTerm("")}
-            aria-label="Clear search"
+      <div className="flex flex-wrap items-center gap-3 mb-3">
+        {/* Search */}
+        <div className="flex items-center max-w-md w-full">
+          <input
+            type="text"
+            placeholder="Search memories..."
+            className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20 transition-all"
+            value={searchTerm || ""}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm?.length > 0 && (
+            <button
+              type="button"
+              className="ml-2 p-1 rounded hover:bg-muted/50"
+              onClick={() => setSearchTerm("")}
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          )}
+        </div>
+
+        {/* Date filter */}
+        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <span>From</span>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="h-7 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
+            />
+          </div>
+          <div className="flex items-center gap-1">
+            <span>To</span>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="h-7 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
+            />
+          </div>
+        </div>
+
+        {/* Sort */}
+        <div className="ml-auto flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[11px]">
+          <span className="text-muted-foreground">Sort</span>
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as typeof sortOption)}
+            className="bg-transparent text-foreground focus:outline-none"
           >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
-        )}
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="title-az">Title A–Z</option>
+          </select>
+        </div>
       </div>
 
       {/* ── Card grid (new) ──────────────────────────────────────────────── */}
       <section>
       
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {questions.map((q, idx) => {
+          {sortedQuestions.map((q, idx) => {
             const firstMedia = q.media[0]
             const mediaCount = q.media.length
             const preview =
@@ -486,9 +563,20 @@ export function EditVaultContent() {
       <Dialog open={!!selectedQ} onOpenChange={(open) => !open && setSelectedQ(null)}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-serif text-xl">
-              Question details
-            </DialogTitle>
+            <div className="flex flex-col gap-2">
+              <DialogTitle className="font-serif text-xl">
+                Question details
+              </DialogTitle>
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                <span>Date</span>
+                <input
+                  type="date"
+                  value={selectedQ?.date || ""}
+                  onChange={(e) => handleModalDateChange(e.target.value)}
+                  className="h-8 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
+                />
+              </div>
+            </div>
           </DialogHeader>
 
           {selectedQ && (

@@ -281,7 +281,7 @@ export function MemoryGallery() {
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1">
+        {/* <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
@@ -290,7 +290,7 @@ export function MemoryGallery() {
             placeholder="Search memories..."
             className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
           />
-        </div>
+        </div> */}
 
         {/* Category filter */}
         <div className="flex items-center gap-1.5 overflow-x-auto">
