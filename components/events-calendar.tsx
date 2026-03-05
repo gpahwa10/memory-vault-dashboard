@@ -47,17 +47,15 @@ export function EventsCalendar({
 }) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [month, setMonth] = useState<Date>(new Date())
-  const [selectedBookId, setSelectedBookId] = useState<string>("all")
+  const [selectedBookId, setSelectedBookId] = useState<string>(
+    memories[0]?.id ?? ""
+  )
 
-  const books = [
-    { id: "all", title: "All memory books" },
-    ...memories.map((m) => ({ id: m.id, title: m.title })),
-  ]
+  const books = memories.map((m) => ({ id: m.id, title: m.title }))
 
-  const eventsForBook =
-    selectedBookId === "all"
-      ? memoryEvents
-      : memoryEvents.filter((e) => e.id === selectedBookId)
+  const eventsForBook = selectedBookId
+    ? memoryEvents.filter((e) => e.id === selectedBookId)
+    : memoryEvents
 
   const eventsForDate = selectedDate
     ? eventsForBook.filter((e) => isSameDay(e.date, selectedDate))
@@ -152,7 +150,7 @@ export function EventsCalendar({
             modifiersClassNames={{
               hasEvent: "",
             }}
-            className="w-full [--cell-size:2.1rem]"
+            className="w-full [--cell-size:2.6rem]"
             classNames={{
               root: "w-full",
               months: "flex w-full justify-center",

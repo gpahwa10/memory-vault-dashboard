@@ -69,17 +69,17 @@ export default function GiveGiftScreen() {
   const [couponCode, setCouponCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [videoFileName, setVideoFileName] = useState<string | null>(null);
-  
+
   const [formData, setFormData] = useState({
     // Sender Details
     senderName: "",
     senderEmail: "",
     senderPhone: "",
-    
+
     // Recipient Details
     recipientName: "",
     recipientEmail: "",
-    
+
     // Gift Details
     message: "",
     deliveryDate: "",
@@ -177,33 +177,6 @@ export default function GiveGiftScreen() {
             </Select>
           </motion.div>
 
-          {/* Gift Design Selection */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-3"
-          >
-            <Label htmlFor="design" className="text-sm font-medium text-foreground flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-vault-teal" />
-              Select Gift Design
-            </Label>
-            <Select value={selectedDesign} onValueChange={setSelectedDesign}>
-              <SelectTrigger className="w-full h-10 border-border bg-card hover:border-vault-teal/60 transition-colors">
-                <SelectValue placeholder="Choose a design for your gift" />
-              </SelectTrigger>
-              <SelectContent>
-                {giftDesigns.map((design) => (
-                  <SelectItem key={design.id} value={design.id} className="py-2">
-                    {design.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </motion.div>
-
-          {/* Divider */}
-          <div className="h-px bg-border/70 my-8" />
 
           {/* Gift Card Type */}
           <motion.div
@@ -237,8 +210,8 @@ export default function GiveGiftScreen() {
                     <div className="flex items-start gap-3 mb-3">
                       <div className={cn(
                         "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5",
-                        giftCardType === "physical" 
-                          ? "border-vault-teal bg-vault-teal" 
+                        giftCardType === "physical"
+                          ? "border-vault-teal bg-vault-teal"
                           : "border-border"
                       )}>
                         {giftCardType === "physical" && (
@@ -278,8 +251,8 @@ export default function GiveGiftScreen() {
                     <div className="flex items-start gap-3 mb-3">
                       <div className={cn(
                         "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5",
-                        giftCardType === "digital" 
-                          ? "border-vault-teal bg-vault-teal" 
+                        giftCardType === "digital"
+                          ? "border-vault-teal bg-vault-teal"
                           : "border-border"
                       )}>
                         {giftCardType === "digital" && (
@@ -298,6 +271,38 @@ export default function GiveGiftScreen() {
               </div>
             </RadioGroup>
           </motion.div>
+
+          {/* Divider */}
+          {giftCardType === "physical" && (
+          <div className="h-px bg-border/70 my-8" />
+          )}
+          {/* Gift Design Selection */}
+
+          {giftCardType === "physical" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="space-y-3"
+            >
+              <Label htmlFor="design" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-vault-teal" />
+                Select Gift Design
+              </Label>
+              <Select value={selectedDesign} onValueChange={setSelectedDesign}>
+                <SelectTrigger className="w-full h-10 border-border bg-card hover:border-vault-teal/60 transition-colors">
+                  <SelectValue placeholder="Choose a design for your gift" />
+                </SelectTrigger>
+                <SelectContent>
+                  {giftDesigns.map((design) => (
+                    <SelectItem key={design.id} value={design.id} className="py-2">
+                      {design.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </motion.div>
+          )}
 
           {/* Divider */}
           <div className="h-px bg-border/70 my-8" />
@@ -533,28 +538,28 @@ export default function GiveGiftScreen() {
                 <span className="text-muted-foreground">Subscription</span>
                 <span className="font-medium text-foreground">₹{basePrice.toFixed(2)}</span>
               </div>
-              
+
               {giftCardType === "physical" && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Physical Gift Card Charge</span>
                   <span className="font-medium text-foreground">₹{physicalCardCharge.toFixed(2)}</span>
                 </div>
               )}
-              
+
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium text-foreground">₹{subtotal.toFixed(2)}</span>
               </div>
-              
+
               {selectedState && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">GST (18%)</span>
                   <span className="font-medium text-foreground">₹{gstAmount.toFixed(2)}</span>
                 </div>
               )}
-              
+
               <div className="h-px bg-border/70 my-3" />
-              
+
               <div className="flex justify-between items-center">
                 <span className="text-sm font-semibold text-foreground">Total Amount</span>
                 <span className="text-2xl font-bold text-vault-teal">

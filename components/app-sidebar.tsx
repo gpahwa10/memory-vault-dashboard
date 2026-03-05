@@ -191,7 +191,7 @@ export function AppSidebar({
                                   onAddVault?.()
                                   onMobileToggle?.()
                                 }}
-                                className="mt-1 inline-flex w-full items-center gap-2 rounded-md border border-dashed border-vault-gold/40 bg-vault-gold/10 px-2 py-1 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/20"
+                                className="mt-1 inline-flex w-full items-center gap-2 rounded-md border border-dashed border-vault-gold/40 bg-vault-gold/10 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-vault-gold/20"
                               >
                                 <PlusCircle className="h-3 w-3" />
                                 New memory vault

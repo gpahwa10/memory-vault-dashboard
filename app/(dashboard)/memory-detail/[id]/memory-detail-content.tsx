@@ -224,6 +224,17 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
             <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground">
               Memory Progress
             </h2>
+            <div className="space-y-1.5">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-vault-teal transition-all"
+                    style={{ width: `${questionsPct}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {Math.round(questionsPct)}% of questions answered
+                </p>
+              </div>
           </div>
 
           {/* Overall progress pill */}
@@ -237,96 +248,6 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
             <span className="text-sm font-bold tabular-nums text-foreground">{overallPct}%</span>
           </div> */}
         </div>
-
-        {/* Compact accordion metrics */}
-        <Accordion type="single" collapsible className="px-4 py-3 space-y-1">
-          <AccordionItem value="questions" className="border-none">
-            <AccordionTrigger className="rounded-lg px-2 py-1.5 text-xs hover:no-underline hover:bg-muted">
-              <div className="flex w-full items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vault-teal/10">
-                    <HelpCircle className="h-3.5 w-3.5 text-vault-teal" />
-                  </span>
-                  <span className="font-medium text-foreground">Questions</span>
-                </div>
-                <span className="text-[11px] tabular-nums text-muted-foreground">
-                  {answeredCount}/{questions.length}
-                </span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-2">
-              <div className="space-y-1.5">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-vault-teal transition-all"
-                    style={{ width: `${questionsPct}%` }}
-                  />
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  {Math.round(questionsPct)}% of questions answered
-                </p>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-{/* 
-          <AccordionItem value="photos" className="border-none">
-            <AccordionTrigger className="rounded-lg px-2 py-1.5 text-xs hover:no-underline hover:bg-muted">
-              <div className="flex w-full items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vault-gold/10">
-                    <Camera className="h-3.5 w-3.5 text-vault-gold" />
-                  </span>
-                  <span className="font-medium text-foreground">Photos</span>
-                </div>
-                <span className="text-[11px] tabular-nums text-muted-foreground">
-                  {photoCount}/100 max
-                </span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-2">
-              <div className="space-y-1.5">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-vault-gold transition-all"
-                    style={{ width: `${photosPct}%` }}
-                  />
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  {photoCount} of 100 photos used
-                </p>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="videos" className="border-none">
-            <AccordionTrigger className="rounded-lg px-2 py-1.5 text-xs hover:no-underline hover:bg-muted">
-              <div className="flex w-full items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-vault-teal/10">
-                    <Video className="h-3.5 w-3.5 text-vault-teal" />
-                  </span>
-                  <span className="font-medium text-foreground">Videos</span>
-                </div>
-                <span className="text-[11px] tabular-nums text-muted-foreground">
-                  {videoCount}/10
-                </span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-2">
-              <div className="space-y-1.5">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-vault-teal transition-all"
-                    style={{ width: `${videosPct}%` }}
-                  />
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  {videoCount} of 10 videos added
-                </p>
-              </div>
-            </AccordionContent>
-          </AccordionItem> */}
-        </Accordion>
       </section>
 
       {/* ── Questions Answered ────────────────────── */}

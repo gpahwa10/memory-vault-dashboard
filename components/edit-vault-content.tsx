@@ -100,6 +100,8 @@ export function EditVaultContent() {
   const [sortOption, setSortOption] = useState<"newest" | "oldest" | "title-az">("newest")
   const [fromDate, setFromDate] = useState<string>("")
   const [toDate, setToDate] = useState<string>("")
+  const [statusFilter, setStatusFilter] = useState<"all" | "answered" | "pending">("all")
+  const [isEditingQuestionText, setIsEditingQuestionText] = useState(false)
   const [lowQualityMedia, setLowQualityMedia] = useState<Record<string, boolean>>({
     // Mark one sample image as low quality so the badge appears in demo data
     m1: true,
@@ -132,7 +134,14 @@ export function EditVaultContent() {
   const addQuestion = () => {
     setQuestions((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), question: "", answer: "", answered: false, media: [] },
+      {
+        id: crypto.randomUUID(),
+        question: "",
+        answer: "",
+        answered: false,
+        media: [],
+        date: new Date().toISOString().slice(0, 10),
+      },
     ])
   }
 
@@ -321,6 +330,7 @@ export function EditVaultContent() {
 
   const handleModalSave = () => {
     setSelectedQ(null)
+    setIsEditingQuestionText(false)
   }
 
   const filteredQuestions = questions.filter((q) => {
@@ -332,7 +342,12 @@ export function EditVaultContent() {
     const fromOk = fromDate && time !== null ? time >= new Date(fromDate).getTime() : true
     const toOk = toDate && time !== null ? time <= new Date(toDate).getTime() : true
 
-    return matchesSearch && fromOk && toOk
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "answered" && q.answered) ||
+      (statusFilter === "pending" && !q.answered)
+
+    return matchesSearch && fromOk && toOk && matchesStatus
   })
 
   const sortedQuestions = [...filteredQuestions].sort((a, b) => {
@@ -422,6 +437,19 @@ export function EditVaultContent() {
             />
           </div>
         </div>
+        {/* Status filter */}
+        <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[11px]">
+          <span className="text-muted-foreground">Status</span>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+            className="bg-transparent text-foreground focus:outline-none"
+          >
+            <option value="all">All</option>
+            <option value="answered">Answered</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
 
         {/* Sort */}
         <div className="ml-auto flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[11px]">
@@ -456,7 +484,10 @@ export function EditVaultContent() {
               <button
                 key={q.id}
                 type="button"
-                onClick={() => setSelectedQ(q)}
+                onClick={() => {
+                  setSelectedQ(q)
+                  setIsEditingQuestionText(false)
+                }}
                 className={cn(
                   "group relative flex h-full flex-col overflow-hidden rounded-xl border text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-vault-teal/40",
                   q.answered
@@ -560,7 +591,15 @@ export function EditVaultContent() {
       */}
 
       {/* ── Question detail modal ────────────────────────────────────────── */}
-      <Dialog open={!!selectedQ} onOpenChange={(open) => !open && setSelectedQ(null)}>
+      <Dialog
+        open={!!selectedQ}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedQ(null)
+            setIsEditingQuestionText(false)
+          }
+        }}
+      >
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <div className="flex flex-col gap-2">
@@ -583,15 +622,34 @@ export function EditVaultContent() {
             <div className="space-y-5 py-2">
               {/* Question text */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  Question
-                </label>
-                <Textarea
-                  value={selectedQ.question}
-                  onChange={(e) => handleModalQuestionChange(e.target.value)}
-                  placeholder="Edit the question text..."
-                  className="min-h-[80px] resize-none"
-                />
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                    Question
+                  </label>
+                  {!isEditingQuestionText && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-[11px]"
+                      onClick={() => setIsEditingQuestionText(true)}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                </div>
+                {isEditingQuestionText ? (
+                  <Textarea
+                    value={selectedQ.question}
+                    onChange={(e) => handleModalQuestionChange(e.target.value)}
+                    placeholder="Edit the question text..."
+                    className="min-h-[80px] resize-none"
+                  />
+                ) : (
+                  <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-foreground">
+                    {selectedQ.question || "No question text yet."}
+                  </div>
+                )}
               </div>
 
               {/* Answer */}
@@ -603,7 +661,7 @@ export function EditVaultContent() {
                   value={selectedQ.answer}
                   onChange={(e) => handleModalAnswerChange(e.target.value)}
                   placeholder="Write your answer here..."
-                  className="min-h-[130px] resize-none"
+                  className="min-h-[130px]"
                 />
                 <div className="flex justify-end">
                   <Button
