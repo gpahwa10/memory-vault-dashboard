@@ -226,7 +226,7 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
           Welcome back, <span className="text-vault-teal">{userName}!</span>
         </h1>
         <p className="mt-1 text-base text-muted-foreground">
-          Start creating your memories!
+          Start vaulting your memories!
         </p>
       </div>
 

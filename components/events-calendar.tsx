@@ -1,8 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { format, isSameDay } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
+import { motion } from "framer-motion"
+import {
+  format,
+  isSameDay,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+} from "date-fns"
 import { PlusCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getMemories, type Memory } from "@/lib/memories"
@@ -61,7 +67,13 @@ export function EventsCalendar({
     ? eventsForBook.filter((e) => isSameDay(e.date, selectedDate))
     : []
 
-  const datesWithEvents = eventsForBook.map((e) => e.date)
+  const monthStart = startOfMonth(month)
+  const monthEnd = endOfMonth(month)
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
+  const startDayOfWeek = monthStart.getDay()
+
+  const getEventsForDate = (date: Date) =>
+    eventsForBook.filter((event) => isSameDay(event.date, date))
 
   return (
     <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
@@ -94,34 +106,38 @@ export function EventsCalendar({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
         {/* Calendar */}
         <div className="overflow-hidden rounded-xl border border-border bg-card p-4 shadow-sm">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-4">
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-full"
-                onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
+                className="h-8 w-8 rounded-full"
+                onClick={() =>
+                  setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))
+                }
               >
                 <span className="sr-only">Previous month</span>
                 <span aria-hidden>‹</span>
               </Button>
+              <h2 className="font-serif text-lg font-semibold text-foreground">
+                {format(month, "MMMM yyyy")}
+              </h2>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-full"
-                onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
+                className="h-8 w-8 rounded-full"
+                onClick={() =>
+                  setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))
+                }
               >
                 <span className="sr-only">Next month</span>
                 <span aria-hidden>›</span>
               </Button>
-              <p className="ml-1 text-sm font-semibold text-foreground">
-                {format(month, "MMMM yyyy")}
-              </p>
             </div>
             <Button
               type="button"
@@ -138,27 +154,91 @@ export function EventsCalendar({
             </Button>
           </div>
 
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            month={month}
-            onMonthChange={setMonth}
-            modifiers={{
-              hasEvent: datesWithEvents,
-            }}
-            modifiersClassNames={{
-              hasEvent: "",
-            }}
-            className="w-full [--cell-size:2.6rem]"
-            classNames={{
-              root: "w-full",
-              months: "flex w-full justify-center",
-              month: "w-full flex flex-col gap-4",
-              nav: "hidden",
-              month_caption: "sr-only",
-            }}
-          />
+          {/* Day headers */}
+          <div className="mb-2 grid grid-cols-7">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              <div
+                key={day}
+                className="py-1 text-center text-xs font-medium text-muted-foreground"
+              >
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-1">
+            {/* Empty leading cells */}
+            {Array.from({ length: startDayOfWeek }).map((_, i) => (
+              <div key={`empty-${i}`} className="aspect-square" />
+            ))}
+
+            {daysInMonth.map((day) => {
+              const events = getEventsForDate(day)
+              const hasEvents = events.length > 0
+              const isSelected = selectedDate && isSameDay(day, selectedDate)
+              const isToday = isSameDay(day, new Date())
+
+              return (
+                <motion.button
+                  key={day.toISOString()}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => setSelectedDate(day)}
+                  className={cn(
+                    "relative flex aspect-square flex-col items-center justify-center rounded-lg text-xs transition-all",
+                    isSelected
+                      ? "bg-vault-teal text-primary-foreground"
+                      : isToday
+                      ? "bg-muted text-foreground"
+                      : "hover:bg-muted/70 text-foreground"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "text-sm font-medium",
+                      isSelected && "text-primary-foreground"
+                    )}
+                  >
+                    {format(day, "d")}
+                  </span>
+                  {hasEvents && (
+                    <div className="mt-1 flex gap-0.5">
+                      {events.slice(0, 3).map((event, index) => (
+                        <span
+                          key={index}
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full",
+                            isSelected ? "bg-primary-foreground" : event.color
+                          )}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </motion.button>
+              )
+            })}
+          </div>
+
+          {/* Legend */}
+          <div className="mt-5 border-t border-border pt-3">
+            <p className="mb-2 text-[11px] text-muted-foreground">Categories</p>
+            <div className="flex flex-wrap gap-2">
+              {["Milestone", "Celebration", "Daily", "Family"].map((category) => {
+                const color =
+                  memoryEvents.find((e) => e.category === category)?.color ??
+                  "bg-muted-foreground"
+                return (
+                  <div key={category} className="flex items-center gap-1.5">
+                    <span className={cn("h-2.5 w-2.5 rounded-full", color)} />
+                    <span className="text-[11px] text-muted-foreground">
+                      {category}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Events sidebar */}

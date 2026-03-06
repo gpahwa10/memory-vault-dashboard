@@ -15,6 +15,7 @@ import {
   GripVertical,
   Sparkles,
   X,
+  Search,
 } from "lucide-react"
 import {
   Dialog,
@@ -100,7 +101,7 @@ export function EditVaultContent() {
   const [sortOption, setSortOption] = useState<"newest" | "oldest" | "title-az">("newest")
   const [fromDate, setFromDate] = useState<string>("")
   const [toDate, setToDate] = useState<string>("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "answered" | "pending">("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "answered" | "pending">("answered")
   const [isEditingQuestionText, setIsEditingQuestionText] = useState(false)
   const [lowQualityMedia, setLowQualityMedia] = useState<Record<string, boolean>>({
     // Mark one sample image as low quality so the badge appears in demo data
@@ -396,7 +397,8 @@ export function EditVaultContent() {
 
       <div className="flex flex-wrap items-center gap-3 mb-3">
         {/* Search */}
-        <div className="flex items-center max-w-md w-full">
+        <div className="flex items-center max-w-md w-full gap-2">
+          <Search className="h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search memories..."
@@ -606,8 +608,8 @@ export function EditVaultContent() {
               <DialogTitle className="font-serif text-xl">
                 Question details
               </DialogTitle>
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <span>Date</span>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-medium text-muted-foreground">Date</h3>
                 <input
                   type="date"
                   value={selectedQ?.date || ""}
