@@ -1,5 +1,6 @@
 import { Button } from "../ui/button"
 import localFont from "next/font/local"
+import Link from "next/link"
 
 const gtSuperDisplay = localFont({
   src: "../../public/fonts/gt-super-ds-trial/GT-Super-Display-Regular-Trial.otf",
@@ -49,8 +50,8 @@ export const HeroSection = () => {
           </p>
 
           <div className="flex flex-wrap gap-3 sm:gap-4">
-            <Button className="rounded-full border-0 bg-[#CAA64A] px-5 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-normal text-white hover:bg-[#b89442]">
-              Start Vaulting
+            <Button asChild className="rounded-full border-0 bg-[#CAA64A] px-5 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-normal text-white hover:bg-[#b89442]">
+              <Link href="/app">Start Vaulting</Link>
             </Button>
 
             <Button className="rounded-full border-0 bg-white px-5 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-normal text-black hover:bg-gray-200">

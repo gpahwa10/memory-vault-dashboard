@@ -16,10 +16,10 @@ export const Reviews = () => {
     const reviews = [
         {
             type: "image",
-            src: "/wedding-photo.jpg",
+            src: "/landing-page/review-image-2.svg",
             alt: "Wedding couple",
             rotation: "-rotate-2",
-            emoji: "💛"
+            emoji: "/landing-page/review-illustration-1.svg"
         },
         {
             type: "testimonial",
@@ -29,10 +29,10 @@ export const Reviews = () => {
         },
         {
             type: "image",
-            src: "/birthday-cake.jpg",
+            src: "/landing-page/review-image-1.svg",
             alt: "Birthday cake celebration",
             rotation: "rotate-2",
-            emoji: "🍼"
+            emoji: "/landing-page/review-illustration-2.svg"
         },
         {
             type: "testimonial",
@@ -79,7 +79,13 @@ export const Reviews = () => {
                                     />
                                 </div>
                                 {/* Emoji decoration */}
-                                <div className="absolute bottom-3 left-3 text-xl">{item.emoji}</div>
+                                <div className="absolute bottom-3 left-3 text-xl">
+                                    <img
+                                        src={item.emoji}
+                                        alt={item.alt}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
                             </div>
                         ) : (
                             /* Testimonial Card */

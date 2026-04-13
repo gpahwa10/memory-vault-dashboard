@@ -34,7 +34,7 @@ export const Navbar = () => {
             variant="outline"
             className="shrink-0 rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-sm font-normal text-white hover:bg-[#b89442] lg:hidden"
           >
-            Start Vaulting
+            <Link href="/app">Start Vaulting</Link>
           </Button>
         </div>
 
