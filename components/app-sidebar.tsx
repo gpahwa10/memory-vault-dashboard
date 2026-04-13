@@ -42,7 +42,7 @@ interface AppSidebarProps {
 }
 
 const mainNavItems: { id: string; label: string; href: string | null; icon: typeof LayoutDashboard }[] = [
-  { id: "dashboard", label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { id: "dashboard", label: "Dashboard", href: "/app", icon: LayoutDashboard },
   // { id: "add-memory", label: "Add a new memory", href: null, icon: PlusCircle },
   { id: "add-vault", label: "Memory vaults", href: null, icon: PlusCircle },
   { id: "calendar", label: "Events Calendar", href: "/calendar", icon: CalendarDays },
@@ -55,7 +55,6 @@ const mainNavItems: { id: string; label: string; href: string | null; icon: type
 
 function isActive(pathname: string, item: (typeof mainNavItems)[0]) {
   if (item.href === null) return false
-  if (item.href === "/") return pathname === "/"
   return pathname === item.href || pathname.startsWith(item.href + "/")
 }
 
@@ -92,7 +91,7 @@ export function AppSidebar({
       >
         {/* Logo section */}
         <div className="flex items-center gap-3 border-b border-sidebar-border px-5 py-5">
-          <Link href="/" className="flex items-center gap-3 min-w-0 flex-1">
+          <Link href="/app" className="flex items-center gap-3 min-w-0 flex-1">
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-vault-gold">
               <Image
                 src="/logo.jpg"

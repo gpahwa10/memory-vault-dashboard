@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { LandingParallelAppSlot } from '@/components/landing-parallel-app-slot'
 import { WhatsAppButton } from '@/components/whatsapp-button'
 import './globals.css'
 
@@ -22,12 +23,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  app,
 }: Readonly<{
   children: React.ReactNode
+  app: React.ReactNode
 }>) {
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-sans antialiased">
+        <LandingParallelAppSlot>{app}</LandingParallelAppSlot>
         {children}
         <WhatsAppButton phoneNumber="1234567890" message="Hello, I have a question about Memory Vault." />
         <Analytics />

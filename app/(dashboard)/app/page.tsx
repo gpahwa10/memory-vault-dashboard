@@ -1,0 +1,41 @@
+"use client"
+
+import { useRouter } from "next/navigation"
+import { DashboardContent } from "@/components/dashboard-content"
+import { useAddMemory } from "../add-memory-context"
+import { useAddVault } from "../add-vault-context"
+
+const idToPath: Record<string, string> = {
+  preview: "/preview",
+  "edit-vault": "/edit-vault",
+  "make-reel": "/make-reel",
+  "print-book": "/print-book",
+  "give-gift": "/give-gift",
+  gallery: "/gallery",
+  questions: "/questions",
+  "edit-book": "/edit-book",
+  "all-books": "/app",
+  "how-to": "/help",
+  tips: "/help",
+}
+
+export default function DashboardAppPage() {
+  const router = useRouter()
+  const openAddMemory = useAddMemory()
+  const openAddVault = useAddVault()
+
+  const handleNavigate = (item: string) => {
+    if (item === "add-memory") {
+      openAddMemory()
+      return
+    }
+    if (item === "add-vault") {
+      openAddVault()
+      return
+    }
+    const path = idToPath[item]
+    if (path) router.push(path)
+  }
+
+  return <DashboardContent onNavigate={handleNavigate} />
+}
