@@ -19,7 +19,7 @@ const jost = localFont({
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const linkClass =
-    "font-normal text-white/95 transition-colors hover:text-white text-sm sm:text-base"
+    "font-normal text-white/95 transition-colors hover:text-white text-xs sm:text-sm md:text-base"
 
   return (
     <header className="bg-[#1D453A] px-4 py-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 sm:py-5 lg:py-6">
@@ -31,7 +31,7 @@ export const Navbar = () => {
               alt=""
               className="h-9 w-9 shrink-0 sm:h-10 sm:w-10 lg:h-[42px] lg:w-[42px]"
             />
-            <h1 className={`${gtSuperDisplay.className} truncate font-normal text-white text-xl sm:text-2xl lg:text-[32px]`}>
+            <h1 className={`${gtSuperDisplay.className} truncate font-normal text-white text-lg sm:text-xl lg:text-[1.65rem]`}>
               Memory Vault
             </h1>
           </div>
@@ -67,7 +67,7 @@ export const Navbar = () => {
           <Button
             asChild
             variant="outline"
-            className={`${jost.className} mt-2 w-full rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-sm font-normal text-white hover:bg-[#b89442] lg:hidden`}
+            className={`${jost.className} mt-2 w-full rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-xs font-normal text-white hover:bg-[#b89442] sm:text-sm lg:hidden`}
           >
             <Link href="/app" onClick={() => setIsMobileMenuOpen(false)}>Start Vaulting</Link>
           </Button>
@@ -76,7 +76,7 @@ export const Navbar = () => {
         <Button
           asChild
           variant="outline"
-          className={`${jost.className} hidden rounded-full border-0 bg-[#CAA64A] px-6 py-3 text-base font-normal text-white hover:bg-[#b89442] lg:inline-flex`}
+          className={`${jost.className} hidden rounded-full border-0 bg-[#CAA64A] px-6 py-3 text-sm font-normal text-white hover:bg-[#b89442] lg:inline-flex`}
         >
           <Link href="/app">Start Vaulting</Link>
         </Button>

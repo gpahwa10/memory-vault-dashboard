@@ -47,15 +47,15 @@ export const FaqSection = () => {
     return (
         <div className="flex flex-col gap-8 bg-[#E5E1D7] px-4 py-12 sm:gap-10 sm:px-6 lg:flex-row lg:items-start lg:gap-12 lg:px-14 lg:py-16 xl:px-20 2xl:px-32 min-[1920px]:px-[240px]">
             <div className="flex min-w-0 flex-1 flex-col gap-6 lg:max-w-md">
-                <span className={`${gtSuperDisplay.className} flex flex-row text-3xl font-500 text-black sm:text-4xl lg:text-5xl`}>
+                <span className={`${gtSuperDisplay.className} flex flex-row text-2xl font-500 text-black sm:text-3xl lg:text-4xl`}>
                     <p>FAQ</p>
                     <p className="text-[#CAA64A]">s</p>
                 </span>
-                <p className={`${jost.className} text-base font-400 text-[#615F5A] sm:text-lg lg:text-2xl`}>
+                <p className={`${jost.className} text-sm font-400 text-[#615F5A] sm:text-base lg:text-lg xl:text-xl`}>
                     Got questions? We’re here with clear answers to help you every step of the way.
                 </p>
-                <p className={`${jost.className} text-lg font-500 text-black sm:text-xl lg:text-2xl`}>Still have questions?</p>
-                <Button className="max-w-fit rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-sm font-400 text-black hover:bg-[#b89442]">
+                <p className={`${jost.className} text-base font-500 text-black sm:text-lg lg:text-xl`}>Still have questions?</p>
+                <Button className="max-w-fit rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-xs font-400 text-black hover:bg-[#b89442] sm:text-sm">
                     Contact us <Mail className="size-4" />
                 </Button>
             </div>
@@ -79,7 +79,7 @@ export const FaqSection = () => {
                                     "disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]]:no-underline",
                                 )}
                             >
-                                <span className={`${jost.className} min-w-0 flex-1 text-base font-400 text-[#2d2418]`}>
+                                <span className={`${jost.className} min-w-0 flex-1 text-sm font-400 text-[#2d2418] sm:text-base`}>
                                     {item.question}
                                 </span>
                                 <span
@@ -93,7 +93,7 @@ export const FaqSection = () => {
                                 </span>
                             </AccordionPrimitive.Trigger>
                         </AccordionPrimitive.Header>
-                        <AccordionContent className="border-0 pb-0 pt-4 text-base font-400 leading-relaxed text-[#615F5A]">
+                        <AccordionContent className="border-0 pb-0 pt-4 text-sm font-400 leading-relaxed text-[#615F5A] sm:text-base">
                             {item.answer}
                         </AccordionContent>
                     </AccordionItem>

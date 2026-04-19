@@ -44,10 +44,10 @@ export const Reviews = () => {
 
     return (
         <div className="flex flex-col items-center justify-center gap-6 bg-[#EDE9DF] px-4 py-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-24 min-[1920px]:px-[240px] min-[1920px]:py-[116px]">
-            <h2 className={`${gtSuperDisplay.className} text-center text-3xl font-400 text-[#12473A] sm:text-4xl lg:text-5xl`}>
+            <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-400 text-[#12473A] sm:text-3xl lg:text-4xl`}>
                 What our Happy <span className="text-[#CAA64A]">Families Say</span>
             </h2>
-            <p className={`${jost.className} text-center text-base font-400 text-[#615F5A] sm:text-lg lg:text-2xl`}>
+            <p className={`${jost.className} text-center text-sm font-400 text-[#615F5A] sm:text-base lg:text-lg xl:text-xl`}>
                 Real stories from families who treasure their memories
             </p>
 
@@ -93,10 +93,10 @@ export const Reviews = () => {
                                 key={index}
                                 className={`flex w-[220px] min-h-[220px] flex-shrink-0 flex-col justify-between rounded-2xl bg-[#12473A] p-5 sm:w-[260px] sm:min-h-[240px] sm:p-7 ${item.rotation}`}
                             >
-                                <p className={`${jost.className} text-white text-sm leading-relaxed font-normal`}>
+                                <p className={`${jost.className} text-white text-xs leading-relaxed font-normal sm:text-sm`}>
                                     {item.text}
                                 </p>
-                                <p className={`${jost.className} text-[#CAA64A] text-sm font-medium mt-4`}>
+                                <p className={`${jost.className} text-[#CAA64A] text-xs font-medium mt-4 sm:text-sm`}>
                                     {item.author}
                                 </p>
                             </div>

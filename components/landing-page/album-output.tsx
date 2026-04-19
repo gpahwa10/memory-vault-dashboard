@@ -111,10 +111,10 @@ export const AlbumOutput = () => {
     return (
         <div className="flex flex-col items-center justify-center gap-5 bg-[#EDE9DF] px-4 py-12 sm:gap-6 sm:px-6 sm:py-16 md:px-10 lg:px-14 xl:px-20 2xl:px-32 min-[1920px]:px-[240px]">
             {/* Heading */}
-            <h2 className={`${gtSuperDisplay.className} text-center text-3xl font-normal text-[#12473A] sm:text-4xl lg:text-5xl`}>
+            <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-normal text-[#12473A] sm:text-3xl lg:text-4xl`}>
                 Album <span className="text-[#CAA64A]">Output</span>
             </h2>
-            <p className={`${jost.className} max-w-[680px] text-center text-sm text-[#615F5A] sm:text-base lg:text-lg`}>
+            <p className={`${jost.className} max-w-[680px] text-center text-xs text-[#615F5A] sm:text-sm lg:text-base`}>
                 Explore our range of professionally crafted memory books for every occasion
             </p>
 
@@ -152,7 +152,7 @@ export const AlbumOutput = () => {
 
                             {/* Title + Arrow (active card) */}
                             <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between sm:bottom-5 sm:left-5 sm:right-5">
-                                <span className={`${jost.className} text-sm font-500 text-white drop-shadow sm:text-xl`}>
+                                <span className={`${jost.className} text-xs font-500 text-white drop-shadow sm:text-sm md:text-base lg:text-lg`}>
                                     {album.title}
                                 </span>
                                 {offset === 0 && (

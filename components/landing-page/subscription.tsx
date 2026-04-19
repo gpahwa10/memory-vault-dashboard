@@ -15,10 +15,10 @@ const gtSuperDisplay = localFont({
 export const Subscription = () => {
     return (
         <div className="flex flex-col items-center justify-center gap-[24px] overflow-x-hidden bg-[#EDE9DF] px-4 py-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-24 min-[1920px]:px-[240px] min-[1920px]:py-[116px]">
-            <h2 className={`${gtSuperDisplay.className} text-center text-3xl font-400 text-[#12473A] sm:text-4xl lg:text-5xl`}>
+            <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-400 text-[#12473A] sm:text-3xl lg:text-4xl`}>
                 Flexible packages for <span className="text-[#CAA64A]">Every Unique Need</span>
             </h2>
-            <p className={`${jost.className} text-center text-base font-400 text-[#615F5A] sm:text-lg lg:text-2xl`}>
+            <p className={`${jost.className} text-center text-sm font-400 text-[#615F5A] sm:text-base lg:text-lg xl:text-xl`}>
             Choose the perfect plan to beautifully preserve and celebrate your most cherished memories.
             </p>
             <div className="grid w-full max-w-[1470px] grid-cols-1 place-items-center gap-8 md:grid-cols-2 xl:grid-cols-3">
@@ -70,7 +70,7 @@ const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }
             >
                 {/* Most Popular Banner */}
                 {plan.isPopular && (
-                    <div className="w-full bg-[#12473A] py-3 text-center text-sm font-600 tracking-widest text-white uppercase">
+                    <div className="w-full bg-[#12473A] py-2.5 text-center text-[11px] font-600 tracking-widest text-white uppercase sm:py-3 sm:text-xs md:text-sm">
                         Most Popular
                     </div>
                 )}
@@ -83,22 +83,22 @@ const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }
                 >
                     <div className="flex h-auto w-full flex-col items-start justify-center gap-[16px] rounded-[8px] border border-[#E3DED0] bg-[#F5F2EC] p-5 sm:p-6">
                         <div className="flex flex-col items-start justify-center gap-[10px]">
-                            <h3 className={`${jost.className} text-2xl font-500 text-black`}>{plan.name}</h3>
-                            <p className={`${jost.className} text-2xl font-400 text-[#615F5A]`}>{plan.pages} Pages</p>
+                            <h3 className={`${jost.className} text-xl font-500 text-black sm:text-2xl`}>{plan.name}</h3>
+                            <p className={`${jost.className} text-lg font-400 text-[#615F5A] sm:text-xl`}>{plan.pages} Pages</p>
                         </div>
 
                         <div className="h-[1px] w-full bg-[#E3DED0]"></div>
 
-                        <p className="text-4xl font-bold text-[#CAA64A] sm:text-5xl lg:text-[64px]">
+                        <p className="text-3xl font-bold text-[#CAA64A] sm:text-4xl lg:text-5xl">
                             {plan.price}{" "}
-                            <span className="text-lg font-500 text-[#615F5A] sm:text-2xl">/ Book</span>
+                            <span className="text-base font-500 text-[#615F5A] sm:text-lg lg:text-xl">/ Book</span>
                         </p>
 
                         <ul className="flex flex-col items-start justify-center gap-[16px]">
                             {plan.features.map((feature) => (
                                 <li
                                     key={feature}
-                                    className="flex items-center gap-2 text-base font-400 text-[#615F5A]"
+                                    className="flex items-center gap-2 text-sm font-400 text-[#615F5A] sm:text-base"
                                 >
                                     <Check className="h-4 w-4 shrink-0 text-[#12473A]" />
                                     <span>{feature}</span>
@@ -107,7 +107,7 @@ const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }
                         </ul>
                     </div>
 
-                    <Button className="mt-6 w-full rounded-full bg-[#CAA64A] text-black hover:bg-[#b89442]">
+                    <Button className="mt-6 w-full rounded-full bg-[#CAA64A] text-xs text-black hover:bg-[#b89442] sm:text-sm">
                         GET STARTED <ArrowRightIcon className="w-4 h-4" />
                     </Button>
                 </div>

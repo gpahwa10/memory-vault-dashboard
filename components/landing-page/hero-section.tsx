@@ -38,23 +38,23 @@ export const HeroSection = () => {
         {/* LEFT CONTENT */}
         <div className="flex flex-col justify-center gap-5 px-4 py-10 sm:gap-6 sm:px-6 sm:py-12 lg:gap-8 lg:px-16 lg:py-16">
     
-          <span className={`${gtSuperDisplay.className} flex flex-col text-[30px] sm:text-[38px] md:text-[46px] lg:text-[44px] xl:text-[80px] font-[300] text-white leading-[1.1] xl:leading-[80px] tracking-[0]`}>
+          <span className={`${gtSuperDisplay.className} flex flex-col text-2xl font-[300] text-white leading-[1.12] tracking-[0] sm:text-3xl sm:leading-[1.1] md:text-4xl lg:text-[2.25rem] xl:text-5xl 2xl:text-6xl`}>
             <span className={`${gtSuperDisplayLight.className} font-[300]`}>Some Moments <br />Deserve More Than</span>
             <span className="font-[500] text-[#CAA64A]">
               Your Gallery
             </span>
           </span>
 
-          <p className={`${jost.className} max-w-full text-base font-[400] leading-7 tracking-[0] text-gray-200 sm:max-w-[90%] sm:text-xl sm:leading-8 lg:max-w-[520px] lg:text-[30px] lg:leading-[36px]`}>
+          <p className={`${jost.className} max-w-full text-sm font-[400] leading-6 tracking-[0] text-gray-200 sm:max-w-[90%] sm:text-base sm:leading-7 lg:max-w-[520px] lg:text-lg lg:leading-8 xl:text-xl`}>
             Transform your gallery into beautifully crafted keepsakes through WhatsApp — quick, easy, and memorable.
           </p>
 
           <div className="flex flex-wrap gap-3 sm:gap-4">
-            <Button asChild className="rounded-full border-0 bg-[#CAA64A] px-5 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-normal text-white hover:bg-[#b89442]">
+            <Button asChild className="rounded-full border-0 bg-[#CAA64A] px-5 py-2.5 sm:px-6 sm:py-3 text-xs sm:text-sm font-normal text-white hover:bg-[#b89442]">
               <Link href="/app">Start Vaulting</Link>
             </Button>
 
-            <Button className="rounded-full border-0 bg-white px-5 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-normal text-black hover:bg-gray-200">
+            <Button className="rounded-full border-0 bg-white px-5 py-2.5 sm:px-6 sm:py-3 text-xs sm:text-sm font-normal text-black hover:bg-gray-200">
               View Demo
             </Button>
           </div>

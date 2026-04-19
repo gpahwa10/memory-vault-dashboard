@@ -13,7 +13,7 @@ export const ShippingBanner = () => {
           alt=""
           className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
         />
-        <h2 className={`${jost.className} text-center text-xs font-normal leading-snug text-foreground sm:text-sm md:text-base`}>
+        <h2 className={`${jost.className} text-center text-[11px] font-normal leading-snug text-foreground sm:text-xs md:text-sm lg:text-base`}>
           Free Shipping Across India – No Hidden Charges.
         </h2>
       </div>
