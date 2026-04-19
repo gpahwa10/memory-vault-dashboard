@@ -18,11 +18,11 @@ export const Footer = () => {
         <footer className="bg-[#1D453A] px-4 py-8 sm:px-6 sm:py-10 md:px-10 md:py-12 lg:px-14 lg:py-14 xl:px-20 xl:py-16 2xl:px-32 2xl:py-[56px] min-[1920px]:px-[240px] min-[1920px]:py-[64px]">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
                 <div className="flex flex-col gap-2">
-                    <span className={`${gtSuperDisplay.className} flex flex-row items-center gap-2 text-5xl font-500 text-white`}>
+                    <span className={`${gtSuperDisplay.className} flex flex-row items-center gap-2 text-3xl font-500 text-white sm:text-4xl lg:text-5xl`}>
                         <p>Let's Stay </p>
                         <p className="text-[#CAA64A]">in touch!</p>
                     </span>
-                    <p className={`${jost.className} text-2xl font-400 text-[#E3DED0]`}>Subscribe to our newsletter to get the latest news and updates.</p>
+                    <p className={`${jost.className} text-base font-400 text-[#E3DED0] sm:text-lg lg:text-2xl`}>Subscribe to our newsletter to get the latest news and updates.</p>
                 </div>
 
                 <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-2 lg:max-w-xl lg:shrink-0">
@@ -49,36 +49,36 @@ export const Footer = () => {
                             Memory Vault
                         </h1>
                     </div>
-                    <p className={`${jost.className} text-2xl font-400 text-white`}>© 2026 Memory Vault. All rights <br /> reserved.</p>
+                    <p className={`${jost.className} text-base font-400 text-white sm:text-lg lg:text-2xl`}>© 2026 Memory Vault. All rights <br /> reserved.</p>
                 </div>
 
                 <div className="grid flex-1 grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
                     <div className="flex flex-col gap-4">
-                        <h2 className={`${gtSuperDisplay.className} text-3xl font-400 text-[#CAA64A]`}>Useful Links</h2>
+                        <h2 className={`${gtSuperDisplay.className} text-2xl font-400 text-[#CAA64A] sm:text-3xl`}>Useful Links</h2>
                         <nav className={`${jost.className} flex flex-col gap-3`} aria-label="Useful links">
-                            <Link href="/about" className="text-2xl font-400 text-white hover:underline">
+                            <Link href="/about" className="text-base font-400 text-white hover:underline sm:text-lg lg:text-2xl">
                                 About us
                             </Link>
-                            <Link href="/privacy-policy" className="text-2xl font-400 text-white hover:underline">
+                            <Link href="/privacy-policy" className="text-base font-400 text-white hover:underline sm:text-lg lg:text-2xl">
                                 Privacy policy
                             </Link>
-                            <Link href="/terms" className="text-2xl font-400 text-white hover:underline">
+                            <Link href="/terms" className="text-base font-400 text-white hover:underline sm:text-lg lg:text-2xl">
                                 Terms and conditions
                             </Link>
-                            <Link href="/contact" className="text-2xl font-400 text-white hover:underline">
+                            <Link href="/contact" className="text-base font-400 text-white hover:underline sm:text-lg lg:text-2xl">
                                 Contact us
                             </Link>
                         </nav>
                     </div>
 
                     <div className="flex flex-col gap-4">
-                        <h2 className={`${gtSuperDisplay.className} text-3xl font-400 text-[#CAA64A]`}>Social Media</h2>
+                        <h2 className={`${gtSuperDisplay.className} text-2xl font-400 text-[#CAA64A] sm:text-3xl`}>Social Media</h2>
                         <nav className={`${jost.className} flex flex-col gap-3`} aria-label="Social media">
                             <a
                                 href="https://facebook.com"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-2xl font-400 text-white hover:underline"
+                                className="text-base font-400 text-white hover:underline sm:text-lg lg:text-2xl"
                             >
                                 Facebook
                             </a>
@@ -86,7 +86,7 @@ export const Footer = () => {
                                 href="https://instagram.com"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-2xl font-400 text-white hover:underline"
+                                className="text-base font-400 text-white hover:underline sm:text-lg lg:text-2xl"
                             >
                                 Instagram
                             </a>
@@ -94,7 +94,7 @@ export const Footer = () => {
                                 href="https://twitter.com"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-2xl font-400 text-white hover:underline"
+                                className="text-base font-400 text-white hover:underline sm:text-lg lg:text-2xl"
                             >
                                 Twitter
                             </a>
@@ -102,7 +102,7 @@ export const Footer = () => {
                                 href="https://youtube.com"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-2xl font-400 text-white hover:underline"
+                                className="text-base font-400 text-white hover:underline sm:text-lg lg:text-2xl"
                             >
                                 Youtube
                             </a>
@@ -110,8 +110,8 @@ export const Footer = () => {
                     </div>
 
                     <div className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
-                        <h2 className={`${gtSuperDisplay.className} text-3xl font-400 text-[#CAA64A]`}>Contact info</h2>
-                        <div className={`${jost.className} flex gap-3 text-2xl font-400 text-white`}>
+                        <h2 className={`${gtSuperDisplay.className} text-2xl font-400 text-[#CAA64A] sm:text-3xl`}>Contact info</h2>
+                        <div className={`${jost.className} flex gap-3 text-base font-400 text-white sm:text-lg lg:text-2xl`}>
                             <MapPin className="mt-1 h-7 w-7 shrink-0 text-white" aria-hidden />
                             <address className="not-italic font-400">
                                 123 Memory Lane, Suite 400

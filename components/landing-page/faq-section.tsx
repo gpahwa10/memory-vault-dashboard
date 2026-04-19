@@ -45,16 +45,16 @@ const faqs = [
 
 export const FaqSection = () => {
     return (
-        <div className="flex flex-col gap-10 bg-[#E5E1D7] px-4 py-12 sm:px-6 lg:flex-row lg:items-start lg:gap-12 lg:px-14 lg:py-16 xl:px-20 2xl:px-32 min-[1920px]:px-[240px]">
+        <div className="flex flex-col gap-8 bg-[#E5E1D7] px-4 py-12 sm:gap-10 sm:px-6 lg:flex-row lg:items-start lg:gap-12 lg:px-14 lg:py-16 xl:px-20 2xl:px-32 min-[1920px]:px-[240px]">
             <div className="flex min-w-0 flex-1 flex-col gap-6 lg:max-w-md">
-                <span className={`${gtSuperDisplay.className} flex flex-row text-5xl font-500 text-black`}>
+                <span className={`${gtSuperDisplay.className} flex flex-row text-3xl font-500 text-black sm:text-4xl lg:text-5xl`}>
                     <p>FAQ</p>
                     <p className="text-[#CAA64A]">s</p>
                 </span>
-                <p className={`${jost.className} text-2xl font-400 text-[#615F5A]`}>
+                <p className={`${jost.className} text-base font-400 text-[#615F5A] sm:text-lg lg:text-2xl`}>
                     Got questions? We’re here with clear answers to help you every step of the way.
                 </p>
-                <p className={`${jost.className} text-2xl font-500 text-black`}>Still have questions?</p>
+                <p className={`${jost.className} text-lg font-500 text-black sm:text-xl lg:text-2xl`}>Still have questions?</p>
                 <Button className="max-w-fit rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-sm font-400 text-black hover:bg-[#b89442]">
                     Contact us <Mail className="size-4" />
                 </Button>
@@ -69,7 +69,7 @@ export const FaqSection = () => {
                     <AccordionItem
                         key={item.id}
                         value={item.id}
-                        className="border-none rounded-[20px] border border-solid border-[#E3DED0] bg-white p-6"
+                        className="border-none rounded-[20px] border border-solid border-[#E3DED0] bg-white p-4 sm:p-6"
                     >
                         <AccordionPrimitive.Header className="flex">
                             <AccordionPrimitive.Trigger

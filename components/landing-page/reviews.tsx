@@ -43,11 +43,11 @@ export const Reviews = () => {
     ];
 
     return (
-        <div className="flex flex-col items-center justify-center bg-[#EDE9DF] gap-[24px] px-4 py-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-24 min-[1920px]:px-[240px] min-[1920px]:py-[116px]">
-            <h2 className={`${gtSuperDisplay.className} text-5xl font-400 text-[#12473A]`}>
+        <div className="flex flex-col items-center justify-center gap-6 bg-[#EDE9DF] px-4 py-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-24 min-[1920px]:px-[240px] min-[1920px]:py-[116px]">
+            <h2 className={`${gtSuperDisplay.className} text-center text-3xl font-400 text-[#12473A] sm:text-4xl lg:text-5xl`}>
                 What our Happy <span className="text-[#CAA64A]">Families Say</span>
             </h2>
-            <p className={`${jost.className} text-2xl font-400 text-[#615F5A]`}>
+            <p className={`${jost.className} text-center text-base font-400 text-[#615F5A] sm:text-lg lg:text-2xl`}>
                 Real stories from families who treasure their memories
             </p>
 
@@ -59,16 +59,16 @@ export const Reviews = () => {
                     style={{ borderSpacing: "8px" }}
                 />
 
-                <div className="relative z-10 flex items-center justify-center gap-6 overflow-x-auto pb-4">
+                <div className="relative z-10 flex items-center justify-start gap-4 overflow-x-auto pb-4 sm:justify-center sm:gap-6">
                     {reviews.map((item, index) =>
                         item.type === "image" ? (
                             /* Polaroid Photo Card */
                             <div
                                 key={index}
-                                className={`flex-shrink-0 bg-white p-3 pb-10 shadow-md ${item.rotation} w-[220px] relative`}
+                                className={`relative w-[200px] flex-shrink-0 bg-white p-3 pb-8 shadow-md sm:w-[220px] sm:pb-10 ${item.rotation}`}
                                 style={{ boxShadow: "2px 4px 12px rgba(0,0,0,0.15)" }}
                             >
-                                <div className="w-full h-[200px] bg-gray-200 overflow-hidden">
+                                <div className="h-[180px] w-full overflow-hidden bg-gray-200 sm:h-[200px]">
                                     <img
                                         src={item.src}
                                         alt={item.alt}
@@ -91,7 +91,7 @@ export const Reviews = () => {
                             /* Testimonial Card */
                             <div
                                 key={index}
-                                className={`flex-shrink-0 bg-[#12473A] rounded-2xl p-7 ${item.rotation} w-[260px] flex flex-col justify-between min-h-[240px]`}
+                                className={`flex w-[220px] min-h-[220px] flex-shrink-0 flex-col justify-between rounded-2xl bg-[#12473A] p-5 sm:w-[260px] sm:min-h-[240px] sm:p-7 ${item.rotation}`}
                             >
                                 <p className={`${jost.className} text-white text-sm leading-relaxed font-normal`}>
                                     {item.text}

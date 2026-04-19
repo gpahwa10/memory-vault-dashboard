@@ -14,7 +14,7 @@ const gtSuperDisplay = localFont({
 
 export const Subscription = () => {
     return (
-        <div className="flex flex-col items-center justify-center bg-[#EDE9DF] gap-[24px] px-4 py-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-24 min-[1920px]:px-[240px] min-[1920px]:py-[116px]">
+        <div className="flex flex-col items-center justify-center gap-[24px] overflow-x-hidden bg-[#EDE9DF] px-4 py-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-24 min-[1920px]:px-[240px] min-[1920px]:py-[116px]">
             <h2 className={`${gtSuperDisplay.className} text-center text-3xl font-400 text-[#12473A] sm:text-4xl lg:text-5xl`}>
                 Flexible packages for <span className="text-[#CAA64A]">Every Unique Need</span>
             </h2>
@@ -77,7 +77,7 @@ const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }
 
                 {/* Card Body */}
                 <div
-                    className={`flex h-auto min-h-[560px] w-full flex-col items-start justify-between gap-[16px] bg-white px-[16px] py-6 shadow-[0px_0px_14px_0px_#0000000F] ${
+                    className={`flex h-auto min-h-[500px] w-full flex-col items-start justify-between gap-[16px] bg-white px-[16px] py-6 shadow-[0px_0px_14px_0px_#0000000F] sm:min-h-[560px] ${
                         !plan.isPopular ? "rounded-[12px]" : ""
                     }`}
                 >
@@ -89,9 +89,9 @@ const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }
 
                         <div className="h-[1px] w-full bg-[#E3DED0]"></div>
 
-                        <p className="text-5xl font-bold text-[#CAA64A] sm:text-[64px]">
+                        <p className="text-4xl font-bold text-[#CAA64A] sm:text-5xl lg:text-[64px]">
                             {plan.price}{" "}
-                            <span className="text-2xl font-500 text-[#615F5A]">/ Book</span>
+                            <span className="text-lg font-500 text-[#615F5A] sm:text-2xl">/ Book</span>
                         </p>
 
                         <ul className="flex flex-col items-start justify-center gap-[16px]">

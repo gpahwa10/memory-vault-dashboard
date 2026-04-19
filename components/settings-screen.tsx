@@ -16,9 +16,12 @@ import {
   AlertCircle,
   Sparkles,
   X,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { BASE_SUBSCRIPTION_PLANS, type SubscriptionPlanId } from "@/lib/subscription-plans"
+import { settingsService, UserResponse } from "@/app/(dashboard)/settings/SettingsService"
 
 const subscriptionTiers = BASE_SUBSCRIPTION_PLANS.map((base) => {
   const bookLabel = `${base.booksIncluded} memory book${base.booksIncluded > 1 ? "s" : ""}`
@@ -39,6 +42,13 @@ const subscriptionTiers = BASE_SUBSCRIPTION_PLANS.map((base) => {
 
 type BillingFlow = "idle" | "extend" | "cancel" | "confirm-cancel" | "cancelled" | "extended"
 
+const toDateInputValue = (value?: string) => {
+  if (!value) return ""
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ""
+  return date.toISOString().slice(0, 10)
+}
+
 export function SettingsScreen() {
   const searchParams = useSearchParams()
   const tab = searchParams.get("tab")
@@ -47,7 +57,19 @@ export function SettingsScreen() {
   const [billingFlow, setBillingFlow] = useState<BillingFlow>("idle")
   const [avatarSrc, setAvatarSrc] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
+  const [user, setUser] = useState<UserResponse['user'] | null>(null)
+  const [accountForm, setAccountForm] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    location: "",
+    dateOfBirth: "",
+  })
+  const [showChangePassword, setShowChangePassword] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -56,6 +78,23 @@ export function SettingsScreen() {
       reader.readAsDataURL(file)
     }
   }
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const response = await settingsService.getUser()
+      setUser(response.user)
+      setAccountForm({
+        name: response.user.name || "",
+        email: response.user.email || "",
+        phoneNumber: response.user.phoneNumber || "",
+        location: response.user.location || "",
+        dateOfBirth: toDateInputValue(response.user.dateOfBirth),
+      })
+    }
+    fetchUser()
+    console.log(user)
+  }, [])
+  
   useEffect(() => {
     const tab = searchParams.get("tab")
   
@@ -67,6 +106,44 @@ export function SettingsScreen() {
       setActiveTab(tab as "account" | "subscription" | "security")
     }
   }, [searchParams])
+
+  const handleChangePassword = async () => {
+    if (!user) return
+    try {
+      const response = await settingsService.updateUserPassword({
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      })
+    }
+    catch (error) {
+      console.error('Failed to change password:', error)
+      throw error
+    }
+    finally {
+      setCurrentPassword("")
+      setNewPassword("")
+    }
+    console.log('Password changed successfully')
+  }
+
+  const handleSaveChanges = async () => {
+    if (!user) return
+
+    try {
+      const response = await settingsService.updateUser({
+        name: accountForm.name,
+        phoneNumber: accountForm.phoneNumber,
+        location: accountForm.location,
+        dateOfBirth: toDateInputValue(accountForm.dateOfBirth),
+        profilePictureUrl: avatarSrc,
+      })
+      setUser(response.user)
+      console.log('User settings updated successfully')
+    } catch (error) {
+      console.error('Failed to update user settings:', error)
+      throw error
+    }
+  }
 
   const currentTier = subscriptionTiers.find((t) => t.id === selectedTier)!
 
@@ -139,13 +216,13 @@ export function SettingsScreen() {
             {/* Name + plan badge */}
             <div className="flex items-end justify-between px-6 pb-5 pt-4">
               <div className="ml-28">
-                <p className="font-serif text-xl font-bold text-foreground">John Doe</p>
+                <p className="font-serif text-xl font-bold text-foreground">{user?.name}</p>
                 <span className="inline-flex items-center gap-1 rounded-full bg-vault-teal/10 px-2.5 py-0.5 text-xs font-semibold text-vault-teal">
                   <Crown className="h-3 w-3" />
                   Premium
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Member since Jan 2024</p>
+              <p className="text-xs text-muted-foreground">Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}</p>
             </div>
           </div>
 
@@ -153,13 +230,74 @@ export function SettingsScreen() {
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <h2 className="mb-5 font-serif text-lg font-semibold text-foreground">Personal info</h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field icon={<User className="h-4 w-4 text-vault-teal" />} label="Display name" type="text" defaultValue="John Doe" />
-              <Field icon={<Mail className="h-4 w-4 text-vault-teal" />} label="Email" type="email" defaultValue="john@memoryvault.com" />
-              <Field icon={<Phone className="h-4 w-4 text-vault-teal" />} label="Phone number" type="tel" defaultValue="+1 (555) 000-0000" />
-              <Field icon={<MapPin className="h-4 w-4 text-vault-teal" />} label="Location" type="text" defaultValue="New York, USA" />
-              <Field icon={<Calendar className="h-4 w-4 text-vault-teal" />} label="Date of birth" type="date" defaultValue="1990-06-15" />
+              <div className="flex flex-col gap-1.5">
+                <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <User className="h-4 w-4 text-vault-teal" />
+                  Display name
+                </label>
+                <input
+                  type="text"
+                  value={accountForm.name}
+                  onChange={(e) => setAccountForm((prev) => ({ ...prev, name: e.target.value }))}
+                  className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Mail className="h-4 w-4 text-vault-teal" />
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={accountForm.email}
+                  className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Phone className="h-4 w-4 text-vault-teal" />
+                  Phone number
+                </label>
+                <input
+                  type="tel"
+                  value={accountForm.phoneNumber}
+                  onChange={(e) => setAccountForm((prev) => ({ ...prev, phoneNumber: e.target.value }))}
+                  className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <MapPin className="h-4 w-4 text-vault-teal" />
+                  Location
+                </label>
+                <input
+                  type="text"
+                  value={accountForm.location}
+                  onChange={(e) => setAccountForm((prev) => ({ ...prev, location: e.target.value }))}
+                  className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Calendar className="h-4 w-4 text-vault-teal" />
+                  Date of birth
+                </label>
+                <input
+                  type="date"
+                  value={accountForm.dateOfBirth}
+                  onChange={(e) => setAccountForm((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
+                  className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                />
+              </div>
             </div>
-            <button className="mt-5 rounded-lg bg-vault-teal px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-vault-teal/90 transition-colors">
+            <button
+              onClick={handleSaveChanges}
+              className="mt-5 rounded-lg bg-vault-teal px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-vault-teal/90 transition-colors"
+            >
               Save changes
             </button>
           </div>
@@ -287,40 +425,68 @@ export function SettingsScreen() {
                   <p className="text-xs text-muted-foreground">Last changed 3 months ago</p>
                 </div>
               </div>
-              <button className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">
-                Change
+              <button
+                onClick={() => setShowChangePassword((prev) => !prev)}
+                className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
+              >
+                {showChangePassword ? "Close" : "Change"}
               </button>
             </div>
+
+            {showChangePassword && (
+              <div className="rounded-xl border border-border bg-background p-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-foreground">Current password</label>
+                    <div className="relative">
+                      <input
+                        type={showCurrentPassword ? "text" : "password"}
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full rounded-lg border border-border bg-background px-4 py-2.5 pr-10 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                        placeholder="Enter current password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-foreground">New password</label>
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full rounded-lg border border-border bg-background px-4 py-2.5 pr-10 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                        placeholder="Enter new password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <button
+              onClick={handleChangePassword}
+              className="mt-5 rounded-lg bg-vault-teal px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-vault-teal/90 transition-colors"
+            >
+              Save changes
+            </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-// ── Reusable form field ───────────────────────────────────────────────────────
-function Field({
-  icon,
-  label,
-  type,
-  defaultValue,
-}: {
-  icon: React.ReactNode
-  label: string
-  type: string
-  defaultValue?: string
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="flex items-center gap-2 text-sm font-medium text-foreground">
-        {icon}
-        {label}
-      </label>
-      <input
-        type={type}
-        defaultValue={defaultValue}
-        className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
-      />
     </div>
   )
 }

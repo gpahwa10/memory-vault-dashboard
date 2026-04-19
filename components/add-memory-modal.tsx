@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useRef } from "react"
+import { usePathname } from "next/navigation"
 import Image from "next/image"
 import { format } from "date-fns"
 import {
@@ -13,13 +14,15 @@ import {
   Save,
   Trash2,
   GripVertical,
-  LayoutGrid,
 } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { MEMORY_CATEGORIES } from "@/lib/memories"
+import { memoryDetailService } from "@/app/(dashboard)/memory-detail/memory-detail-service"
+import { fileToUploadableImageDataUrl } from "@/lib/compress-image"
+import { toast } from "sonner"
 
 const CATEGORY_CONFIG: Record<
   (typeof MEMORY_CATEGORIES)[number],
@@ -50,26 +53,112 @@ const CATEGORY_CONFIG: Record<
 interface AddMemoryModalProps {
   open: boolean
   onClose: () => void
+  /** When set (e.g. from openAddMemory({ bookId })), targets this book. */
+  bookId?: string
 }
 
 interface UploadedImage {
   id: string
+  /** Preview URL (`blob:` from createObjectURL). */
   url: string
   name: string
+  /** Original file for API payload (blob URLs are not accepted by the server). */
+  file?: File
 }
 
-type MediaMode = "images" | "video" | null
+function readBlobAsDataURL(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(blob)
+  })
+}
 
-export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
+/** Builds `images: string[]` for create memory: remote URLs as-is; file uploads as compressed JPEG data URLs. */
+async function resolveImageUrlsForApi(items: UploadedImage[]): Promise<string[]> {
+  const out: string[] = []
+  for (const img of items) {
+    if (/^https?:\/\//i.test(img.url)) {
+      out.push(img.url)
+      continue
+    }
+    if (img.file) {
+      if (img.file.type.startsWith("image/")) {
+        try {
+          out.push(await fileToUploadableImageDataUrl(img.file))
+        } catch {
+          out.push(await readBlobAsDataURL(img.file))
+        }
+      } else {
+        out.push(await readBlobAsDataURL(img.file))
+      }
+      continue
+    }
+    if (img.url.startsWith("blob:")) {
+      try {
+        const res = await fetch(img.url)
+        const blob = await res.blob()
+        if (blob.type.startsWith("image/")) {
+          try {
+            out.push(await fileToUploadableImageDataUrl(blob))
+          } catch {
+            out.push(await readBlobAsDataURL(blob))
+          }
+        } else {
+          out.push(await readBlobAsDataURL(blob))
+        }
+      } catch {
+        /* skip unreadable blob */
+      }
+    }
+  }
+  return out
+}
+
+/** Single video attachment (API has one `videoUrl`). */
+interface UploadedVideo {
+  id: string
+  url: string
+  name: string
+  file?: File
+}
+
+/** ~2MB cap keeps JSON under typical limits alongside compressed photos. */
+const MAX_EMBED_VIDEO_BYTES = 2 * 1024 * 1024
+
+async function resolveVideoUrlForApi(
+  video: UploadedVideo | null
+): Promise<string | null> {
+  if (!video) return null
+  if (/^https?:\/\//i.test(video.url)) return video.url
+  const blobSource = video.file
+    ? video.file
+    : await fetch(video.url).then((r) => r.blob())
+  if (blobSource.size > MAX_EMBED_VIDEO_BYTES) {
+    throw new Error("VIDEO_TOO_LARGE")
+  }
+  return readBlobAsDataURL(blobSource)
+}
+
+function bookIdFromPathname(pathname: string | null): string | undefined {
+  if (!pathname) return undefined
+  const m = pathname.match(/^\/memory-detail\/([^/]+)/)
+  return m?.[1]
+}
+
+export function AddMemoryModal({ open, onClose, bookId: bookIdProp }: AddMemoryModalProps) {
+  const pathname = usePathname()
   const [category, setCategory] = useState<(typeof MEMORY_CATEGORIES)[number] | null>(null)
   const [date, setDate] = useState<Date>(new Date())
   const [includeInBook, setIncludeInBook] = useState(true)
-  const [mediaMode, setMediaMode] = useState<MediaMode>(null)
   const [images, setImages] = useState<UploadedImage[]>([])
+  const [videoAttachment, setVideoAttachment] = useState<UploadedVideo | null>(
+    null
+  )
   const [memoryText, setMemoryText] = useState("")
   const [originalText, setOriginalText] = useState<string | null>(null)
   const [isEnhanced, setIsEnhanced] = useState(false)
-  const [showCollage, setShowCollage] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -84,19 +173,43 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
         id: crypto.randomUUID(),
         url: URL.createObjectURL(file),
         name: file.name,
+        file,
       }))
       setImages((prev) => [...prev, ...newImages])
-      setMediaMode("images")
       if (fileInputRef.current) fileInputRef.current.value = ""
     },
     [images.length]
   )
 
+  const removeVideo = () => {
+    setVideoAttachment((prev) => {
+      if (prev?.url.startsWith("blob:")) URL.revokeObjectURL(prev.url)
+      return null
+    })
+  }
+
+  const handleVideoInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setVideoAttachment((prev) => {
+      if (prev?.url.startsWith("blob:")) URL.revokeObjectURL(prev.url)
+      return {
+        id: crypto.randomUUID(),
+        url: URL.createObjectURL(file),
+        name: file.name,
+        file,
+      }
+    })
+    e.target.value = ""
+  }
+
   const removeImage = (id: string) => {
     setImages((prev) => {
-      const updated = prev.filter((img) => img.id !== id)
-      if (updated.length === 0) setMediaMode(null)
-      return updated
+      const removed = prev.find((img) => img.id === id)
+      if (removed?.url.startsWith("blob:")) {
+        URL.revokeObjectURL(removed.url)
+      }
+      return prev.filter((img) => img.id !== id)
     })
   }
 
@@ -122,42 +235,131 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
     }
   }
 
-  const handleSave = () => {
+  const resetForm = () => {
+    setCategory(null)
+    setDate(new Date())
+    setIncludeInBook(true)
+    setVideoAttachment((prev) => {
+      if (prev?.url.startsWith("blob:")) URL.revokeObjectURL(prev.url)
+      return null
+    })
+    setImages((prev) => {
+      prev.forEach((img) => {
+        if (img.url.startsWith("blob:")) URL.revokeObjectURL(img.url)
+      })
+      return []
+    })
+    setMemoryText("")
+    setOriginalText(null)
+    setIsEnhanced(false)
+    setMemoryQuestion("")
+  }
+
+  const handleSave = async () => {
+    const fromPath = bookIdFromPathname(pathname)
+    const fromQuery =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("bookId") ?? undefined
+        : undefined
+    const targetBookId = bookIdProp ?? fromPath ?? fromQuery
+
+    if (!targetBookId) {
+      toast.error("No memory book selected", {
+        description:
+          "Open a vault from the dashboard, go to a book, or use /edit-vault?bookId=… then add a memory.",
+      })
+      return
+    }
+
+    const q = memoryQuestion.trim()
+    const a = memoryText.trim()
+    if (!q && !a) {
+      toast.error("Add a memory title or description before saving.")
+      return
+    }
+
     setIsSaving(true)
-    setTimeout(() => {
-      setIsSaving(false)
+    try {
+      const imageUrls = await resolveImageUrlsForApi(images)
+      if (images.length > 0 && imageUrls.length === 0) {
+        toast.error("Could not read images for upload. Try smaller files or add hosted image URLs.")
+        return
+      }
+
+      let videoUrl: string | null = null
+      if (videoAttachment) {
+        try {
+          videoUrl = await resolveVideoUrlForApi(videoAttachment)
+        } catch (e) {
+          if (e instanceof Error && e.message === "VIDEO_TOO_LARGE") {
+            toast.error("Video file is too large to embed", {
+              description: `Use a clip under ${Math.round(MAX_EMBED_VIDEO_BYTES / (1024 * 1024))}MB, or host the video and paste an https URL.`,
+            })
+            return
+          }
+          toast.error("Could not read the video file.")
+          return
+        }
+      }
+
+      const payload = {
+        date: format(date, "yyyy-MM-dd"),
+        question: q || "Memory",
+        answer: a,
+        status: a ? "answered" : "pending",
+        images: imageUrls,
+        videoUrl,
+      }
+
+      const bodySize = JSON.stringify(payload).length
+      if (bodySize > 950_000) {
+        toast.error("Request too large for the server", {
+          description:
+            "Try fewer or smaller photos, a shorter video, or use hosted https URLs.",
+        })
+        return
+      }
+
+      await memoryDetailService.createBookMemory(targetBookId, payload)
+      toast.success("Memory saved")
+      resetForm()
       onClose()
-    }, 800)
+    } catch (err) {
+      toast.error(typeof err === "string" ? err : "Failed to save memory")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleClose = () => {
+    resetForm()
     onClose()
   }
 
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 pt-8 backdrop-blur-sm sm:items-center sm:pt-4">
+    <div className="fixed inset-0 z-50 flex min-h-0 items-start justify-center overflow-y-auto overscroll-contain bg-black/50 p-3 pt-6 backdrop-blur-sm sm:items-center sm:p-4">
       <div
-        className="relative w-full max-w-2xl animate-fade-in-up rounded-2xl border border-border bg-card shadow-2xl"
+        className="relative my-auto flex w-full min-w-0 max-w-2xl max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl animate-fade-in-up sm:max-h-[calc(100dvh-2rem)]"
         role="dialog"
         aria-label="Add a New Memory"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="font-serif text-2xl font-bold text-foreground">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-6 sm:py-4">
+          <h2 className="min-w-0 font-serif text-lg font-bold text-foreground sm:text-2xl">
             Add a New Memory
           </h2>
           <button
             onClick={handleClose}
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-6">
 
 
           {/* Include in Book & Date */}
@@ -240,9 +442,9 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
 
             </div>
           </div>
-          {/* Media Upload Area */}
-          <div className="overflow-hidden rounded-xl border border-dashed border-border bg-background">
-            <div className="relative min-h-[140px]">
+          {/* Media Upload Area — no overflow-hidden on outer shell so action rows stay visible */}
+          <div className="min-w-0 max-w-full rounded-xl border border-dashed border-border bg-background">
+            <div className="relative min-h-[140px] min-w-0">
               <div className="pointer-events-none absolute inset-0 flex flex-wrap items-center justify-center gap-8 overflow-hidden opacity-[0.04]">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <span
@@ -254,9 +456,10 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
                 ))}
               </div>
 
-              {mediaMode === null && (
+              {images.length === 0 && !videoAttachment && (
                 <div className="relative z-10 flex flex-col items-center gap-3 px-6 py-8">
                   <button
+                    type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-medium text-foreground shadow-sm transition-all hover:border-vault-gold/40 hover:shadow-md"
                   >
@@ -264,108 +467,127 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
                     Add Images (max 4)
                   </button>
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    or
+                    and / or
                   </span>
                   <button
-                    onClick={() => {
-                      setMediaMode("video")
-                      videoInputRef.current?.click()
-                    }}
+                    type="button"
+                    onClick={() => videoInputRef.current?.click()}
                     className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-medium text-foreground shadow-sm transition-all hover:border-vault-teal/40 hover:shadow-md"
                   >
                     <Video className="h-4 w-4 text-vault-teal" />
-                    Add Video (only 1)
+                    Add Video (1 clip)
                   </button>
                 </div>
               )}
 
-              {mediaMode === "images" && images.length > 0 && (
-                <div className="relative z-10 p-4">
-                  <div
-                    className={cn(
-                      "grid gap-2",
-                      images.length === 1 && "grid-cols-1",
-                      images.length === 2 && "grid-cols-2",
-                      images.length >= 3 && "grid-cols-2"
-                    )}
-                  >
-                    {images.map((img) => (
-                      <div
-                        key={img.id}
-                        className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-muted"
-                      >
-                        <Image
-                          src={img.url}
-                          alt={img.name}
-                          fill
-                          className="object-cover"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
-                          <button
-                            onClick={() => removeImage(img.id)}
-                            className="rounded-full bg-destructive p-2 text-primary-foreground shadow-lg"
-                            aria-label="Remove image"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                          <button className="rounded-full bg-card p-2 text-foreground shadow-lg">
-                            <GripVertical className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 flex items-center gap-2">
-                    {images.length < 4 && (
+              {(images.length > 0 || videoAttachment) && (
+                <div className="relative z-10 flex min-w-0 flex-col gap-3 p-3 sm:p-4">
+                  <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border/70 pb-3">
+                    {images.length < 4 ? (
                       <button
+                        type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-vault-gold/40"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-vault-gold/40"
                       >
-                        <ImagePlus className="h-3.5 w-3.5" />
-                        Add Images (max 4)
+                        <ImagePlus className="h-3.5 w-3.5 shrink-0" />
+                        {images.length > 0
+                          ? `Add more images (${images.length}/4)`
+                          : "Add images (0/4)"}
                       </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        Maximum 4 images added
+                      </span>
                     )}
-                    {images.length > 1 && (
-                      <button
-                        onClick={() => setShowCollage(!showCollage)}
+                    <button
+                      type="button"
+                      onClick={() => videoInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-vault-teal/40"
+                    >
+                      <Video className="h-3.5 w-3.5 shrink-0 text-vault-teal" />
+                      {videoAttachment ? "Replace video" : "Add video"}
+                    </button>
+                  </div>
+
+                  {images.length > 0 && (
+                    <div className="max-h-[min(50vh,20rem)] w-full min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg sm:max-h-[min(45vh,22rem)]">
+                      <div
                         className={cn(
-                          "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
-                          showCollage
-                            ? "border-vault-gold bg-vault-gold/10 text-vault-warm"
-                            : "border-border bg-card text-foreground hover:border-vault-gold/40"
+                          "mx-auto grid w-full min-w-0 max-w-full gap-2",
+                          images.length === 1 && "grid-cols-1 place-items-center",
+                          images.length === 2 && "grid-cols-2",
+                          images.length >= 3 && "grid-cols-2"
                         )}
                       >
-                        <LayoutGrid className="h-3.5 w-3.5" />
-                        Collage
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
+                        {images.map((img) => (
+                          <div
+                            key={img.id}
+                            className={cn(
+                              "group relative h-32 w-full min-w-0 overflow-hidden rounded-lg border border-border bg-muted sm:h-36",
+                              images.length === 1 && "max-w-[min(100%,18rem)]"
+                            )}
+                          >
+                            <Image
+                              src={img.url}
+                              alt={img.name}
+                              fill
+                              sizes="(max-width: 640px) 42vw, 180px"
+                              className="object-cover"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 opacity-100 transition-all group-hover:bg-black/30 sm:opacity-0 sm:group-hover:opacity-100">
+                              <button
+                                type="button"
+                                onClick={() => removeImage(img.id)}
+                                className="rounded-full bg-destructive p-2 text-primary-foreground shadow-lg"
+                                aria-label="Remove image"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                              <button
+                                type="button"
+                                className="rounded-full bg-card p-2 text-foreground shadow-lg"
+                                aria-hidden
+                              >
+                                <GripVertical className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              {mediaMode === "video" && (
-                <div className="relative z-10 flex flex-col items-center gap-3 px-6 py-8">
-                  <div className="flex h-24 w-40 items-center justify-center rounded-xl border border-border bg-muted">
-                    <Video className="h-10 w-10 text-vault-teal/40" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Step 1: Trim & save your video | Step 2: Upload thumbnail |
-                    Step 3: Crop & save
-                  </p>
-                  <button
-                    onClick={() => setMediaMode(null)}
-                    className="text-xs text-vault-teal underline"
-                  >
-                    Switch to images instead
-                  </button>
+                  {videoAttachment && (
+                    <div className="relative min-w-0 overflow-hidden rounded-lg border border-border bg-muted">
+                      <video
+                        src={videoAttachment.url}
+                        controls
+                        playsInline
+                        className="max-h-48 w-full bg-black object-contain"
+                      />
+                      <div className="flex items-center justify-between gap-2 border-t border-border bg-card/80 px-3 py-2">
+                        <p className="min-w-0 truncate text-xs text-muted-foreground">
+                          {videoAttachment.name}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={removeVideo}
+                          className="shrink-0 rounded-md border border-border bg-background px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+                        >
+                          Remove video
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           </div>
           <button
+            type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-vault-teal px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark disabled:opacity-70"
+            className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-vault-teal px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark disabled:opacity-70"
           >
             <Save className="h-4 w-4" />
             {isSaving ? "Saving..." : "SAVE"}
@@ -387,7 +609,7 @@ export function AddMemoryModal({ open, onClose }: AddMemoryModalProps) {
           type="file"
           accept="video/*"
           className="hidden"
-          onChange={() => setMediaMode("video")}
+          onChange={handleVideoInputChange}
         />
       </div>
     </div>

@@ -33,19 +33,19 @@ export const HeroSection = () => {
         }}
       />
 
-      <div className="relative grid grid-cols-1 lg:grid-cols-2 max-h-[700px] min-h-[600px]">
+      <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-0 min-h-[520px] sm:min-h-[560px] lg:max-h-[700px] lg:min-h-[600px]">
         
         {/* LEFT CONTENT */}
-        <div className="flex flex-col justify-center px-6 py-[60px] sm:py-[70px] lg:py-[80px] lg:px-16 gap-[24px] lg:gap-[32px]">
+        <div className="flex flex-col justify-center gap-5 px-4 py-10 sm:gap-6 sm:px-6 sm:py-12 lg:gap-8 lg:px-16 lg:py-16">
     
-          <span className={`${gtSuperDisplay.className} flex flex-col text-[34px] sm:text-[44px] md:text-[46px] lg:text-[44px] xl:text-[80px] font-[300] text-white leading-[1.1] xl:leading-[80px] tracking-[0]`}>
+          <span className={`${gtSuperDisplay.className} flex flex-col text-[30px] sm:text-[38px] md:text-[46px] lg:text-[44px] xl:text-[80px] font-[300] text-white leading-[1.1] xl:leading-[80px] tracking-[0]`}>
             <span className={`${gtSuperDisplayLight.className} font-[300]`}>Some Moments <br />Deserve More Than</span>
             <span className="font-[500] text-[#CAA64A]">
               Your Gallery
             </span>
           </span>
 
-          <p className={`${jost.className} text-[30px] font-[400] leading-[36px] tracking-[0] text-gray-200 max-w-[90%] lg:max-w-[520px]`}>
+          <p className={`${jost.className} max-w-full text-base font-[400] leading-7 tracking-[0] text-gray-200 sm:max-w-[90%] sm:text-xl sm:leading-8 lg:max-w-[520px] lg:text-[30px] lg:leading-[36px]`}>
             Transform your gallery into beautifully crafted keepsakes through WhatsApp — quick, easy, and memorable.
           </p>
 
@@ -61,7 +61,7 @@ export const HeroSection = () => {
         </div>
 
         {/* RIGHT IMAGE */}
-        <div className="relative mt-[28px] flex items-end justify-center sm:mt-8 md:mt-9 lg:mt-10 xl:mt-11">
+        <div className="relative mt-0 flex items-end justify-center px-4 pb-6 sm:px-6 lg:mt-10 lg:px-0 lg:pb-0 xl:mt-11">
           <img
             src="/landing-page/hero-mobile.svg"
             alt="hero-section"

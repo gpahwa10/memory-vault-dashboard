@@ -27,12 +27,13 @@ import {
   ImageIcon,
   Plus,
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { appService } from "@/app/(dashboard)/app/app-service"
 interface DashboardContentProps {
   onNavigate: (item: string) => void
   userName?: string
@@ -180,10 +181,21 @@ const sampleMemories: Memory[] = [
 
 type ViewMode = "grid" | "list"
 
-export function DashboardContent({ onNavigate, userName = "John" }: DashboardContentProps) {
+type ApiBook = {
+  id?: string
+  bookName?: string
+  bookType?: { typeName?: string; coverImage?: string | null }
+  metadata?: Record<string, string>
+  createdAt?: string
+}
+
+export function DashboardContent({ onNavigate }: DashboardContentProps) {
+  const [userName, setUserName] = useState("there")
+  const [books, setBooks] = useState<ApiBook[]>([])
+  const [isBooksLoading, setIsBooksLoading] = useState(true)
+  const [booksError, setBooksError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [searchQuery, setSearchQuery] = useState("")
-  const [memories] = useState(sampleMemories)
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [selectedMemoryId, setSelectedMemoryId] = useState<string | null>(null)
@@ -191,7 +203,68 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
   const [fromDate, setFromDate] = useState<string>("")
   const [toDate, setToDate] = useState<string>("")
   const router = useRouter();
-  const categories = ["all", "Milestone", "Celebration", "Family", "Daily"]
+
+  useEffect(() => {
+    const user = localStorage.getItem("user")
+    if (user) {
+      try {
+        const parsedUser = JSON.parse(user) as { name?: string }
+        setUserName(parsedUser.name || "there")
+      } catch {
+        setUserName("there")
+      }
+    }
+
+  }, [])
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setIsBooksLoading(true)
+      setBooksError(null)
+
+      try {
+        const response = await appService.getMyBooks()
+        setBooks(response?.books ?? [])
+      } catch (error) {
+        console.error("Failed to fetch books:", error)
+        setBooks([])
+        setBooksError("Unable to load memory books right now. Please try again.")
+      } finally {
+        setIsBooksLoading(false)
+      }
+    }
+
+    fetchBooks()
+  }, [])
+
+  const memories: Memory[] = useMemo(() => {
+    if (books.length === 0) return []
+
+    return books.map((book, index) => {
+      const metadataValues = Object.values(book.metadata ?? {}).filter(Boolean)
+      const fallbackImage = sampleMemories[index % sampleMemories.length]?.images?.[0] ?? "/samples/memory-1.jpg"
+
+      return {
+        id: book.id || `book-${index + 1}`,
+        title: book.bookName || "Untitled Memory Book",
+        date: book.createdAt ? new Date(book.createdAt) : new Date(),
+        description:
+          metadataValues.length > 0
+            ? metadataValues.join(" • ")
+            : "No additional details provided yet.",
+        images: [book.bookType?.coverImage || fallbackImage],
+        hasVideo: false,
+        liked: false,
+        category: book.bookType?.typeName || "Memory Book",
+      }
+    })
+  }, [books])
+
+  const categories = useMemo(() => {
+    const uniqueCategories = Array.from(new Set(memories.map((memory) => memory.category)))
+    return ["all", ...uniqueCategories]
+  }, [memories])
+  const hasBooks = memories.length > 0
 
   const filtered = memories.filter((m) => {
     const matchesSearch =
@@ -270,6 +343,50 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
             <Plus className="h-4 w-4" /> Create Memory Book
           </Button>
         </div>
+        {isBooksLoading && (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
+            <p className="text-sm text-muted-foreground">Loading your memory books...</p>
+          </div>
+        )}
+
+        {!isBooksLoading && booksError && (
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+            <AlertTriangle className="mx-auto mb-3 h-6 w-6 text-destructive" />
+            <p className="text-sm text-destructive">{booksError}</p>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </div>
+        )}
+
+        {!isBooksLoading && !booksError && !hasBooks && (
+          <div className="relative overflow-hidden rounded-2xl border border-dashed border-vault-gold/40 bg-gradient-to-br from-vault-gold/10 via-card to-vault-teal/5 p-10 text-center">
+            <div className="pointer-events-none absolute inset-0">
+              <span className="absolute left-6 top-5 text-2xl">🎉</span>
+              <span className="absolute right-8 top-8 text-xl">✨</span>
+              <span className="absolute bottom-8 left-10 text-xl">🎊</span>
+              <span className="absolute bottom-6 right-10 text-2xl">✨</span>
+            </div>
+            <div className="relative mx-auto flex max-w-md flex-col items-center gap-3">
+              <Sparkles className="h-8 w-8 text-vault-gold" />
+              <h2 className="font-serif text-xl font-semibold text-foreground">No memory books yet</h2>
+              <p className="text-sm text-muted-foreground">
+                Your vault is ready. Create your first memory book and start collecting moments that matter.
+              </p>
+              <Button onClick={() => onNavigate("add-vault")} className="mt-2 bg-vault-teal hover:bg-vault-teal-dark">
+                <Plus className="h-4 w-4" />
+                Create your first book
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {!isBooksLoading && !booksError && hasBooks && (
+          <>
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1">
@@ -512,43 +629,13 @@ export function DashboardContent({ onNavigate, userName = "John" }: DashboardCon
             ))}
           </div>
         )}
+          </>
+        )}
 
 
 
       </div>
-      {/* Your Subscription - full width */}
-      {/* <section className="w-full rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="mb-4 font-serif text-xl font-semibold text-foreground">
-          Your Subscription
-        </h2>
-        <div className="flex flex-wrap items-center gap-6 sm:gap-8">
-          <div className="flex flex-1 flex-col gap-3 min-w-0">
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-muted-foreground">Segment</span>
-              <span className="font-medium text-foreground">Baby</span>
-            </div>
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-muted-foreground">Membership</span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-vault-gold/15 px-2.5 py-0.5 font-semibold text-vault-warm">
-                <Crown className="h-3 w-3" />
-                Premium
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-muted-foreground">Active since</span>
-              <span className="font-medium text-foreground">Jan 2026</span>
-            </div>
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-muted-foreground">Valid until</span>
-              <span className="font-medium text-foreground">Jan 2027</span>
-            </div>
-          </div>
-
-        </div>
-        <button className="shrink-0 rounded-lg bg-vault-teal px-5 py-2.5 mt-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-vault-teal-dark" onClick={() => router.push("/settings?tab=subscription")}>
-          Extend Membership
-        </button>
-      </section> */}
+      
       <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border bg-card px-5 py-4">

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { BackgroundVideo } from '@/components/background-video'
+import { AuthPageGuard } from '@/components/auth-page-guard'
 
 export const metadata: Metadata = {
   title: 'Authentication - Memory Vault',
@@ -25,7 +26,7 @@ export default function AuthLayout({
       {/* Right half: form (exact 50%) */}
       <div className="relative z-10 flex min-h-screen w-full min-w-0 flex-col items-center justify-center px-4 py-8 md:w-1/2 md:px-10">
         <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-sm shadow-black/5">
-          {children}
+          <AuthPageGuard>{children}</AuthPageGuard>
         </div>
       </div>
     </div>

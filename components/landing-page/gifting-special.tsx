@@ -22,19 +22,19 @@ export const GiftingSpecial = () => {
                 className="pointer-events-none absolute top-0 right-0 z-10 h-auto w-[min(278px,45vw)] max-w-full select-none sm:w-[278px]"
                 aria-hidden
             />
-            <div className="flex flex-row items-center justify-center gap-[48px] px-[240px] py-[124px]">
-            <img src="/landing-page/gifting-banner.svg" alt="Gifting Special" className="max-w-[592px] w-full h-fit object-cover" />
-            <div className="flex flex-col items-center justify-center gap-[32px]">
-                <h2 className={`${gtSuperDisplay.className} text-5xl font-400 text-white`}>Gifting <span className="text-[#CAA64A]">Special</span></h2>
-                <p className={`${jost.className} text-2xl font-400 text-white text-center`}>Make gifting unforgettable with memory books that shine as brightly as your loved ones.</p>
+            <div className="flex flex-col items-center justify-center gap-8 px-4 py-12 sm:px-6 sm:py-16 md:px-10 lg:flex-row lg:gap-10 lg:px-14 lg:py-20 xl:px-20 2xl:px-32 min-[1920px]:px-[240px] min-[1920px]:py-[124px]">
+            <img src="/landing-page/gifting-banner.svg" alt="Gifting Special" className="h-fit w-full max-w-[320px] object-cover sm:max-w-[420px] lg:max-w-[592px]" />
+            <div className="flex flex-col items-center justify-center gap-6 sm:gap-8">
+                <h2 className={`${gtSuperDisplay.className} text-center text-3xl font-400 text-white sm:text-4xl lg:text-5xl`}>Gifting <span className="text-[#CAA64A]">Special</span></h2>
+                <p className={`${jost.className} max-w-[620px] text-center text-base font-400 text-white sm:text-lg lg:text-2xl`}>Make gifting unforgettable with memory books that shine as brightly as your loved ones.</p>
 
-                <div className="flex w-full min-w-0 flex-row flex-wrap items-stretch justify-center gap-6 lg:gap-[32px]">
+                <div className="flex w-full min-w-0 flex-row flex-wrap items-stretch justify-center gap-4 sm:gap-6 lg:gap-8">
                     {giftingSpecialItems.map((item) => (
                         <GiftingCard key={item.title} step={item} />
                     ))}
                 </div>
 
-                <Button className="rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-sm font-400 text-black hover:bg-[#b89442]">Gift Now <ArrowRight className="size-4 shrink-0" /></Button>
+                <Button className="rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-sm font-400 text-black hover:bg-[#b89442] sm:px-5 sm:py-2.5">Gift Now <ArrowRight className="size-4 shrink-0" /></Button>
             </div>
             </div>
         </section>
@@ -43,7 +43,7 @@ export const GiftingSpecial = () => {
 
 export const GiftingCard = ({ step }: { step: (typeof giftingSpecialItems)[number] }) => {
     return (
-       <div className="flex min-w-0 w-full max-w-[280px] flex-1 flex-col items-start justify-center gap-[16px] rounded-[12px] bg-[#13352B] p-[16px] basis-[200px] sm:min-w-[200px]">
+       <div className="flex min-w-0 w-full max-w-[280px] flex-1 basis-[200px] flex-col items-start justify-center gap-4 rounded-[12px] bg-[#13352B] p-4 sm:min-w-[200px]">
         <img src={step.image} alt={step.title} className="w-full h-auto rounded-[4px] object-cover max-h-[144px]" />
         <h3 className={`${jost.className} text-xl font-500 text-white`}>{step.title}</h3>
         <p className={`${jost.className} text-base font-400 text-white`}>{step.description}</p>

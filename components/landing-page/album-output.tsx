@@ -1,8 +1,8 @@
 "use client"
 import { ArrowRightIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import localFont from "next/font/local"
+import { useRouter } from "next/navigation"
 
 const albums = [
     {
@@ -96,7 +96,7 @@ export const AlbumOutput = () => {
 
         const zIndex = 10 - absOffset
         const scale = offset === 0 ? 1 : absOffset === 1 ? (isSmallScreen ? 0.84 : 0.9) : isSmallScreen ? 0.72 : 0.78
-        const translateX = offset * (isSmallScreen ? 130 : 260)
+        const translateX = offset * (isSmallScreen ? 88 : 260)
         const translateY = offset === 0 ? -20 : absOffset === 1 ? 0 : 10
         const opacity = absOffset === 2 ? 0.6 : 1
 
@@ -109,7 +109,7 @@ export const AlbumOutput = () => {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center gap-5 bg-[#EDE9DF]e px-4 py-12 sm:gap-6 sm:px-6 sm:py-16 md:px-10 lg:px-14 xl:px-20 2xl:px-32 min-[1920px]:px-[240px]">
+        <div className="flex flex-col items-center justify-center gap-5 bg-[#EDE9DF] px-4 py-12 sm:gap-6 sm:px-6 sm:py-16 md:px-10 lg:px-14 xl:px-20 2xl:px-32 min-[1920px]:px-[240px]">
             {/* Heading */}
             <h2 className={`${gtSuperDisplay.className} text-center text-3xl font-normal text-[#12473A] sm:text-4xl lg:text-5xl`}>
                 Album <span className="text-[#CAA64A]">Output</span>
@@ -120,8 +120,8 @@ export const AlbumOutput = () => {
 
             {/* Cards Fan */}
             <div
-                className="relative flex w-full touch-pan-y items-center justify-center"
-                style={{ height: isSmallScreen ? "400px" : "520px" }}
+                className="relative flex w-full max-w-full touch-pan-y items-center justify-center overflow-hidden"
+                style={{ height: isSmallScreen ? "360px" : "520px" }}
                 onTouchStart={(event) => handleTouchStart(event.targetTouches[0]?.clientX ?? null)}
                 onTouchMove={(event) => setTouchEndX(event.targetTouches[0]?.clientX ?? null)}
                 onTouchEnd={handleTouchEnd}
@@ -137,8 +137,8 @@ export const AlbumOutput = () => {
                             onClick={() => setActiveIndex(index)}
                             className="absolute cursor-pointer overflow-hidden rounded-2xl"
                             style={{
-                                width: offset === 0 ? (isSmallScreen ? "220px" : "340px") : absOffset === 1 ? (isSmallScreen ? "190px" : "300px") : isSmallScreen ? "150px" : "220px",
-                                height: offset === 0 ? (isSmallScreen ? "320px" : "460px") : absOffset === 1 ? (isSmallScreen ? "280px" : "400px") : isSmallScreen ? "240px" : "360px",
+                                width: offset === 0 ? (isSmallScreen ? "min(66vw, 220px)" : "340px") : absOffset === 1 ? (isSmallScreen ? "min(56vw, 180px)" : "300px") : isSmallScreen ? "min(46vw, 145px)" : "220px",
+                                height: offset === 0 ? (isSmallScreen ? "300px" : "460px") : absOffset === 1 ? (isSmallScreen ? "255px" : "400px") : isSmallScreen ? "220px" : "360px",
                                 ...getCardStyle(index),
                             }}
                         >
@@ -151,18 +151,18 @@ export const AlbumOutput = () => {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                             {/* Title + Arrow (active card) */}
-                            <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
-                                <span className={`${jost.className} text-lg font-500 text-white drop-shadow sm:text-xl`}>
+                            <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between sm:bottom-5 sm:left-5 sm:right-5">
+                                <span className={`${jost.className} text-sm font-500 text-white drop-shadow sm:text-xl`}>
                                     {album.title}
                                 </span>
                                 {offset === 0 && (
                                     <button
                                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-black shadow-md transition-colors hover:bg-gray-100"
                                         aria-label={`View details for ${album.title}`}
-                                        // onClick={(event) => {
-                                        //     event.stopPropagation()
-                                        //     router.push(`/albums/${album.id}`)
-                                        // }}
+                                        onClick={(event) => {
+                                            event.stopPropagation()
+                                            router.push(`/albums/${album.id}`)
+                                        }}
                                     >
                                         <ArrowRightIcon className="h-4 w-4" />
                                     </button>

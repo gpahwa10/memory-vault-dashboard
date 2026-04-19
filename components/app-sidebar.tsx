@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -28,6 +28,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
+import { appService } from "@/app/(dashboard)/app/app-service"
 
 interface AppSidebarProps {
   userName?: string
@@ -59,9 +60,7 @@ function isActive(pathname: string, item: (typeof mainNavItems)[0]) {
 }
 
 export function AppSidebar({
-  userName = "John Doe",
-  userEmail = "john@memoryvault.com",
-  books = [],
+  books,
   activeBookId,
   onBookSelect,
   mobileOpen = false,
@@ -72,6 +71,49 @@ export function AppSidebar({
   const pathname = usePathname()
   const router = useRouter()
   const [vaultsOpen, setVaultsOpen] = useState(true)
+  const [userName, setUserName] = useState("John Doe")
+  const [userEmail, setUserEmail] = useState("john@memoryvault.com")
+  const [myBooks, setMyBooks] = useState<{ id: string; name: string }[]>(books ?? [])
+  const [isBooksLoading, setIsBooksLoading] = useState(false)
+
+  useEffect(() => {
+    const user = localStorage.getItem("user")
+    if (!user) return
+
+    try {
+      const parsedUser = JSON.parse(user) as { name?: string; email?: string }
+      if (parsedUser.name) setUserName(parsedUser.name)
+      if (parsedUser.email) setUserEmail(parsedUser.email)
+    } catch (error) {
+      console.error("Failed to parse user from localStorage:", error)
+    }
+  }, [])
+
+  useEffect(() => {
+    const fetchMyBooks = async () => {
+      setIsBooksLoading(true)
+      try {
+        const response = await appService.getMyBooks()
+        const mapped = (response?.books ?? []).map((book, index) => ({
+          id: book.id ?? `book-${index}`,
+          name: book.bookName || "Untitled Memory Book",
+        }))
+        setMyBooks(mapped)
+      } catch (error) {
+        console.error("Failed to fetch books for sidebar:", error)
+        setMyBooks(books ?? [])
+      } finally {
+        setIsBooksLoading(false)
+      }
+    }
+
+    fetchMyBooks()
+  }, [])
+
+
+  
+
+
   return (
     <>
       {/* Mobile overlay */}
@@ -160,7 +202,17 @@ export function AppSidebar({
 
                         {vaultsOpen && (
                           <ul className="mt-1 space-y-0.5 pl-7">
-                            {books.map((book) => {
+                            {isBooksLoading && (
+                              <li className="px-2 py-1 text-xs text-sidebar-foreground/60">
+                                Loading vaults...
+                              </li>
+                            )}
+                            {!isBooksLoading && myBooks.length === 0 && (
+                              <li className="px-2 py-1 text-xs text-sidebar-foreground/60">
+                                No memory vaults yet
+                              </li>
+                            )}
+                            {myBooks.map((book) => {
                               const isActive = activeBookId === book.id
                               return (
                                 <li key={book.id}>
@@ -233,6 +285,8 @@ export function AppSidebar({
             variant="destructive"
             className="w-full transition-transform duration-150 hover:scale-[1.02] active:scale-[0.99]"
             onClick={() => {
+              localStorage.removeItem('accessToken')
+              document.cookie = 'accessToken=; path=/; max-age=0; SameSite=Lax'
               router.push("/auth/login")
             }}
           >

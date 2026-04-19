@@ -1,32 +1,60 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { AppSidebar, MobileMenuButton } from "@/components/app-sidebar"
 import { AddMemoryModal } from "@/components/add-memory-modal"
 import { AddVaultModal } from "@/components/add-vault-modal"
-import { AddMemoryProvider } from "./add-memory-context"
+import { AddMemoryProvider, type OpenAddMemoryOptions } from "./add-memory-context"
 import { AddVaultProvider } from "./add-vault-context"
-import { getMemories } from "@/lib/memories"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
+  const [authChecked, setAuthChecked] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [memoryModalOpen, setMemoryModalOpen] = useState(false)
-  const openAddMemory = useCallback(() => setMemoryModalOpen(true), [])
+  const [memoryModalBookId, setMemoryModalBookId] = useState<string | undefined>(
+    undefined
+  )
+  const openAddMemory = useCallback((options?: OpenAddMemoryOptions) => {
+    setMemoryModalBookId(options?.bookId)
+    setMemoryModalOpen(true)
+  }, [])
+  const closeMemoryModal = useCallback(() => {
+    setMemoryModalOpen(false)
+    setMemoryModalBookId(undefined)
+  }, [])
   const [vaultModalOpen, setVaultModalOpen] = useState(false)
   const openAddVault = useCallback(() => setVaultModalOpen(true), [])
 
-  const books = getMemories().map((m) => ({ id: m.id, name: m.title }))
+  useEffect(() => {
+    const tokenFromStorage = localStorage.getItem("accessToken")
+    const tokenFromCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("accessToken="))
+      ?.split("=")[1]
+
+    if (!tokenFromStorage && !tokenFromCookie) {
+      router.replace("/auth/login")
+      return
+    }
+
+    setAuthChecked(true)
+  }, [router])
+
+  if (!authChecked) {
+    return null
+  }
 
   return (
     <AddMemoryProvider value={{ openAddMemory }}>
       <AddVaultProvider value={{ openAddVault }}>
         <div className="paper-texture flex h-screen overflow-hidden">
           <AppSidebar
-            books={books}
             mobileOpen={mobileOpen}
             onMobileToggle={() => setMobileOpen(false)}
             onAddMemory={openAddMemory}
@@ -44,7 +72,8 @@ export default function DashboardLayout({
 
           <AddMemoryModal
             open={memoryModalOpen}
-            onClose={() => setMemoryModalOpen(false)}
+            onClose={closeMemoryModal}
+            bookId={memoryModalBookId}
           />
           <AddVaultModal
             open={vaultModalOpen}

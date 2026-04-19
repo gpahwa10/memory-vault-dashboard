@@ -8,11 +8,11 @@ export default function LandingPageLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1920px] flex-col">
+    <div className="min-h-screen overflow-x-hidden bg-background">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1920px] flex-col overflow-x-hidden">
         <ShippingBanner />
         <Navbar />
-        <div className="flex flex-1 flex-col ">
+        <div className="flex flex-1 flex-col overflow-x-hidden">
           {children}
           <Footer />
         </div>

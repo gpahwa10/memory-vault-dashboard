@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import {
   Camera,
@@ -16,6 +16,7 @@ import {
   Sparkles,
   X,
   Search,
+  Loader2,
 } from "lucide-react"
 import {
   Dialog,
@@ -27,7 +28,13 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useAddMemory } from "@/app/(dashboard)/add-memory-context"
+import {
+  memoryDetailService,
+  type BookMemory,
+} from "@/app/(dashboard)/memory-detail/memory-detail-service"
+import { toast } from "sonner"
 
 interface MediaItem {
   id: string
@@ -43,6 +50,82 @@ interface QuestionItem {
   answered: boolean
   media: MediaItem[]
   date?: string
+}
+
+function bookMemoryToQuestionItem(m: BookMemory): QuestionItem {
+  const answered =
+    Boolean(m.answer?.trim()) || m.status?.toLowerCase() === "answered"
+  const media: MediaItem[] = []
+  m.images.forEach((url, i) => {
+    media.push({
+      id: `${m.id}-img-${i}`,
+      type: "image",
+      url,
+      name: url.split("/").pop() || `image-${i + 1}`,
+    })
+  })
+  if (m.videoUrl) {
+    media.push({
+      id: `${m.id}-video`,
+      type: "video",
+      url: m.videoUrl,
+      name: "Video",
+    })
+  }
+  return {
+    id: m.id,
+    question: m.question,
+    answer: m.answer,
+    answered,
+    media,
+    date: m.date,
+  }
+}
+
+function collectRemoteImageUrlsFromMedia(media: MediaItem[]): string[] {
+  return media
+    .filter((m) => m.type === "image" && /^https?:\/\//i.test(m.url))
+    .map((m) => m.url)
+}
+
+function firstRemoteVideoUrlFromMedia(media: MediaItem[]): string | null {
+  const v = media.find(
+    (m) => m.type === "video" && /^https?:\/\//i.test(m.url)
+  )
+  return v?.url ?? null
+}
+
+function MemoriesGridSkeleton() {
+  return (
+    <section
+      aria-busy="true"
+      aria-live="polite"
+      className="space-y-3"
+    >
+      <span className="sr-only">Loading memories</span>
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex flex-col overflow-hidden rounded-xl border border-border bg-card/80"
+          >
+            <Skeleton className="h-36 w-full shrink-0 rounded-none rounded-t-xl" />
+            <div className="flex flex-1 flex-col gap-3 p-4">
+              <div className="flex items-start gap-2">
+                <Skeleton className="mt-0.5 h-5 w-5 shrink-0 rounded-full" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-full rounded-md" />
+                  <Skeleton className="h-4 w-[85%] rounded-md" />
+                </div>
+              </div>
+              <Skeleton className="h-3 w-full rounded-md" />
+              <Skeleton className="h-3 w-2/3 rounded-md" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
 }
 
 const initialQuestions: QuestionItem[] = [
@@ -91,8 +174,45 @@ const initialQuestions: QuestionItem[] = [
   },
 ]
 
-export function EditVaultContent() {
-  const [questions, setQuestions] = useState<QuestionItem[]>(initialQuestions)
+export function EditVaultContent({ bookId }: { bookId?: string }) {
+  const [questions, setQuestions] = useState<QuestionItem[]>(() =>
+    bookId ? [] : initialQuestions
+  )
+  const [memoriesLoadState, setMemoriesLoadState] = useState<
+    "idle" | "loading" | "error" | "success"
+  >(() => (bookId ? "loading" : "success"))
+  const [memoriesError, setMemoriesError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!bookId) {
+      setQuestions(initialQuestions)
+      setMemoriesLoadState("success")
+      setMemoriesError(null)
+      return
+    }
+
+    let cancelled = false
+    setMemoriesLoadState("loading")
+    setMemoriesError(null)
+
+    memoryDetailService
+      .getBookMemories(bookId)
+      .then((memories) => {
+        if (cancelled) return
+        setQuestions(memories.map(bookMemoryToQuestionItem))
+        setMemoriesLoadState("success")
+      })
+      .catch((err) => {
+        if (cancelled) return
+        setMemoriesError(typeof err === "string" ? err : "Failed to load memories")
+        setQuestions([])
+        setMemoriesLoadState("error")
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [bookId])
   const [editingMediaKey, setEditingMediaKey] = useState<string | null>(null)
   const [addMediaForQuestionId, setAddMediaForQuestionId] = useState<string | null>(null)
   const [selectedQ, setSelectedQ] = useState<QuestionItem | null>(null)
@@ -101,12 +221,10 @@ export function EditVaultContent() {
   const [sortOption, setSortOption] = useState<"newest" | "oldest" | "title-az">("newest")
   const [fromDate, setFromDate] = useState<string>("")
   const [toDate, setToDate] = useState<string>("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "answered" | "pending">("answered")
+  const [statusFilter, setStatusFilter] = useState<"all" | "answered" | "pending">("all")
   const [isEditingQuestionText, setIsEditingQuestionText] = useState(false)
-  const [lowQualityMedia, setLowQualityMedia] = useState<Record<string, boolean>>({
-    // Mark one sample image as low quality so the badge appears in demo data
-    m1: true,
-  })
+  const [lowQualityMedia, setLowQualityMedia] = useState<Record<string, boolean>>({})
+  const [isSavingModal, setIsSavingModal] = useState(false)
   const addImageInputRef = useRef<HTMLInputElement>(null)
   const addVideoInputRef = useRef<HTMLInputElement>(null)
   const replaceImageInputRef = useRef<HTMLInputElement>(null)
@@ -329,9 +447,49 @@ export function EditVaultContent() {
     e.target.value = ""
   }
 
-  const handleModalSave = () => {
-    setSelectedQ(null)
+  const handleModalSave = async () => {
+    if (!selectedQ) return
     setIsEditingQuestionText(false)
+
+    if (!bookId) {
+      setSelectedQ(null)
+      return
+    }
+
+    const imageUrls = collectRemoteImageUrlsFromMedia(selectedQ.media)
+    const videoUrl = firstRemoteVideoUrlFromMedia(selectedQ.media)
+    const hasLocalOnlyMedia = selectedQ.media.some(
+      (m) =>
+        (m.type === "image" || m.type === "video") &&
+        !/^https?:\/\//i.test(m.url)
+    )
+
+    setIsSavingModal(true)
+    try {
+      await memoryDetailService.updateBookMemory(bookId, selectedQ.id, {
+        question: selectedQ.question,
+        answer: selectedQ.answer,
+        date: selectedQ.date || new Date().toISOString().slice(0, 10),
+        status: selectedQ.answer.trim() ? "answered" : "pending",
+        images: imageUrls,
+        videoUrl,
+      })
+      if (hasLocalOnlyMedia) {
+        toast.success("Memory updated", {
+          description:
+            "Only hosted image/video URLs are sent. Upload to storage for URLs to attach files.",
+        })
+      } else {
+        toast.success("Memory updated")
+      }
+      const memories = await memoryDetailService.getBookMemories(bookId)
+      setQuestions(memories.map(bookMemoryToQuestionItem))
+      setSelectedQ(null)
+    } catch (err) {
+      toast.error(typeof err === "string" ? err : "Failed to update memory")
+    } finally {
+      setIsSavingModal(false)
+    }
   }
 
   const filteredQuestions = questions.filter((q) => {
@@ -362,42 +520,63 @@ export function EditVaultContent() {
   })
 
   return (
-    <div className="animate-fade-in-up flex flex-col gap-8 pb-2">
-      <div className="flex flex-row items-center justify-between">
-        <h1 className="font-serif text-3xl font-bold text-foreground">
+    <div className="animate-fade-in-up flex min-w-0 flex-col gap-6 pb-2 sm:gap-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <h1 className="min-w-0 font-serif text-2xl font-bold text-foreground sm:text-3xl">
           Your Memories
         </h1>
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-3 sm:mb-0 sm:items-end">
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
             <span className="text-xs text-muted-foreground">
-              {questions.filter((q) => q.answered).length} of {questions.length} answered
+              {bookId && memoriesLoadState === "loading" ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <Loader2
+                    className="h-3.5 w-3.5 shrink-0 animate-spin text-vault-teal"
+                    aria-hidden
+                  />
+                  Loading memories…
+                </span>
+              ) : (
+                <>
+                  {questions.filter((q) => q.answered).length} of{" "}
+                  {questions.length} answered
+                </>
+              )}
             </span>
-            {/* <button
-              type="button"
-              onClick={addQuestion}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add question
-            </button> */}
+
             <Button
             type="button"
-            onClick={() => openAddMemory()}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+            disabled={Boolean(bookId && memoriesLoadState === "loading")}
+            onClick={() =>
+              openAddMemory(bookId ? { bookId } : undefined)
+            }
+            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10 disabled:pointer-events-none disabled:opacity-50"
           >
             <Plus className="h-3.5 w-3.5" />
             Add a new memory
           </Button>
           </div>
         </div>
-        {/* <p className="mt-1 text-muted-foreground">
-          Change answers and attach images or videos to each question
-        </p> */}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 mb-3">
+      {bookId && memoriesError && (
+        <p className="text-sm text-destructive" role="alert">
+          {memoriesError}
+        </p>
+      )}
+
+      {bookId && memoriesLoadState === "loading" ? (
+        <MemoriesGridSkeleton />
+      ) : (
+        <>
+      <div
+        className={cn(
+          "mb-3 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center",
+          bookId && memoriesLoadState === "error" && "opacity-90"
+        )}
+      >
         {/* Search */}
-        <div className="flex items-center max-w-md w-full gap-2">
+        <div className="flex min-w-0 max-w-full flex-1 items-center gap-2 sm:max-w-md">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input
             type="text"
@@ -419,28 +598,28 @@ export function EditVaultContent() {
         </div>
 
         {/* Date filter */}
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <span>From</span>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 text-[11px] text-muted-foreground">
+          <div className="flex min-w-0 items-center gap-1">
+            <span className="shrink-0">From</span>
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="h-7 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
+              className="h-7 min-w-0 max-w-full rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
             />
           </div>
-          <div className="flex items-center gap-1">
-            <span>To</span>
+          <div className="flex min-w-0 items-center gap-1">
+            <span className="shrink-0">To</span>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="h-7 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
+              className="h-7 min-w-0 max-w-full rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
             />
           </div>
         </div>
         {/* Status filter */}
-        <div className="flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[11px]">
+        <div className="flex w-full min-w-0 items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[11px] sm:w-auto">
           <span className="text-muted-foreground">Status</span>
           <select
             value={statusFilter}
@@ -454,7 +633,7 @@ export function EditVaultContent() {
         </div>
 
         {/* Sort */}
-        <div className="ml-auto flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[11px]">
+        <div className="flex w-full min-w-0 items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[11px] sm:ml-auto sm:w-auto sm:max-w-[12rem]">
           <span className="text-muted-foreground">Sort</span>
           <select
             value={sortOption}
@@ -470,8 +649,15 @@ export function EditVaultContent() {
 
       {/* ── Card grid (new) ──────────────────────────────────────────────── */}
       <section>
-      
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {bookId &&
+          memoriesLoadState === "success" &&
+          sortedQuestions.length === 0 && (
+            <p className="mb-4 text-sm text-muted-foreground">
+              No memories yet. Use &quot;Add a new memory&quot; to create one.
+            </p>
+          )}
+
+        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sortedQuestions.map((q, idx) => {
             const firstMedia = q.media[0]
             const mediaCount = q.media.length
@@ -575,22 +761,8 @@ export function EditVaultContent() {
           })}
         </div>
       </section>
-
-      {/* ── Old list section (commented out) ────────────────────────────── */}
-      {/* 
-      <section className="rounded-xl border border-border bg-card p-2 shadow-sm">
-        <div className="mb-4 flex items-center gap-2">
-          <HelpCircle className="h-5 w-5 text-vault-teal" />
-          <h2 className="font-serif text-xl font-semibold text-foreground">
-            Questions, answers & attached media
-          </h2>
-        </div>
-        <p className="mb-6 text-sm text-muted-foreground">
-          Edit each question and answer, and add or remove images/videos for that question.
-        </p>
-        ... (old list layout removed)
-      </section>
-      */}
+        </>
+      )}
 
       {/* ── Question detail modal ────────────────────────────────────────── */}
       <Dialog
@@ -602,26 +774,29 @@ export function EditVaultContent() {
           }
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
-          <DialogHeader>
-            <div className="flex flex-col gap-2">
-              <DialogTitle className="font-serif text-xl">
+        <DialogContent
+          showCloseButton
+          className="flex max-h-[min(90dvh,100svh)] w-[min(100%,calc(100vw-1rem))] max-w-2xl min-w-0 flex-col gap-0 overflow-hidden p-0 pt-[max(0.5rem,env(safe-area-inset-top))] sm:pt-2"
+        >
+          <DialogHeader className="min-w-0 shrink-0 space-y-3 px-4 pb-0 pt-4 text-left sm:px-6 sm:pt-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <DialogTitle className="min-w-0 pr-8 font-serif text-lg sm:text-xl">
                 Question details
               </DialogTitle>
-              <div className="flex items-center gap-2">
-                <h3 className="text-xs font-medium text-muted-foreground">Date</h3>
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <h3 className="shrink-0 text-xs font-medium text-muted-foreground">Date</h3>
                 <input
                   type="date"
                   value={selectedQ?.date || ""}
                   onChange={(e) => handleModalDateChange(e.target.value)}
-                  className="h-8 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30"
+                  className="h-9 min-w-0 flex-1 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:border-vault-teal focus:outline-none focus:ring-1 focus:ring-vault-teal/30 sm:h-8 sm:max-w-[11rem]"
                 />
               </div>
             </div>
           </DialogHeader>
 
           {selectedQ && (
-            <div className="space-y-5 py-2">
+            <div className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-2 sm:px-6">
               {/* Question text */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
@@ -687,32 +862,32 @@ export function EditVaultContent() {
 
               {/* Media */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     Media attached
                   </p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => modalAddImageRef.current?.click()}
-                      className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                      className="inline-flex min-h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted sm:flex-initial sm:min-h-0 sm:py-1"
                     >
-                      <ImageIcon className="h-3.5 w-3.5" />
+                      <ImageIcon className="h-3.5 w-3.5 shrink-0" />
                       Image
                     </button>
                     <button
                       type="button"
                       onClick={() => modalAddVideoRef.current?.click()}
-                      className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                      className="inline-flex min-h-9 min-w-0 flex-1 items-center justify-center gap-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted sm:flex-initial sm:min-h-0 sm:py-1"
                     >
-                      <Video className="h-3.5 w-3.5" />
+                      <Video className="h-3.5 w-3.5 shrink-0" />
                       Video
                     </button>
                   </div>
                 </div>
 
                 {selectedQ.media.length > 0 ? (
-                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                  <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
                     {selectedQ.media.map((item) => (
                       <div
                         key={item.id}
@@ -745,7 +920,7 @@ export function EditVaultContent() {
                           )}
 
                           {/* Hover actions */}
-                          <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                          <div className="absolute right-2 top-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                             <button
                               type="button"
                               onClick={() => replaceMedia(selectedQ.id, item.id, item.type)}
@@ -797,12 +972,21 @@ export function EditVaultContent() {
             </div>
           )}
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedQ(null)}>
+          <DialogFooter className="mt-auto shrink-0 gap-2 border-t border-border bg-background px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <Button
+              variant="outline"
+              onClick={() => setSelectedQ(null)}
+              disabled={isSavingModal}
+              className="min-h-11 w-full sm:min-h-9 sm:w-auto"
+            >
               Close
             </Button>
-            <Button onClick={handleModalSave}>
-              Save changes
+            <Button
+              onClick={() => void handleModalSave()}
+              disabled={isSavingModal}
+              className="min-h-11 w-full sm:min-h-9 sm:w-auto"
+            >
+              {isSavingModal ? "Saving…" : "Save changes"}
             </Button>
           </DialogFooter>
         </DialogContent>

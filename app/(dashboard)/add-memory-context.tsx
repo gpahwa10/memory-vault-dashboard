@@ -2,15 +2,19 @@
 
 import { createContext, useContext } from "react"
 
+export type OpenAddMemoryOptions = {
+  bookId?: string
+}
+
 type AddMemoryContextValue = {
-  openAddMemory: () => void
+  openAddMemory: (options?: OpenAddMemoryOptions) => void
 }
 
 const AddMemoryContext = createContext<AddMemoryContextValue | null>(null)
 
 export function useAddMemory() {
   const ctx = useContext(AddMemoryContext)
-  return ctx?.openAddMemory ?? (() => {})
+  return ctx?.openAddMemory ?? ((_options?: OpenAddMemoryOptions) => {})
 }
 
 export const AddMemoryProvider = AddMemoryContext.Provider

@@ -1,0 +1,19 @@
+export const API_ENDPOINTS ={
+    LOGIN: "auth/login",
+    SIGNUP: "auth/signup",
+    LOGOUT: "auth/logout",
+    GET_USER: "users/me",
+    UPDATE_USER: "users/me",
+    CHANGE_USER_PASSWORD: "users/me/password",
+    GET_BOOK_TYPES: "book-types",
+    CREATE_BOOK: "books",
+    GET_MY_BOOKS: "books",
+    GET_MEMORY_DETAIL: "books/:id",
+    POST_BOOK_MEMORIES: "books/:id/memories",
+    GET_BOOK_MEMORIES: "books/:id/memories",
+    PATCH_BOOK_MEMORY: "books/:bookId/memories/:memoryId",
+    POST_REVIEWS: "reviews",
+    POST_GIFTS: "gifts",
+    GET_SUBSCRIPTION_PLANS: "subscription-plans",
+    
+}

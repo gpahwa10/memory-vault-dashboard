@@ -1,18 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { AuthHeader } from '@/components/auth-header'
-import { AuthForm } from '@/components/auth-form'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { Check, Sparkles, Shield, Crown, CreditCard, Lock, ChevronRight, ChevronLeft } from 'lucide-react'
+import { Check, Sparkles, Shield, Crown, CreditCard, Lock, ChevronRight, ChevronLeft, Eye, EyeOff, Mail, User, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { BASE_SUBSCRIPTION_PLANS, type BaseSubscriptionPlan } from '@/lib/subscription-plans'
+import CountryList from 'country-list-with-dial-code-and-flag'
+import { signupService } from './signupService'
+import { useRouter } from 'next/navigation'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -59,6 +61,9 @@ const PLANS: Plan[] = BASE_SUBSCRIPTION_PLANS.map((base, index) => {
     features,
   }
 })
+
+const DEFAULT_SIGNUP_LOCATION = 'Not Provided'
+const DEFAULT_SIGNUP_DOB = '1990-01-01'
 
 // ─── Step Indicator ───────────────────────────────────────────────────────────
 
@@ -336,17 +341,48 @@ function PaymentForm({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function SignupPage() {
+  const router = useRouter()
+  type CountryOption = { code: string; dial_code: string; name: string; flag: string }
+  const countryOptions: CountryOption[] = useMemo(() => {
+    const list = CountryList.getAll() || []
+    const normalized = list
+      .map((c: unknown) => (c as { data: CountryOption }).data)
+      .filter((d): d is CountryOption => Boolean(d))
+
+    const india = normalized.find((country) => country.code === 'IN' && country.dial_code === '+91')
+    const others = normalized.filter((country) => !(country.code === 'IN' && country.dial_code === '+91'))
+
+    return india ? [india, ...others] : normalized
+  }, [])
+  const defaultDialCode = countryOptions[0]?.dial_code ?? '+1'
+
   const [step, setStep] = useState<Step>('account')
   const [accountData, setAccountData] = useState<Record<string, string> | null>(null)
   const [selectedPlanId, setSelectedPlanId] = useState<string>('3m')
   const [error, setError] = useState<string | null>(null)
-
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [phoneDialCode, setPhoneDialCode] = useState(defaultDialCode)
+  const [phoneNational, setPhoneNational] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false) 
   const selectedPlan = PLANS.find((p) => p.id === selectedPlanId)!
 
   // ── Step 1: Account details ──
 
-  const handleAccountSubmit = (data: Record<string, string>) => {
-    if (!data.email || !data.password) {
+  const handleAccountSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const normalizedPhone = `${phoneDialCode}${phoneNational}`.replace(/\s+/g, '')
+    const data = {
+      fullName: fullName.trim(),
+      phoneNumber: normalizedPhone,
+      email: email.trim(),
+      password,
+    }
+
+    if (!data.fullName || !data.phoneNumber || !data.email || !data.password) {
       setError('Please fill in all fields')
       return
     }
@@ -355,8 +391,32 @@ export default function SignupPage() {
       return
     }
     setError(null)
-    setAccountData(data)
-    setStep('plan')
+    setLoading(true)
+    try {
+      const response = await signupService.signup({
+        name: data.fullName,
+        email: data.email,
+        password: data.password,
+        location: DEFAULT_SIGNUP_LOCATION,
+        dateOfBirth: DEFAULT_SIGNUP_DOB,
+        phoneNumber: data.phoneNumber,
+        profilePictureUrl: null
+      })
+      console.log(response)
+      localStorage.setItem('accessToken', response.token)
+      document.cookie = `accessToken=${encodeURIComponent(response.token)}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+      router.push('/app')
+      // setAccountData(data)
+      // setStep('plan')
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unable to create account right now. Please try again.'
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   // ── Success screen ──
@@ -425,52 +485,134 @@ export default function SignupPage() {
             </p>
           </div> */}
 
-          <AuthForm
-            fieldLayout="stack"
-            fields={[
-              {
-                name: 'fullName',
-                type: 'text',
-                label: 'Full Name',
-                placeholder: 'John Doe',
-                required: true,
-              },
-              {
-                name: 'phone',
-                type: 'text',
-                label: 'Phone Number',
-                placeholder: '+1234567890',
-                required: true,
-              },
-              {
-                name: 'email',
-                type: 'email',
-                label: 'Email address',
-                placeholder: 'you@example.com',
-                required: true,
-              },
-              {
-                name: 'password',
-                type: 'password',
-                label: 'Password',
-                placeholder: 'Create a strong password',
-                required: true,
-              },
+          <form onSubmit={handleAccountSubmit} className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="fullName" className="text-sm font-medium text-foreground">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center text-muted-foreground">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="John Doe"
+                    required
+                    className="w-full rounded-lg border border-border bg-background pl-10 pr-10 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                  />
+                </div>
+              </div>
 
-            ]}
-            buttonText={
-              'Continue to Plan Selection'
-            }
-            onSubmit={handleAccountSubmit}
-            footerText={
-              <>
-                Already have an account?{' '}
-                <Link href="/auth/login" className="font-medium text-vault-teal hover:underline">
-                  Sign in
-                </Link>
-              </>
-            }
-          />
+              <div className="flex flex-col gap-2">
+                <label htmlFor="phone" className="text-sm font-medium text-foreground">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <div className="flex gap-2">
+                    <select
+                      className="w-fit shrink-0 rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20 cursor-pointer"
+                      value={phoneDialCode}
+                      onChange={(e) => {
+                        const dialCode = e.target.value
+                        setPhoneDialCode(dialCode)
+                        setPhone(`${dialCode} ${phoneNational}`.trim())
+                      }}
+                    >
+                      {countryOptions.map((country, index) => (
+                        <option key={`${country.code}-${index}`} value={country.dial_code}>
+                          {country.flag} {country.dial_code}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="relative flex-1">
+                      <div className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center text-muted-foreground">
+                        <Phone className="h-4 w-4" />
+                      </div>
+                      <input
+                        id="phone"
+                        type="text"
+                        value={phoneNational}
+                        onChange={(e) => {
+                          const national = e.target.value
+                          setPhoneNational(national)
+                          setPhone(`${phoneDialCode} ${national}`.trim())
+                        }}
+                        placeholder="1234567890"
+                        required
+                        className="w-full rounded-lg border border-border bg-background pl-10 pr-10 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="email" className="text-sm font-medium text-foreground">
+                  Email address
+                </label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
+                    className="w-full rounded-lg border border-border bg-background pl-10 pr-10 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="password" className="text-sm font-medium text-foreground">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center text-muted-foreground">
+                    <Lock className="h-4 w-4" />
+                  </div>
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Create a strong password"
+                    required
+                    className="w-full rounded-lg border border-border bg-background pl-10 pr-10 py-2.5 text-sm focus:border-vault-teal focus:outline-none focus:ring-2 focus:ring-vault-teal/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="mt-6 w-full rounded-lg bg-vault-teal px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-vault-teal-dark"
+              disabled={loading}
+            >
+              {loading ? 'Creating account...' : 'Continue to Plan Selection'}
+            </button>
+
+            <div className="text-center text-sm text-muted-foreground">
+              Already have an account?{' '}
+              <Link href="/auth/login" className="font-medium text-vault-teal hover:underline">
+                Sign in
+              </Link>
+            </div>
+          </form>
 
           <p className="mt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <input

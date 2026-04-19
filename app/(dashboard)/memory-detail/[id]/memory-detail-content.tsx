@@ -32,14 +32,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { useAddMemory } from "../../add-memory-context"
 import { useAddVault } from "../../add-vault-context"
 import { cn } from "@/lib/utils"
-import type { Memory as MemoryType, MemoryQuestion, MemoryQuestionMedia } from "@/lib/memories"
+import type { MemoryQuestion, MemoryQuestionMedia } from "@/lib/memories"
 import { Button } from "@/components/ui/button"
 import { EditVaultContent } from "@/components/edit-vault-content"
 import { useRouter } from "next/navigation"
-
-interface SerializedMemory extends Omit<MemoryType, "date"> {
-  date: string
-}
+import type { MemoryBookDetail } from "../memory-detail-service"
 
 // ─────────────────────────────────────────────
 // Quick Actions config
@@ -66,101 +63,43 @@ const actionColorMap = {
 // ─────────────────────────────────────────────
 // Progress metric helpers
 // ─────────────────────────────────────────────
-const metricColorMap = {
-  teal: {
-    bar: "bg-vault-teal",
-    text: "text-vault-teal",
-    bg: "bg-vault-teal/8",
-    border: "border-vault-teal/15",
-    glow: "hover:shadow-vault-teal/15",
-    track: "bg-vault-teal/12",
-  },
-  gold: {
-    bar: "bg-vault-gold",
-    text: "text-vault-gold",
-    bg: "bg-vault-gold/8",
-    border: "border-vault-gold/15",
-    glow: "hover:shadow-vault-gold/15",
-    track: "bg-vault-gold/12",
-  },
-}
-
-interface ProgressMetricProps {
-  icon: React.ReactNode
-  label: string
-  current: number
-  total: number
-  suffix?: string
-  color: "teal" | "gold"
-  href?: string
-}
-
-function ProgressMetric({ icon, label, current, total, suffix, color, href }: ProgressMetricProps) {
-  const pct = Math.min((current / total) * 100, 100)
-  const c = metricColorMap[color]
-  const displayTotal = suffix ? `${total} ${suffix}` : total
-
-  const inner = (
-    <div
-      className={cn(
-        "group flex flex-col gap-2.5 rounded-xl border px-4 py-3.5 transition-all duration-200 hover:shadow-md",
-        c.border, c.bg, c.glow
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className={cn("flex h-7 w-7 items-center justify-center rounded-lg border", c.bg, c.border)}>
-            <span className={c.text}>{icon}</span>
-          </div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
-            {label}
-          </span>
-        </div>
-        <div className="flex items-baseline gap-1">
-          <span className={cn("text-lg font-bold tabular-nums leading-none", c.text)}>{current}</span>
-          <span className="text-xs leading-none text-muted-foreground">/ {displayTotal}</span>
-        </div>
-      </div>
-
-      <div className={cn("h-1.5 w-full overflow-hidden rounded-full", c.track)}>
-        <div
-          className={cn("h-full rounded-full transition-all duration-500", c.bar)}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-
-      <div className="flex items-center justify-between">
-        <span className="text-xs tabular-nums text-muted-foreground">{Math.round(pct)}% complete</span>
-        {href && (
-          <span className={cn("text-xs font-medium opacity-70 transition-opacity group-hover:opacity-100", c.text)}>
-            View all →
-          </span>
-        )}
-      </div>
-    </div>
-  )
-
-  if (href) return <Link href={href} className="block">{inner}</Link>
-  return inner
-}
+// const metricColorMap = {
+//   teal: {
+//     bar: "bg-vault-teal",
+//     text: "text-vault-teal",
+//     bg: "bg-vault-teal/8",
+//     border: "border-vault-teal/15",
+//     glow: "hover:shadow-vault-teal/15",
+//     track: "bg-vault-teal/12",
+//   },
+//   gold: {
+//     bar: "bg-vault-gold",
+//     text: "text-vault-gold",
+//     bg: "bg-vault-gold/8",
+//     border: "border-vault-gold/15",
+//     glow: "hover:shadow-vault-gold/15",
+//     track: "bg-vault-gold/12",
+//   },
+// }
 
 // ─────────────────────────────────────────────
 // Main page component
 // ─────────────────────────────────────────────
-export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
+export function MemoryDetailContent({ memory }: { memory: MemoryBookDetail }) {
   const openAddMemory = useAddMemory()
   const openAddVault = useAddVault()
   const [fullScreenMedia, setFullScreenMedia] = useState<MemoryQuestionMedia | null>(null)
   const router = useRouter()
-  const questions: MemoryQuestion[] = memory.memoryQuestions ?? [
-    { question: "What made this moment special?" },
-    { question: "Who was there?" },
-    { question: "What would you tell your future self about this day?" },
-  ]
+  const questions: MemoryQuestion[] = memory.questions.map((q) => ({
+    question: q.questionText,
+    answer: memory.metadata[q.key] ?? "",
+  }))
+
+  const metadataEntries = Object.entries(memory.metadata)
 
   const answeredCount = questions.filter((q) => q.answer?.trim()).length
-  const photoCount = memory.images?.length ?? 0
-  const videoCount = memory.hasVideo ? 1 : 0
+  const photoCount = memory.bookType.coverImage ? 1 : 0
+  const videoCount = 0
 
   const overallPct = Math.round(
     ((answeredCount / Math.max(questions.length, 1)) * 0.5 +
@@ -176,40 +115,48 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
   const videosPct = Math.min((videoCount / 10) * 100, 100)
 
   return (
-    <div className="animate-fade-in-up flex flex-col gap-6 pb-8">
+    <div className="animate-fade-in-up flex min-w-0 flex-col gap-6 pb-8">
       {/* Sticky: Back link + Page title — does not scroll */}
-      <div className="sticky top-0 z-10 flex flex-col gap-4 border-b border-border bg-background pb-4">
+      <div className="sticky top-0 z-10 flex flex-col gap-4 border-b border-border bg-background/95 pb-4 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80">
         <Link
           href="/app"
-          className="inline-flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex w-fit min-w-0 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Memory Vault
+          <ArrowLeft className="h-4 w-4 shrink-0" />
+          <span className="truncate sm:whitespace-normal">Back to Memory Vault</span>
         </Link>
 
-        <header className="flex flex-row items-center justify-between">
-          <div className="flex flex-row items-center gap-2">
-            <h1 className="font-serif text-2xl font-bold text-foreground sm:text-3xl">
-              {memory.title}
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div className="flex min-w-0 items-start gap-2">
+            <h1 className="min-w-0 flex-1 break-words font-serif text-xl font-bold text-foreground sm:text-2xl md:text-3xl">
+              {memory.bookName}
             </h1>
-            <Button className="border border-1 bg-transparent text-foreground"> <Edit3 className="h-4 w-4" /></Button>
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              className="shrink-0 border bg-transparent"
+              aria-label="Edit book"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
           </div>
-          <div className="flex flex-row gap-2">
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
             <Button
               type="button"
               onClick={() => router.push(`/memory-detail/${memory.id}/preview`)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+              className="inline-flex w-full min-w-0 items-center justify-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-2 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10 sm:w-auto sm:min-w-[9rem]"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              Generate Book
+              <Sparkles className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Generate Book</span>
             </Button>
             <Button
               type="button"
               onClick={() => router.push("/make-reel")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-1.5 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10"
+              className="inline-flex w-full min-w-0 items-center justify-center gap-1.5 rounded-lg border border-dashed border-vault-gold/40 bg-vault-gold/5 px-3 py-2 text-xs font-medium text-vault-warm transition-colors hover:bg-vault-gold/10 sm:w-auto sm:min-w-[9rem]"
             >
-              <Film className="h-3.5 w-3.5" />
-              Create Reel
+              <Film className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Create Reel</span>
             </Button>
           </div>
         </header>
@@ -218,35 +165,35 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
       {/* ── Memory Progress ───────────────────────── */}
       <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         {/* Header row */}
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <TrendingUp className="h-4 w-4 text-vault-teal" />
+        <div className="border-b border-border px-4 py-4 sm:px-5">
+          <div className="mb-3 flex flex-wrap items-center gap-2.5">
+            <TrendingUp className="h-4 w-4 shrink-0 text-vault-teal" />
             <h2 className="text-sm font-semibold uppercase tracking-wider text-foreground">
               Memory Progress
             </h2>
-            <div className="space-y-1.5">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-vault-teal transition-all"
-                    style={{ width: `${questionsPct}%` }}
-                  />
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  {Math.round(questionsPct)}% of questions answered
-                </p>
-              </div>
           </div>
-
-          {/* Overall progress pill */}
-          {/* <div className="flex items-center gap-2">
-            <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
+          <div className="w-full min-w-0 max-w-full space-y-1.5 sm:max-w-md">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-vault-teal to-vault-gold transition-all duration-700"
-                style={{ width: `${overallPct}%` }}
+                className="h-full rounded-full bg-vault-teal transition-all"
+                style={{ width: `${questionsPct}%` }}
               />
             </div>
-            <span className="text-sm font-bold tabular-nums text-foreground">{overallPct}%</span>
-          </div> */}
+            <p className="text-[11px] text-muted-foreground">
+              {Math.round(questionsPct)}% of questions answered
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-3 px-4 py-4 sm:grid-cols-2 sm:px-5">
+          {metadataEntries.map(([key, value]) => (
+            <div key={key} className="rounded-lg border border-border/70 bg-background/40 px-3 py-2">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                {key.replace(/_/g, " ")}
+              </p>
+              <p className="mt-1 min-w-0 break-words text-sm font-medium text-foreground">{value}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -256,19 +203,19 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
         setFullScreenMedia={setFullScreenMedia}
       />
 
-      <EditVaultContent />
+      <EditVaultContent bookId={memory.id} />
 
       {/* ── Full-screen media viewer ──────────────── */}
       <Dialog open={!!fullScreenMedia} onOpenChange={(open) => !open && setFullScreenMedia(null)}>
         <DialogContent
           showCloseButton={false}
-          className="fixed inset-0 z-50 flex h-screen w-screen max-w-none items-center justify-center border-0 bg-black/95 p-0"
+          className="fixed inset-0 z-50 flex h-[100dvh] max-h-[100dvh] w-screen max-w-none flex-col border-0 bg-black/95 p-0 sm:h-screen"
         >
           <DialogTitle className="sr-only">View media full screen</DialogTitle>
           {fullScreenMedia && (
             <>
               {fullScreenMedia.type === "image" ? (
-                <div className="relative h-full w-full">
+                <div className="relative min-h-0 w-full flex-1 touch-pan-y">
                   <Image
                     src={fullScreenMedia.url}
                     alt={fullScreenMedia.name ?? "Full size"}
@@ -276,23 +223,26 @@ export function MemoryDetailContent({ memory }: { memory: SerializedMemory }) {
                     className="object-contain"
                     sizes="100vw"
                     unoptimized={fullScreenMedia.url.startsWith("#")}
+                    priority
                   />
                 </div>
               ) : (
-                <div className="flex h-full w-full items-center justify-center p-4">
-                  <div className="flex max-h-full max-w-full flex-col items-center gap-2 rounded-lg bg-muted/20 p-4">
-                    <Video className="h-16 w-16 text-vault-teal/80" />
-                    <p className="text-sm text-muted-foreground">Video: {fullScreenMedia.name ?? "Video"}</p>
+                <div className="flex min-h-0 w-full flex-1 items-center justify-center overflow-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
+                  <div className="flex max-h-full max-w-full min-w-0 flex-col items-center gap-2 rounded-lg bg-muted/20 p-4 text-center">
+                    <Video className="h-12 w-12 shrink-0 text-vault-teal/80 sm:h-16 sm:w-16" />
+                    <p className="max-w-[90vw] break-words text-sm text-muted-foreground">
+                      Video: {fullScreenMedia.name ?? "Video"}
+                    </p>
                   </div>
                 </div>
               )}
               <button
                 type="button"
                 onClick={() => setFullScreenMedia(null)}
-                className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="absolute right-[max(0.75rem,env(safe-area-inset-right))] top-[max(0.75rem,env(safe-area-inset-top))] z-10 rounded-full bg-white/10 p-2.5 text-white transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 sm:p-2"
                 aria-label="Close"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
             </>
           )}
