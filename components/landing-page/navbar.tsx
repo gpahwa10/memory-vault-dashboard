@@ -5,6 +5,8 @@ import { Button } from "../ui/button"
 import localFont from "next/font/local"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
+import type { MouseEvent } from "react"
+import { usePathname, useRouter } from "next/navigation"
 
 const gtSuperDisplay = localFont({
   src: "../../public/fonts/gt-super-ds-trial/GT-Super-Display-Regular-Trial.otf",
@@ -17,15 +19,34 @@ const jost = localFont({
 })
 
 export const Navbar = () => {
+  const router = useRouter()
+  const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const linkClass =
     "font-normal text-white/95 transition-colors hover:text-white text-xs sm:text-sm md:text-base"
+  const handleSmoothScroll = (sectionId: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+    if (pathname !== "/") {
+      setIsMobileMenuOpen(false)
+      return
+    }
+
+    event.preventDefault()
+    const section = document.getElementById(sectionId)
+    if (!section) {
+      router.push(`/#${sectionId}`)
+      return
+    }
+
+    section.scrollIntoView({ behavior: "smooth", block: "start" })
+    window.history.replaceState(null, "", `#${sectionId}`)
+    setIsMobileMenuOpen(false)
+  }
 
   return (
-    <header className="bg-[#1D453A] px-4 py-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 sm:py-5 lg:py-6">
+    <header className="bg-[#1D453A] px-3 py-3 sm:px-4 lg:px-6 xl:px-7 2xl:px-8 sm:py-4 lg:py-4">
       <div className="mx-auto flex w-full flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
         <div className="flex items-center justify-between gap-3 lg:justify-start lg:gap-2">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-[8px]">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-[8px] cursor-pointer" onClick={() => router.push("/")}>
             <img
               src="/logo-transparent.svg"
               alt=""
@@ -51,18 +72,18 @@ export const Navbar = () => {
           } w-full flex-col items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 lg:flex lg:flex-1 lg:flex-row lg:items-center lg:justify-center lg:gap-x-4 lg:gap-y-2 lg:border-0 lg:bg-transparent lg:p-0 xl:gap-x-6`}
           aria-label="Primary"
         >
-          <Link href="" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
-            COLLECTIONS
+          {/* Occasions, Pricing , Give a gift & Sign In */}
+          <Link href="/#album-output" className={`${jost.className} ${linkClass}`} onClick={handleSmoothScroll("album-output")}>
+            OCCASIONS
           </Link>
-          <Link href="" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
-            PROCESS
-          </Link>
-          <Link href="" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
+          <Link href="/#pricing" className={`${jost.className} ${linkClass}`} onClick={handleSmoothScroll("pricing")}>
             PRICING
           </Link>
-          <Link href="" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
-            <span className="hidden sm:inline">CUSTOMER STORIES</span>
-            <span className="sm:hidden">STORIES</span>
+          <Link href="/gift-page" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
+            GIVE A GIFT
+          </Link>
+          <Link href="/app" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
+            SIGN IN
           </Link>
           <Button
             asChild

@@ -1,7 +1,6 @@
 import Link from "next/link"
 import localFont from "next/font/local"
-import { MapPin } from "lucide-react"
-import { Button } from "../ui/button"
+import { Mail, MapPin, Phone } from "lucide-react"
 
 const gtSuperDisplay = localFont({
     src: "../../public/fonts/gt-super-ds-trial/GT-Super-Display-Regular-Trial.otf",
@@ -15,7 +14,7 @@ const jost = localFont({
 
 export const Footer = () => {
     return (
-        <footer className="bg-[#1D453A] px-4 py-8 sm:px-6 sm:py-10 md:px-10 md:py-12 lg:px-14 lg:py-14 xl:px-20 xl:py-16 2xl:px-32 2xl:py-[56px] min-[1920px]:px-[240px] min-[1920px]:py-[64px]">
+        <footer className="bg-[#1D453A] px-3 py-6 sm:px-4 sm:py-7 md:px-7 md:py-8 lg:px-10 lg:py-10 xl:px-14 xl:py-11 2xl:px-24 2xl:py-[40px] min-[1920px]:px-[168px] min-[1920px]:py-[44px]">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
                 <div className="flex flex-col gap-2">
                     <span className={`${gtSuperDisplay.className} flex flex-row items-center gap-2 text-2xl font-500 text-white sm:text-3xl lg:text-4xl`}>
@@ -25,7 +24,15 @@ export const Footer = () => {
                     <p className={`${jost.className} text-sm font-400 text-[#E3DED0] sm:text-base lg:text-lg xl:text-xl`}>Subscribe to our newsletter to get the latest news and updates.</p>
                 </div>
 
-                <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-2 lg:max-w-xl lg:shrink-0">
+                  <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-col sm:items-start sm:gap-2 lg:max-w-xl lg:shrink-0">
+                    <a href="tel:+919217976689" className="flex items-center gap-2">
+                        <Phone className="size-4 text-white"/> <span className={`${jost.className} text-sm font-400 text-white sm:text-base lg:text-lg`}>+91-9217976689</span>
+                    </a>
+                    <a href="mailto:info@memoryvault.com" className="flex items-center gap-2">
+                        <Mail className="size-4 text-white"/> <span className={`${jost.className} text-sm font-400 text-white sm:text-base lg:text-lg`}>info@memoryvault.com</span>
+                    </a>
+                </div>
+                {/* <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-2 lg:max-w-xl lg:shrink-0">
                     <input
                         type="email"
                         placeholder="Enter your email"
@@ -34,7 +41,7 @@ export const Footer = () => {
                     <Button className="w-full shrink-0 rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-xs font-400 text-white hover:bg-[#b89442] sm:w-auto sm:text-sm">
                         Subscribe
                     </Button>
-                </div>
+                </div> */}
             </div>
             <div className="h-[1px] w-full bg-[#568C85] my-6"></div>
             <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-8 xl:gap-12">
@@ -56,13 +63,13 @@ export const Footer = () => {
                     <div className="flex flex-col gap-4">
                         <h2 className={`${gtSuperDisplay.className} text-xl font-400 text-[#CAA64A] sm:text-2xl`}>Useful Links</h2>
                         <nav className={`${jost.className} flex flex-col gap-3`} aria-label="Useful links">
-                            <Link href="/about" className="text-sm font-400 text-white hover:underline sm:text-base lg:text-lg">
+                            <Link href="/about-us" className="text-sm font-400 text-white hover:underline sm:text-base lg:text-lg">
                                 About us
                             </Link>
                             <Link href="/privacy-policy" className="text-sm font-400 text-white hover:underline sm:text-base lg:text-lg">
                                 Privacy policy
                             </Link>
-                            <Link href="/terms" className="text-sm font-400 text-white hover:underline sm:text-base lg:text-lg">
+                            <Link href="/terms-conditions" className="text-sm font-400 text-white hover:underline sm:text-base lg:text-lg">
                                 Terms and conditions
                             </Link>
                             <Link href="/contact" className="text-sm font-400 text-white hover:underline sm:text-base lg:text-lg">
@@ -90,7 +97,7 @@ export const Footer = () => {
                             >
                                 Instagram
                             </a>
-                            <a
+                            {/* <a
                                 href="https://twitter.com"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -105,7 +112,7 @@ export const Footer = () => {
                                 className="text-sm font-400 text-white hover:underline sm:text-base lg:text-lg"
                             >
                                 Youtube
-                            </a>
+                            </a> */}
                         </nav>
                     </div>
 
@@ -117,8 +124,6 @@ export const Footer = () => {
                                 Kohat Enclave, Pitampura
                                 <br />
                                 New Delhi, India
-                                <br />
-                                +91-9217976689
                             </address>
                         </div>
                     </div>

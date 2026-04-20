@@ -13,13 +13,13 @@ const gtSuperDisplay = localFont({
 
 export const WhyChooseUs = () => {
     return (
-        <div className="bg-[#1D453A] flex w-full flex-col items-center justify-between gap-10 px-4 py-12 sm:gap-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:gap-14 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-24 min-[1920px]:px-[240px] min-[1920px]:py-[116px]">
+        <div className="bg-[#1D453A] flex w-full flex-col items-center justify-between gap-10 px-3 py-8 sm:gap-12 sm:px-4 sm:py-11 md:px-7 md:py-14 lg:gap-14 lg:px-10 lg:py-16 xl:px-14 xl:py-20 2xl:px-24 2xl:py-16 min-[1920px]:px-[168px] min-[1920px]:py-[80px]">
             <div className="flex w-full max-w-[1479px] flex-col items-start gap-6 md:flex-row md:items-start md:justify-between md:gap-[32px]">
-                <h2 className={`${gtSuperDisplay.className} text-2xl font-400 text-white sm:text-3xl lg:text-4xl`}>Why Choose <span className="text-[#CAA64A]">Memory Vault</span></h2>
+                <h2 className={`${gtSuperDisplay.className} text-2xl font-400 text-white sm:text-3xl lg:text-4xl`}>Why Choose <span className="text-[#CAA64A]">Us</span></h2>
                 <p className={`${jost.className} flex max-w-[592px] text-sm font-400 text-white sm:text-base lg:text-lg xl:text-xl`}>Every chapter of our process is designed to delight you — from premium materials to smart technology.</p>
             </div>
-            <img src="/landing-page/why-choose-us-banner.svg" alt="Why Choose Memory Vault" className="w-full h-auto object-cover max-w-[932px] max-h-[536px]" />
-            <div className="flex w-full max-w-[1479px] flex-wrap items-stretch justify-center gap-4 sm:gap-6 lg:gap-8 xl:flex-nowrap xl:justify-between">
+                <img src="/landing-page/why-choose-us-banner.svg" alt="Why Choose Memory Vault" className="flex self-start items-start justify-start w-full h-auto  object-cover max-w-[932px] max-h-[536px]" />
+            <div className="flex w-full max-w-[1479px] flex-wrap items-stretch justify-start gap-4 sm:gap-6 lg:gap-8 xl:flex-nowrap xl:justify-between">
                 {whyChooseUsItems.map((item) => (
                     <WhyChooseUsItem key={item.title} item={item} />
                 ))}

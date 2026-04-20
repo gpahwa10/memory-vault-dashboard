@@ -33,7 +33,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <LandingParallelAppSlot>{app}</LandingParallelAppSlot>
         {children}
-        <WhatsAppButton phoneNumber="1234567890" message="Hello, I have a question about Memory Vault." />
+        <WhatsAppButton phoneNumber="+91-9217976689" message="Hello, I have a question about Memory Vault." />
         <Analytics />
       </body>
     </html>

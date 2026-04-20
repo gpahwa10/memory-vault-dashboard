@@ -36,7 +36,7 @@ export const HeroSection = () => {
       <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-0 min-h-[520px] sm:min-h-[560px] lg:max-h-[700px] lg:min-h-[600px]">
         
         {/* LEFT CONTENT */}
-        <div className="flex flex-col justify-center gap-5 px-4 py-10 sm:gap-6 sm:px-6 sm:py-12 lg:gap-8 lg:px-16 lg:py-16">
+        <div className="flex flex-col justify-center gap-5 px-3 py-7 sm:gap-6 sm:px-4 sm:py-8 lg:gap-8 lg:px-11 lg:py-11">
     
           <span className={`${gtSuperDisplay.className} flex flex-col text-2xl font-[300] text-white leading-[1.12] tracking-[0] sm:text-3xl sm:leading-[1.1] md:text-4xl lg:text-[2.25rem] xl:text-5xl 2xl:text-6xl`}>
             <span className={`${gtSuperDisplayLight.className} font-[300]`}>Some Moments <br />Deserve More Than</span>
@@ -61,7 +61,7 @@ export const HeroSection = () => {
         </div>
 
         {/* RIGHT IMAGE */}
-        <div className="relative mt-0 flex items-end justify-center px-4 pb-6 sm:px-6 lg:mt-10 lg:px-0 lg:pb-0 xl:mt-11">
+        <div className="relative mt-0 flex items-end justify-center px-3 pb-4 sm:px-4 lg:mt-10 lg:px-0 lg:pb-0 xl:mt-11">
           <img
             src="/landing-page/hero-mobile.svg"
             alt="hero-section"

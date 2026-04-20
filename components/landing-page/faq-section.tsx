@@ -45,7 +45,7 @@ const faqs = [
 
 export const FaqSection = () => {
     return (
-        <div className="flex flex-col gap-8 bg-[#E5E1D7] px-4 py-12 sm:gap-10 sm:px-6 lg:flex-row lg:items-start lg:gap-12 lg:px-14 lg:py-16 xl:px-20 2xl:px-32 min-[1920px]:px-[240px]">
+        <div className="flex flex-col gap-8 bg-[#E5E1D7] px-3 py-8 sm:gap-10 sm:px-4 lg:flex-row lg:items-start lg:gap-12 lg:px-10 lg:py-11 xl:px-14 2xl:px-24 min-[1920px]:px-[168px]">
             <div className="flex min-w-0 flex-1 flex-col gap-6 lg:max-w-md">
                 <span className={`${gtSuperDisplay.className} flex flex-row text-2xl font-500 text-black sm:text-3xl lg:text-4xl`}>
                     <p>FAQ</p>

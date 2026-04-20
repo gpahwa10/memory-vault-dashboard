@@ -1,6 +1,5 @@
 'use client'
 
-import { MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 interface WhatsAppButtonProps {
@@ -9,10 +8,11 @@ interface WhatsAppButtonProps {
 }
 
 export function WhatsAppButton({
-  phoneNumber = '1234567890',
+  phoneNumber = '+91-9217976689',
   message = 'Hello, I have a question about Memory Vault.',
 }: WhatsAppButtonProps) {
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+  const normalizedPhoneNumber = phoneNumber.replace(/\D/g, '')
+  const whatsappUrl = `https://wa.me/${normalizedPhoneNumber}?text=${encodeURIComponent(message)}`
 
   return (
     <Link

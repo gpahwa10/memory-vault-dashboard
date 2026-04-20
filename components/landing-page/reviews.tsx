@@ -1,6 +1,7 @@
 "use client"
 
 import localFont from "next/font/local";
+import { useEffect, useRef } from "react";
 
 const gtSuperDisplay = localFont({
     src: "../../public/fonts/gt-super-ds-trial/GT-Super-Display-Regular-Trial.otf",
@@ -13,6 +14,7 @@ const gtSuperDisplay = localFont({
   })
     
 export const Reviews = () => {
+    const reviewsContainerRef = useRef<HTMLDivElement | null>(null)
     const reviews = [
         {
             type: "image",
@@ -24,7 +26,7 @@ export const Reviews = () => {
         {
             type: "testimonial",
             text: "Memory Vault beautifully preserved our family's most precious moments with care and detail, turning them into timeless keepsakes we can cherish and relive for generations to come.",
-            author: "Sarah Johnson",
+            author: "Aarav Patel",
             rotation: "rotate-1"
         },
         {
@@ -37,13 +39,53 @@ export const Reviews = () => {
         {
             type: "testimonial",
             text: "I highly recommend Memory Vault to all my clients—the quality is exceptional, and the entire process is smooth, professional, and completely hassle-free from start to finish.",
-            author: "Michael Chen",
+            author: "Hansika Mahajan",
             rotation: "-rotate-1"
+        },
+    
+        // ✅ NEW TESTIMONIALS
+        {
+            type: "testimonial",
+            text: "From old photographs to special milestones, Memory Vault helped us relive our journey in the most beautiful way possible. The attention to detail truly exceeded our expectations.",
+            author: "Rohan Mehta",
+            rotation: "rotate-2"
+        },
+        {
+            type: "testimonial",
+            text: "The entire experience felt premium and personal. Every memory was handled with such care that it felt like we were seeing our life story unfold again.",
+            author: "Neha Kapoor",
+            rotation: "-rotate-2"
+        },
+        {
+            type: "testimonial",
+            text: "Absolutely loved the final outcome! It’s not just a service, it’s an emotional experience that every family should go through at least once.",
+            author: "Vikram Singh",
+            rotation: "rotate-1"
         }
     ];
 
+    useEffect(() => {
+        const container = reviewsContainerRef.current
+        if (!container) return
+
+        const autoScrollInterval = window.setInterval(() => {
+            const maxScrollLeft = container.scrollWidth - container.clientWidth
+            if (maxScrollLeft <= 0) return
+
+            const nextScrollLeft = container.scrollLeft + 280
+            if (nextScrollLeft >= maxScrollLeft - 4) {
+                container.scrollTo({ left: 0, behavior: "smooth" })
+                return
+            }
+
+            container.scrollTo({ left: nextScrollLeft, behavior: "smooth" })
+        }, 2000)
+
+        return () => window.clearInterval(autoScrollInterval)
+    }, [])
+
     return (
-        <div className="flex flex-col items-center justify-center gap-6 bg-[#EDE9DF] px-4 py-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-24 min-[1920px]:px-[240px] min-[1920px]:py-[116px]">
+        <div className="flex flex-col items-center justify-center gap-6 bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-7 md:py-14 lg:px-10 lg:py-16 xl:px-14 xl:py-20 2xl:px-24 2xl:py-16 min-[1920px]:px-[168px] min-[1920px]:py-[80px]">
             <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-400 text-[#12473A] sm:text-3xl lg:text-4xl`}>
                 What our Happy <span className="text-[#CAA64A]">Families Say</span>
             </h2>
@@ -59,7 +101,10 @@ export const Reviews = () => {
                     style={{ borderSpacing: "8px" }}
                 />
 
-                <div className="relative z-10 flex items-center justify-start gap-4 overflow-x-auto pb-4 sm:justify-center sm:gap-6">
+                <div
+                    ref={reviewsContainerRef}
+                    className="reviews-scroll relative z-10 flex items-center justify-start gap-4 overflow-x-auto pb-4 sm:gap-6"
+                >
                     {reviews.map((item, index) =>
                         item.type === "image" ? (
                             /* Polaroid Photo Card */

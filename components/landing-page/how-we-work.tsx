@@ -14,14 +14,17 @@ const gtSuperDisplay = localFont({
 
 export const HowWeWork = () => {
     return (
-        <div className="flex flex-col items-center justify-center bg-[#EDE9DF] px-4 py-12 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-14 lg:py-24 xl:px-20 xl:py-28 2xl:px-32 2xl:py-32 min-[1920px]:px-[240px] min-[1920px]:py-[124px]">
-                <h2 className={`${gtSuperDisplay.className} max-w-4xl text-center text-2xl font-500 leading-tight text-[#12473A] sm:text-3xl lg:text-4xl`}>
+        <div className="flex flex-col items-center justify-center bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-7 md:py-14 lg:px-10 lg:py-16 xl:px-14 xl:py-20 2xl:px-24 2xl:py-24 min-[1920px]:px-[168px] min-[1920px]:py-[88px]">
+                {/* <h2 className={`${gtSuperDisplay.className} max-w-4xl text-center text-2xl font-500 leading-tight text-[#12473A] sm:text-3xl lg:text-4xl`}>
                     From Memories <span className="text-[#CAA64A]">to Masterpiece</span>
+                </h2> */}
+                <h2 className={`${gtSuperDisplay.className} max-w-4xl text-center text-2xl font-500 leading-tight text-[#12473A] sm:text-3xl lg:text-4xl mb-2`}>
+                    How It <span className="text-[#CAA64A]">Works</span>
                 </h2>
-            <p className={`${jost.className} mt-6 mb-8 max-w-[740px] px-1 text-center text-sm font-400 text-[#615F5A] sm:text-base md:text-lg lg:mb-10 lg:mt-6 lg:text-xl`}>
+            {/* <p className={`${jost.className} mt-6 mb-8 max-w-[740px] px-1 text-center text-sm font-400 text-[#615F5A] sm:text-base md:text-lg lg:mb-10 lg:mt-6 lg:text-xl`}>
                 Creating your personalized memory book is as easy as 1-2-3. Watch your cherished moments
                 transform into a timeless keepsake.
-            </p>
+            </p> */}
 
             <div className="grid w-full max-w-[1440px] grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-8">
                 {howWeWorkSteps.map((step) => (
@@ -30,7 +33,7 @@ export const HowWeWork = () => {
             </div>
 
             <Button className="mt-8 inline-flex items-center gap-2 rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-xs font-400 text-black hover:bg-[#b89442] sm:text-sm lg:mt-10">
-                Start Creating Now <ArrowRight className="size-4 shrink-0" />
+                See A Demo <ArrowRight className="size-4 shrink-0" />
             </Button>
         </div>
     )
@@ -67,23 +70,23 @@ export const HowWeWorkStep = ({ step }: { step: (typeof howWeWorkSteps)[number] 
 const howWeWorkSteps = [
     {
         id: "01",
-        title: "Upload Your Memories",
+        title: "Share Your Memories",
         description:
-            "Upload your photos and videos from WhatsApp, Instagram, or your phone.",
+            "Choose your occasion and Share your memories through whatsapp ",
         image: "/landing-page/how-we-work-1.svg",
     },
     {
         id: "02",
-        title: "Customize Your Book",
+        title: "Preview Your Album",
         description:
-            "Choose templates, layouts, and add captions. Personalize every page to match your vision.",
+            "Preview and edit your album in real time.",
         image: "/landing-page/how-we-work-2.svg",
     },
     {
         id: "03",
-        title: "Print & Deliver",
+        title: "Cherish Forever",
         description:
-            "Printed on archival-quality paper with vivid colours. Shipped worldwide with tracking included.",
+            "Enjoy a customised, zero effort photo album, digital keepsake and a shareable reel of your journey.",
         image: "/landing-page/how-we-work-3.svg",
     },
 ]

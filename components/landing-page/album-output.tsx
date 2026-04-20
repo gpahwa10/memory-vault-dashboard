@@ -3,11 +3,10 @@ import { ArrowRightIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import localFont from "next/font/local"
 import { useRouter } from "next/navigation"
-
 const albums = [
     {
         id: 1,
-        title: "Travel Stories",
+        title: "Pregnancy",
         image: "/landing-page/album-output-1.svg",
     },
     {
@@ -17,17 +16,17 @@ const albums = [
     },
     {
         id: 3,
-        title: "Wedding Memories",
+        title: "Travel",
         image: "/landing-page/album-output-3.svg",
     },
     {
         id: 4,
-        title: "Anniversaries",
+        title: "Courtship",
         image: "/landing-page/album-output-4.svg",
     },
     {
         id: 5,
-        title: "Special Moments",
+        title: "Wedding Firsts",
         image: "/landing-page/album-output-5.svg",
     },
 ]
@@ -66,6 +65,14 @@ export const AlbumOutput = () => {
     const goToPrev = () => {
         setActiveIndex((prev) => (prev - 1 + albums.length) % albums.length)
     }
+
+    useEffect(() => {
+        const autoScrollInterval = window.setInterval(() => {
+            setActiveIndex((prev) => (prev + 1) % albums.length)
+        }, 2000)
+
+        return () => window.clearInterval(autoScrollInterval)
+    }, [])
 
     const minSwipeDistance = 50
 
@@ -109,13 +116,13 @@ export const AlbumOutput = () => {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center gap-5 bg-[#EDE9DF] px-4 py-12 sm:gap-6 sm:px-6 sm:py-16 md:px-10 lg:px-14 xl:px-20 2xl:px-32 min-[1920px]:px-[240px]">
+        <div id="album-output" className="flex flex-col items-center justify-center gap-5 bg-[#EDE9DF] px-3 py-8 sm:gap-6 sm:px-4 sm:py-11 md:px-7 lg:px-10 xl:px-14 2xl:px-24 min-[1920px]:px-[168px]">
             {/* Heading */}
             <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-normal text-[#12473A] sm:text-3xl lg:text-4xl`}>
-                Album <span className="text-[#CAA64A]">Output</span>
+                Our <span className="text-[#CAA64A]">Photobooks</span>
             </h2>
             <p className={`${jost.className} max-w-[680px] text-center text-xs text-[#615F5A] sm:text-sm lg:text-base`}>
-                Explore our range of professionally crafted memory books for every occasion
+                The moments that change everything, Vaulted forever
             </p>
 
             {/* Cards Fan */}

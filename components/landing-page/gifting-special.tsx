@@ -22,7 +22,7 @@ export const GiftingSpecial = () => {
                 className="pointer-events-none absolute top-0 right-0 z-10 h-auto w-[min(278px,45vw)] max-w-full select-none sm:w-[278px]"
                 aria-hidden
             />
-            <div className="flex flex-col items-center justify-center gap-8 px-4 py-12 sm:px-6 sm:py-16 md:px-10 lg:flex-row lg:gap-10 lg:px-14 lg:py-20 xl:px-20 2xl:px-32 min-[1920px]:px-[240px] min-[1920px]:py-[124px]">
+            <div className="flex flex-col items-center justify-center gap-8 px-3 py-8 sm:px-4 sm:py-11 md:px-7 lg:flex-row lg:gap-10 lg:px-10 lg:py-14 xl:px-14 2xl:px-24 min-[1920px]:px-[168px] min-[1920px]:py-[88px]">
             <img src="/landing-page/gifting-banner.svg" alt="Gifting Special" className="h-fit w-full max-w-[320px] object-cover sm:max-w-[420px] lg:max-w-[592px]" />
             <div className="flex flex-col items-center justify-center gap-6 sm:gap-8">
                 <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-400 text-white sm:text-3xl lg:text-4xl`}>Gifting <span className="text-[#CAA64A]">Special</span></h2>

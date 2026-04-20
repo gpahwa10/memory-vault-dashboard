@@ -163,3 +163,14 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--vault-teal);
 }
+
+/* Hide horizontal scrollbar for reviews while keeping scroll behavior */
+.reviews-scroll {
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.reviews-scroll::-webkit-scrollbar {
+  display: none;
+}

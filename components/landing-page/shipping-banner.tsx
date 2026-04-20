@@ -6,7 +6,7 @@ const jost = localFont({
 
 export const ShippingBanner = () => {
   return (
-    <div className="flex justify-center border-t border-border bg-[#EDE9DF] px-4 py-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
+    <div className="flex justify-center border-t border-border bg-[#EDE9DF] px-3 py-1.5 sm:px-4 lg:px-6 xl:px-7 2xl:px-8">
       <div className="flex w-full items-center justify-center gap-2 sm:gap-3">
         <img
           src="/landing-page/truck.svg"
@@ -14,7 +14,7 @@ export const ShippingBanner = () => {
           className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
         />
         <h2 className={`${jost.className} text-center text-[11px] font-normal leading-snug text-foreground sm:text-xs md:text-sm lg:text-base`}>
-          Free Shipping Across India – No Hidden Charges.
+          Early Bird Discounts Live - Use Code “StartVaulting”
         </h2>
       </div>
     </div>
