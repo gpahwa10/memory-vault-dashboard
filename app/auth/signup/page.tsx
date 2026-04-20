@@ -603,7 +603,7 @@ export default function SignupPage() {
               className="mt-6 w-full rounded-lg bg-vault-teal px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-vault-teal-dark"
               disabled={loading}
             >
-              {loading ? 'Creating account...' : 'Continue to Plan Selection'}
+              {loading ? 'Creating account...' : 'Create Account'}
             </button>
 
             <div className="text-center text-sm text-muted-foreground">
