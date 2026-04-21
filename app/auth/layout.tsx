@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { BackgroundVideo } from '@/components/background-video'
 import { AuthPageGuard } from '@/components/auth-page-guard'
-import { GoogleOAuthProvider } from '@react-oauth/google'
+// import { GoogleOAuthProvider } from '@react-oauth/google'
 
 export const metadata: Metadata = {
   title: 'Authentication - Memory Vault',
@@ -13,15 +13,14 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode
 }) {
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-
-  if (!googleClientId) {
-    throw new Error('NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set')
-  }
+  // const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+  //
+  // if (!googleClientId) {
+  //   throw new Error('NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set')
+  // }
 
   return (
-    // <GoogleOAuthProvider clientId={googleClientId}>
-      <div className="flex min-h-screen flex-col md:flex-row">
+    <div className="flex min-h-screen flex-col md:flex-row">
       {/* Left half: background video (exact 50%) */}
       <div className="relative hidden min-h-screen w-1/2 min-w-0 overflow-hidden md:block">
         <BackgroundVideo contained size="reduced" />
@@ -38,7 +37,5 @@ export default function AuthLayout({
         </div>
       </div>
     </div>
-    // </GoogleOAuthProvider>
-    
   )
 }
