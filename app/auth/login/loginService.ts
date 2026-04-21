@@ -24,7 +24,13 @@ interface LoginResponse {
 
 }
 
+interface GoogleLoginPayload {
+    accessToken: string;
+}
+
 export const loginService = {
     login: async (payload: LoginPayload) =>
         apiClient.post<LoginResponse>(API_ENDPOINTS.LOGIN, payload),
+    googleLogin: async (payload: GoogleLoginPayload) =>
+        apiClient.post<LoginResponse>(API_ENDPOINTS.GOOGLE_LOGIN, payload),
 }

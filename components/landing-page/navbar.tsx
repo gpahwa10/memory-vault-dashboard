@@ -74,7 +74,7 @@ export const Navbar = () => {
         >
           {/* Occasions, Pricing , Give a gift & Sign In */}
           <Link href="/#album-output" className={`${jost.className} ${linkClass}`} onClick={handleSmoothScroll("album-output")}>
-            OCCASIONS
+            Our Photobooks
           </Link>
           <Link href="/#pricing" className={`${jost.className} ${linkClass}`} onClick={handleSmoothScroll("pricing")}>
             PRICING
@@ -82,9 +82,9 @@ export const Navbar = () => {
           <Link href="/gift-page" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
             GIVE A GIFT
           </Link>
-          <Link href="/app" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
+          {/* <Link href="/app" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
             SIGN IN
-          </Link>
+          </Link> */}
           <Button
             asChild
             variant="outline"
@@ -99,7 +99,7 @@ export const Navbar = () => {
           variant="outline"
           className={`${jost.className} hidden rounded-full border-0 bg-[#CAA64A] px-6 py-3 text-sm font-normal text-white hover:bg-[#b89442] lg:inline-flex`}
         >
-          <Link href="/app">Start Vaulting</Link>
+          <Link href="/app">Sign In</Link>
         </Button>
       </div>
     </header>

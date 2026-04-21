@@ -1,6 +1,7 @@
 export const API_ENDPOINTS ={
     LOGIN: "auth/login",
     SIGNUP: "auth/signup",
+    GOOGLE_LOGIN: "auth/google",
     LOGOUT: "auth/logout",
     GET_USER: "users/me",
     UPDATE_USER: "users/me",

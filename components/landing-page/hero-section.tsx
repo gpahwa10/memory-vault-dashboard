@@ -39,14 +39,14 @@ export const HeroSection = () => {
         <div className="flex flex-col justify-center gap-5 px-3 py-7 sm:gap-6 sm:px-4 sm:py-8 lg:gap-8 lg:px-11 lg:py-11">
     
           <span className={`${gtSuperDisplay.className} flex flex-col text-2xl font-[300] text-white leading-[1.12] tracking-[0] sm:text-3xl sm:leading-[1.1] md:text-4xl lg:text-[2.25rem] xl:text-5xl 2xl:text-6xl`}>
-            <span className={`${gtSuperDisplayLight.className} font-[300]`}>Some Moments <br />Deserve More Than</span>
+            <span className={`${gtSuperDisplayLight.className} font-[300]`}>Your Memories <br />Beautifully Told</span>
             <span className="font-[500] text-[#CAA64A]">
-              Your Gallery
+              Not Just Stored 
             </span>
           </span>
 
           <p className={`${jost.className} max-w-full text-sm font-[400] leading-6 tracking-[0] text-gray-200 sm:max-w-[90%] sm:text-base sm:leading-7 lg:max-w-[520px] lg:text-lg lg:leading-8 xl:text-xl`}>
-            Transform your gallery into beautifully crafted keepsakes through WhatsApp — quick, easy, and memorable.
+            Transform your gallery into beautifully crafted album through WhatsApp — quick, easy, and memorable.
           </p>
 
           <div className="flex flex-wrap gap-3 sm:gap-4">
@@ -63,7 +63,7 @@ export const HeroSection = () => {
         {/* RIGHT IMAGE */}
         <div className="relative mt-0 flex items-end justify-center px-3 pb-4 sm:px-4 lg:mt-10 lg:px-0 lg:pb-0 xl:mt-11">
           <img
-            src="/landing-page/hero-mobile.svg"
+            src="/landing-page/hero-section.png"
             alt="hero-section"
             className="
               w-[180px] 
