@@ -20,7 +20,7 @@ export default function AuthLayout({
   }
 
   return (
-    <GoogleOAuthProvider clientId={googleClientId}>
+    // <GoogleOAuthProvider clientId={googleClientId}>
       <div className="flex min-h-screen flex-col md:flex-row">
       {/* Left half: background video (exact 50%) */}
       <div className="relative hidden min-h-screen w-1/2 min-w-0 overflow-hidden md:block">
@@ -38,7 +38,7 @@ export default function AuthLayout({
         </div>
       </div>
     </div>
-    </GoogleOAuthProvider>
+    // </GoogleOAuthProvider>
     
   )
 }
