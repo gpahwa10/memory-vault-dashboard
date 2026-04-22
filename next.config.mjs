@@ -5,6 +5,12 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "memory-vault-uploads.s3.ap-south-1.amazonaws.com",
+      },
+    ],
   },
 }
 

@@ -41,6 +41,7 @@ interface MediaItem {
   type: "image" | "video"
   url: string
   name?: string
+  file?: File
 }
 
 interface QuestionItem {
@@ -55,23 +56,36 @@ interface QuestionItem {
 function bookMemoryToQuestionItem(m: BookMemory): QuestionItem {
   const answered =
     Boolean(m.answer?.trim()) || m.status?.toLowerCase() === "answered"
-  const media: MediaItem[] = []
-  m.images.forEach((url, i) => {
-    media.push({
-      id: `${m.id}-img-${i}`,
-      type: "image",
-      url,
-      name: url.split("/").pop() || `image-${i + 1}`,
-    })
-  })
-  if (m.videoUrl) {
-    media.push({
-      id: `${m.id}-video`,
-      type: "video",
-      url: m.videoUrl,
-      name: "Video",
-    })
-  }
+  const media: MediaItem[] =
+    m.media && m.media.length > 0
+      ? m.media
+          .filter((item) => item.type === "image" || item.type === "video")
+          .map((item, i) => ({
+            id: item.id || `${m.id}-media-${i}`,
+            type: item.type,
+            url: item.signedUrl ?? item.publicUrl ?? item.url,
+            name:
+              (item.signedUrl ?? item.publicUrl ?? item.url)?.split("/").pop() ||
+              (item.type === "image" ? `image-${i + 1}` : "Video"),
+          }))
+      : [
+          ...m.images.map((url, i) => ({
+            id: `${m.id}-img-${i}`,
+            type: "image" as const,
+            url,
+            name: url.split("/").pop() || `image-${i + 1}`,
+          })),
+          ...(m.videoUrl
+            ? [
+                {
+                  id: `${m.id}-video`,
+                  type: "video" as const,
+                  url: m.videoUrl,
+                  name: "Video",
+                },
+              ]
+            : []),
+        ]
   return {
     id: m.id,
     question: m.question,
@@ -86,6 +100,22 @@ function collectRemoteImageUrlsFromMedia(media: MediaItem[]): string[] {
   return media
     .filter((m) => m.type === "image" && /^https?:\/\//i.test(m.url))
     .map((m) => m.url)
+}
+
+async function resolveImageRefsForApi(
+  bookId: string,
+  media: MediaItem[]
+): Promise<string[]> {
+  const remoteUrls = collectRemoteImageUrlsFromMedia(media)
+  const localImages = media.filter(
+    (m) => m.type === "image" && !/^https?:\/\//i.test(m.url) && m.file
+  )
+  const uploadedImageUrls = await Promise.all(
+    localImages.map((m) =>
+      memoryDetailService.uploadBookMediaAndGetPublicUrl(bookId, m.file as File, "image")
+    )
+  )
+  return [...remoteUrls, ...uploadedImageUrls]
 }
 
 function firstRemoteVideoUrlFromMedia(media: MediaItem[]): string | null {
@@ -288,7 +318,7 @@ export function EditVaultContent({ bookId }: { bookId?: string }) {
                 ...q,
                 media: [
                   ...q.media,
-                  { id: crypto.randomUUID(), type: "image", url, name: file.name },
+                  { id: crypto.randomUUID(), type: "image", url, name: file.name, file },
                 ],
               }
             : q
@@ -343,7 +373,9 @@ export function EditVaultContent({ bookId }: { bookId?: string }) {
           ? {
               ...q,
               media: q.media.map((m) =>
-                m.id === mediaId ? { ...m, url, name: file.name, type: "image" as const } : m
+                m.id === mediaId
+                  ? { ...m, url, name: file.name, type: "image" as const, file }
+                  : m
               ),
             }
           : q
@@ -430,7 +462,13 @@ export function EditVaultContent({ bookId }: { bookId?: string }) {
     const file = e.target.files?.[0]
     if (!file || !selectedQ) return
     const url = URL.createObjectURL(file)
-    const newMedia: MediaItem = { id: crypto.randomUUID(), type: "image", url, name: file.name }
+    const newMedia: MediaItem = {
+      id: crypto.randomUUID(),
+      type: "image",
+      url,
+      name: file.name,
+      file,
+    }
     const updated = { ...selectedQ, media: [...selectedQ.media, newMedia] }
     setSelectedQ(updated)
     setQuestions((prev) => prev.map((q) => (q.id === selectedQ.id ? updated : q)))
@@ -456,8 +494,6 @@ export function EditVaultContent({ bookId }: { bookId?: string }) {
       return
     }
 
-    const imageUrls = collectRemoteImageUrlsFromMedia(selectedQ.media)
-    const videoUrl = firstRemoteVideoUrlFromMedia(selectedQ.media)
     const hasLocalOnlyMedia = selectedQ.media.some(
       (m) =>
         (m.type === "image" || m.type === "video") &&
@@ -466,18 +502,20 @@ export function EditVaultContent({ bookId }: { bookId?: string }) {
 
     setIsSavingModal(true)
     try {
+      const imageRefs = await resolveImageRefsForApi(bookId, selectedQ.media)
+      const videoUrl = firstRemoteVideoUrlFromMedia(selectedQ.media)
       await memoryDetailService.updateBookMemory(bookId, selectedQ.id, {
         question: selectedQ.question,
         answer: selectedQ.answer,
         date: selectedQ.date || new Date().toISOString().slice(0, 10),
         status: selectedQ.answer.trim() ? "answered" : "pending",
-        images: imageUrls,
+        images: imageRefs,
         videoUrl,
       })
       if (hasLocalOnlyMedia) {
         toast.success("Memory updated", {
           description:
-            "Only hosted image/video URLs are sent. Upload to storage for URLs to attach files.",
+            "New local images were uploaded before saving. Local videos still require hosted URLs.",
         })
       } else {
         toast.success("Memory updated")

@@ -21,7 +21,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { MEMORY_CATEGORIES } from "@/lib/memories"
 import { memoryDetailService } from "@/app/(dashboard)/memory-detail/memory-detail-service"
-import { fileToUploadableImageDataUrl } from "@/lib/compress-image"
 import { toast } from "sonner"
 
 const CATEGORY_CONFIG: Record<
@@ -62,21 +61,15 @@ interface UploadedImage {
   /** Preview URL (`blob:` from createObjectURL). */
   url: string
   name: string
-  /** Original file for API payload (blob URLs are not accepted by the server). */
+  /** Original file used for presigned upload. */
   file?: File
 }
 
-function readBlobAsDataURL(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(reader.error)
-    reader.readAsDataURL(blob)
-  })
-}
-
-/** Builds `images: string[]` for create memory: remote URLs as-is; file uploads as compressed JPEG data URLs. */
-async function resolveImageUrlsForApi(items: UploadedImage[]): Promise<string[]> {
+/** Builds `images: string[]` for create memory: remote URLs as-is; local files upload first and become public URLs. */
+async function resolveImageRefsForApi(
+  bookId: string,
+  items: UploadedImage[]
+): Promise<string[]> {
   const out: string[] = []
   for (const img of items) {
     if (/^https?:\/\//i.test(img.url)) {
@@ -84,33 +77,13 @@ async function resolveImageUrlsForApi(items: UploadedImage[]): Promise<string[]>
       continue
     }
     if (img.file) {
-      if (img.file.type.startsWith("image/")) {
-        try {
-          out.push(await fileToUploadableImageDataUrl(img.file))
-        } catch {
-          out.push(await readBlobAsDataURL(img.file))
-        }
-      } else {
-        out.push(await readBlobAsDataURL(img.file))
-      }
+      const publicUrl = await memoryDetailService.uploadBookMediaAndGetPublicUrl(
+        bookId,
+        img.file,
+        "image"
+      )
+      out.push(publicUrl)
       continue
-    }
-    if (img.url.startsWith("blob:")) {
-      try {
-        const res = await fetch(img.url)
-        const blob = await res.blob()
-        if (blob.type.startsWith("image/")) {
-          try {
-            out.push(await fileToUploadableImageDataUrl(blob))
-          } catch {
-            out.push(await readBlobAsDataURL(blob))
-          }
-        } else {
-          out.push(await readBlobAsDataURL(blob))
-        }
-      } catch {
-        /* skip unreadable blob */
-      }
     }
   }
   return out
@@ -124,21 +97,13 @@ interface UploadedVideo {
   file?: File
 }
 
-/** ~2MB cap keeps JSON under typical limits alongside compressed photos. */
-const MAX_EMBED_VIDEO_BYTES = 2 * 1024 * 1024
+const LOCAL_VIDEO_ERROR =
+  "Local video files are not uploaded in this flow yet. Please provide a hosted video URL."
 
-async function resolveVideoUrlForApi(
-  video: UploadedVideo | null
-): Promise<string | null> {
+async function resolveVideoUrlForApi(video: UploadedVideo | null): Promise<string | null> {
   if (!video) return null
   if (/^https?:\/\//i.test(video.url)) return video.url
-  const blobSource = video.file
-    ? video.file
-    : await fetch(video.url).then((r) => r.blob())
-  if (blobSource.size > MAX_EMBED_VIDEO_BYTES) {
-    throw new Error("VIDEO_TOO_LARGE")
-  }
-  return readBlobAsDataURL(blobSource)
+  throw new Error(LOCAL_VIDEO_ERROR)
 }
 
 function bookIdFromPathname(pathname: string | null): string | undefined {
@@ -280,9 +245,9 @@ export function AddMemoryModal({ open, onClose, bookId: bookIdProp }: AddMemoryM
 
     setIsSaving(true)
     try {
-      const imageUrls = await resolveImageUrlsForApi(images)
-      if (images.length > 0 && imageUrls.length === 0) {
-        toast.error("Could not read images for upload. Try smaller files or add hosted image URLs.")
+      const imageRefs = await resolveImageRefsForApi(targetBookId, images)
+      if (images.length > 0 && imageRefs.length === 0) {
+        toast.error("Could not upload images. Try again.")
         return
       }
 
@@ -291,13 +256,11 @@ export function AddMemoryModal({ open, onClose, bookId: bookIdProp }: AddMemoryM
         try {
           videoUrl = await resolveVideoUrlForApi(videoAttachment)
         } catch (e) {
-          if (e instanceof Error && e.message === "VIDEO_TOO_LARGE") {
-            toast.error("Video file is too large to embed", {
-              description: `Use a clip under ${Math.round(MAX_EMBED_VIDEO_BYTES / (1024 * 1024))}MB, or host the video and paste an https URL.`,
-            })
+          if (e instanceof Error && e.message === LOCAL_VIDEO_ERROR) {
+            toast.error(LOCAL_VIDEO_ERROR)
             return
           }
-          toast.error("Could not read the video file.")
+          toast.error("Could not resolve video URL.")
           return
         }
       }
@@ -307,17 +270,8 @@ export function AddMemoryModal({ open, onClose, bookId: bookIdProp }: AddMemoryM
         question: q || "Memory",
         answer: a,
         status: a ? "answered" : "pending",
-        images: imageUrls,
+        images: imageRefs,
         videoUrl,
-      }
-
-      const bodySize = JSON.stringify(payload).length
-      if (bodySize > 950_000) {
-        toast.error("Request too large for the server", {
-          description:
-            "Try fewer or smaller photos, a shorter video, or use hosted https URLs.",
-        })
-        return
       }
 
       await memoryDetailService.createBookMemory(targetBookId, payload)

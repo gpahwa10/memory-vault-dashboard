@@ -13,6 +13,7 @@ export const API_ENDPOINTS ={
     POST_BOOK_MEMORIES: "books/:id/memories",
     GET_BOOK_MEMORIES: "books/:id/memories",
     PATCH_BOOK_MEMORY: "books/:bookId/memories/:memoryId",
+    POST_BOOK_UPLOAD_PRESIGN: "books/:id/uploads/presign",
     POST_REVIEWS: "reviews",
     POST_GIFTS: "gifts",
     GET_SUBSCRIPTION_PLANS: "subscription-plans",

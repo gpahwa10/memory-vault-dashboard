@@ -52,6 +52,16 @@ export interface BookMemory {
   status: string;
   images: string[];
   videoUrl: string | null;
+  media?: {
+    id: string;
+    type: "image" | "video";
+    url: string;
+    signedUrl?: string;
+    publicUrl?: string;
+    key?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -72,6 +82,40 @@ export interface UpdateBookMemoryPayload {
 
 export interface UpdateBookMemoryResponse {
   memory: BookMemory;
+}
+
+interface PresignBookUploadRequest {
+  contentType: string;
+  kind: "image" | "video";
+}
+
+interface PresignBookUploadResponse {
+  method?: string;
+  uploadUrl?: string;
+  publicUrl?: string;
+  presignedUrl?: string;
+  url?: string;
+  fileName?: string;
+  filename?: string;
+  key?: string;
+  objectKey?: string;
+  headers?: Record<string, string>;
+}
+
+function readUploadUrl(response: PresignBookUploadResponse): string {
+  const uploadUrl = response.uploadUrl ?? response.presignedUrl ?? response.url;
+  if (!uploadUrl) {
+    throw new Error("Missing upload URL from presign response");
+  }
+  return uploadUrl;
+}
+
+function readPublicMediaUrl(response: PresignBookUploadResponse): string {
+  const publicUrl = response.publicUrl ?? response.url;
+  if (!publicUrl) {
+    throw new Error("Missing public URL from presign response");
+  }
+  return publicUrl;
 }
 
 /**
@@ -174,6 +218,50 @@ export const memoryDetailService = {
         }
       );
       return response.data.memory;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  uploadBookMediaAndGetPublicUrl: async (
+    bookId: string,
+    file: File,
+    kind: "image" | "video" = "image",
+    accessToken?: string
+  ) => {
+    try {
+      const presignPayload: PresignBookUploadRequest = {
+        contentType: file.type || "application/octet-stream",
+        kind,
+      };
+      const presignResponse = await axiosInstance.post<PresignBookUploadResponse>(
+        API_ENDPOINTS.POST_BOOK_UPLOAD_PRESIGN.replace(":id", bookId),
+        presignPayload,
+        {
+          headers: accessToken
+            ? {
+                Authorization: `Bearer ${accessToken}`,
+              }
+            : undefined,
+        }
+      );
+
+      const uploadUrl = readUploadUrl(presignResponse.data);
+      const publicUrl = readPublicMediaUrl(presignResponse.data);
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type || "application/octet-stream",
+          ...(presignResponse.data.headers ?? {}),
+        },
+        body: file,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload media file");
+      }
+
+      return publicUrl;
     } catch (error) {
       throw handleApiError(error);
     }

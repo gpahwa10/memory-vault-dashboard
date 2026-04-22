@@ -90,7 +90,7 @@ export const Footer = () => {
                                 Facebook
                             </a>
                             <a
-                                href="https://www.instagram.com/memoryvault.in?igsh=aHRnNHBwMGhoMWJ6"
+                                href="https://www.instagram.com/memoryvault.in"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-sm font-400 text-white hover:underline sm:text-base lg:text-lg"
