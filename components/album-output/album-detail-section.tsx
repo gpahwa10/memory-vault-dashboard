@@ -47,17 +47,17 @@ export const AlbumDetailSection = () => {
           </span>
         </span>
         <h1
-          className={`${gtSuperDisplay.className} text-balance text-3xl font-normal leading-tight text-[#12473A] sm:text-4xl md:text-5xl`}
+          className={`${gtSuperDisplay.className} text-balance text-2xl font-normal leading-tight text-[#12473A] sm:text-3xl md:text-4xl`}
         >
           Designed for Calm <span className="text-[#CAA64A]">Lasting Moments</span>
         </h1>
         <p
-          className={`${jost.className} text-pretty text-base font-normal leading-relaxed text-[#615F5A] sm:text-lg md:text-xl lg:text-2xl xl:text-[28px]`}
+          className={`${jost.className} text-pretty text-md font-normal leading-relaxed text-[#615F5A] sm:text-md md:text-lg lg:text-lg xl:text-xl`}
         >
           A wedding album should do more than collect photographs. It should shape the memory of the day into something that can be revisited slowly, page by page, long after the celebration is over. That is why this page works best when it reads like an editorial detail story rather than a heavy product landing page.
         </p>
         <p
-          className={`${jost.className} text-pretty text-base font-normal leading-relaxed text-[#615F5A] sm:text-lg md:text-xl lg:text-2xl xl:text-[28px]`}
+          className={`${jost.className} text-pretty text-md font-normal leading-relaxed text-[#615F5A] sm:text-md md:text-lg lg:text-lg xl:text-xl`}
         >
           The page begins with a strong visual impression, guiding users through thoughtfully crafted content, balanced visual pauses, and an elegant, blog-inspired layout that creates a smooth, immersive storytelling experience.
         </p>
@@ -81,12 +81,12 @@ export const AlbumDetailSection = () => {
           Design That Supports the Story
         </h2>
         <p
-          className={`${jost.className} text-pretty text-base font-normal leading-relaxed text-[#615F5A] sm:text-[17px] md:text-[18px]`}
+          className={`${jost.className} text-pretty text-md font-normal leading-relaxed text-[#615F5A] sm:text-md md:text-lg lg:text-lg xl:text-xl`}
         >
           In the reference page, the structure works because the content is broken into clear, elegant reading sections with strong headings, full-width imagery, and comfortable rhythm. That same approach suits this wedding page well, especially once the viewer has already seen the book preview in the first fold.
         </p>
         <p
-          className={`${jost.className} text-pretty text-base font-normal leading-relaxed text-[#615F5A] sm:text-[17px] md:text-[18px]`}
+          className={`${jost.className} text-pretty text-md font-normal leading-relaxed text-[#615F5A] sm:text-md md:text-lg lg:text-lg xl:text-xl`}
         >
           Here, the layout becomes more about explanation and reflection. It allows the album to feel premium through clarity, not clutter — which is often what makes editorial pages feel more polished than traditional feature-heavy landing sections.
         </p>
@@ -98,7 +98,7 @@ export const AlbumDetailSection = () => {
           Full-Spread Editorial Calm Rhythm
         </h2>
         <p
-          className={`${jost.className} text-pretty text-base font-normal leading-relaxed text-[#615F5A] sm:text-[17px] md:text-[18px]`}
+            className={`${jost.className} text-pretty text-md font-normal leading-relaxed text-[#615F5A] sm:text-md md:text-lg lg:text-lg xl:text-xl`}
         >
           This section works as a pause between reading blocks. It gives the eye room to rest while reinforcing the emotional value of the album. In a blog-details style page, these image-led moments are what keep long-form content from feeling too dense.
         </p>

@@ -14,19 +14,12 @@ const gtSuperDisplay = localFont({
 
 export const HowWeWork = () => {
     return (
-        <div className="flex flex-col items-center justify-center bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-7 md:py-14 lg:px-10 lg:py-16 xl:px-14 xl:py-20 2xl:px-24 2xl:py-24 min-[1920px]:px-[168px] min-[1920px]:py-[88px]">
-                {/* <h2 className={`${gtSuperDisplay.className} max-w-4xl text-center text-2xl font-500 leading-tight text-[#12473A] sm:text-3xl lg:text-4xl`}>
-                    From Memories <span className="text-[#CAA64A]">to Masterpiece</span>
-                </h2> */}
+        <div className="flex flex-col items-center justify-center bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-6 md:py-14 lg:px-8 lg:py-16 xl:px-10 xl:py-18">
                 <h2 className={`${gtSuperDisplay.className} max-w-4xl text-center text-2xl font-500 leading-tight text-[#12473A] sm:text-3xl lg:text-4xl mb-2`}>
                     How It <span className="text-[#CAA64A]">Works</span>
                 </h2>
-            {/* <p className={`${jost.className} mt-6 mb-8 max-w-[740px] px-1 text-center text-sm font-400 text-[#615F5A] sm:text-base md:text-lg lg:mb-10 lg:mt-6 lg:text-xl`}>
-                Creating your personalized memory book is as easy as 1-2-3. Watch your cherished moments
-                transform into a timeless keepsake.
-            </p> */}
-
-            <div className="grid w-full max-w-[1440px] grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-8">
+            
+            <div className="grid w-full max-w-[1320px] grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-8">
                 {howWeWorkSteps.map((step) => (
                     <HowWeWorkStep key={step.id} step={step} />
                 ))}
@@ -43,7 +36,7 @@ export const HowWeWorkStep = ({ step }: { step: (typeof howWeWorkSteps)[number] 
     return (
         <div className="mx-auto flex h-full min-w-0 w-full max-w-[460px] flex-col rounded-[20px] border border-solid border-[#E3DED0] bg-white p-5 sm:p-6 md:mx-0 md:max-w-none lg:p-8">
             <div className="flex w-full min-w-0 flex-row items-start justify-between gap-3">
-                <h3 className={`${gtSuperDisplay.className} min-w-0 flex-1 text-left text-lg font-500 leading-snug text-[#12473A] sm:text-xl md:text-2xl`}>
+                <h3 className={`${gtSuperDisplay.className} min-w-0 flex-1 text-left text-lg font-500 leading-snug text-[#12473A] sm:text-xl md:text-xl`}>
                     {step.title}
                 </h3>
                 <p
@@ -60,7 +53,7 @@ export const HowWeWorkStep = ({ step }: { step: (typeof howWeWorkSteps)[number] 
                     className="h-auto w-auto max-w-full"
                 />
             </div>
-            <p className={`${jost.className} mt-6 text-left text-sm font-400 leading-relaxed text-[#615F5A] sm:text-base lg:mt-8 lg:text-lg`}>
+            <p className={`${jost.className} mt-6 text-left text-sm font-400 leading-relaxed text-[#615F5A] sm:text-base lg:mt-8 lg:text-md`}>
                 {step.description}
             </p>
         </div>

@@ -13,20 +13,20 @@ const gtSuperDisplay = localFont({
 
 export const WhyChooseUs = () => {
     return (
-        <div className="bg-[#1D453A] flex w-full flex-col items-center justify-between gap-10 px-3 py-8 sm:gap-12 sm:px-4 sm:py-11 md:px-7 md:py-14 lg:gap-14 lg:px-10 lg:py-16 xl:px-14 xl:py-20 2xl:px-24 2xl:py-16 min-[1920px]:px-[168px] min-[1920px]:py-[80px]">
-            <div className="flex w-full max-w-[1479px] flex-col items-start gap-6 md:flex-row md:items-start md:justify-between md:gap-[32px]">
+        <div className="bg-[#1D453A] flex w-full flex-col items-center justify-between gap-10 px-3 py-8 sm:gap-12 sm:px-4 sm:py-11 md:px-6 md:py-14 lg:gap-14 lg:px-8 lg:py-16 xl:px-10 xl:py-18">
+            <div className="flex w-full max-w-[1320px] flex-col items-start gap-6 md:flex-row md:items-start md:justify-between md:gap-[32px]">
                 <h2 className={`${gtSuperDisplay.className} text-2xl font-400 text-white sm:text-3xl lg:text-4xl`}>Why Choose <span className="text-[#CAA64A]">Us</span></h2>
                 {/* <p className={`${jost.className} flex max-w-[592px] text-sm font-400 text-white sm:text-base lg:text-lg xl:text-xl`}>Every chapter of our process is designed to delight you — from premium materials to smart technology.</p> */}
             </div>
-            <div className="flex flex-row items-start justify-between gap-4">
-            <img src="/landing-page/why-choose-us-banner.svg" alt="Why Choose Memory Vault" className="flex self-start items-start justify-start w-full h-auto  object-cover max-w-[932px] max-h-[536px]" />
-            <div className="grid w-full max-w-[1479px] grid-cols-1 content-start gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8">
+            <div className="flex w-full max-w-[1320px] flex-row items-start justify-between gap-4">
+            <img src="/landing-page/why-choose-us-banner.svg" alt="Why Choose Memory Vault" className="flex self-start items-start justify-start w-full h-auto  object-cover max-w-[632px] max-h-[436px]" />
+            <div className="grid w-full max-w-[1320px] grid-cols-1 content-start gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8">
                 {whyChooseUs.map((item) => (
                     <WhyChooseUsComponent    key={item.title} item={item} />
                 ))}
             </div>
             </div>
-            <div className="flex w-full max-w-[1479px] flex-row items-stretch justify-start gap-4 sm:gap-6 lg:gap-8 xl:flex-nowrap xl:justify-between">
+            <div className="flex w-full max-w-[1320px] flex-row items-stretch justify-start gap-4 sm:gap-6 lg:gap-8 xl:flex-nowrap xl:justify-between">
                 {whyChooseUsItems.map((item) => (
                     <WhyChooseUsItem key={item.title} item={item} />
                 ))}
@@ -53,7 +53,7 @@ const WhyChooseUsItem = ({ item }: { item: (typeof whyChooseUsItems)[number] }) 
 
 const WhyChooseUsComponent = ({ item }: { item: (typeof whyChooseUs)[number] }) => {
     return (
-        <div className="flex w-fit flex-col items-start gap-4 rounded-[12px] bg-[#13352B] p-5 sm:p-8 lg:p-[42px]">
+        <div className="flex h-full min-h-[180px] w-full flex-col items-start justify-center gap-4 rounded-[12px] bg-[#13352B] p-5 sm:min-h-[200px] sm:p-8 lg:min-h-[220px] lg:p-[42px]">
             <img
                 src={item.icon}
                 alt={item.title}

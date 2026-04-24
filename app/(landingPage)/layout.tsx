@@ -9,7 +9,7 @@ export default function LandingPageLayout({
 }) {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1920px] flex-col overflow-x-hidden">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col overflow-x-hidden">
         <ShippingBanner />
         <Navbar />
         <div className="flex flex-1 flex-col overflow-x-hidden">

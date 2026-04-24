@@ -6,10 +6,10 @@ const jost = localFont({
 
 export const ShippingBanner = () => {
   return (
-    <div className="flex justify-center border-t border-border bg-[#EDE9DF] px-3 py-1.5 sm:px-4 lg:px-6 xl:px-7 2xl:px-8">
-      <div className="flex w-full items-center justify-center gap-2 sm:gap-3">
+    <div className="flex justify-center border-t border-border bg-[#EDE9DF] px-3 py-1.5 sm:px-4 lg:px-6 xl:px-8">
+      <div className="flex w-full max-w-[1320px] items-center justify-center gap-2 sm:gap-3">
         <img
-          src="/landing-page/truck.svg"
+          src="/landing-page/sale.svg"
           alt=""
           className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
         />

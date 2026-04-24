@@ -14,14 +14,14 @@ const gtSuperDisplay = localFont({
 
 export const Subscription = () => {
     return (
-        <div id="pricing" className="flex flex-col items-center justify-center gap-[24px] overflow-x-hidden bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-7 md:py-14 lg:px-10 lg:py-16 xl:px-14 xl:py-20 2xl:px-24 2xl:py-16 min-[1920px]:px-[168px] min-[1920px]:py-[80px]">
+        <div id="pricing" className="flex flex-col items-center justify-center gap-[24px] overflow-x-hidden bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-6 md:py-14 lg:px-8 lg:py-16 xl:px-10 xl:py-18">
             <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-400 text-[#12473A] sm:text-3xl lg:text-4xl`}>
                 Flexible packages for <span className="text-[#CAA64A]">Every Unique Need</span>
             </h2>
             <p className={`${jost.className} text-center text-sm font-400 text-[#615F5A] sm:text-base lg:text-lg xl:text-xl`}>
             Choose the perfect plan to beautifully preserve and celebrate your most cherished memories.
             </p>
-            <div className="grid w-full max-w-[1470px] grid-cols-1 place-items-center gap-8 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid w-full max-w-[1320px] grid-cols-1 place-items-center gap-8 md:grid-cols-2 xl:grid-cols-3">
                 {subscriptionPlans.map((plan) => (
                     <SubscriptionPlan key={plan.id} plan={plan} />
                 ))}
@@ -89,29 +89,29 @@ const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }
 
                 {/* Card Body */}
                 <div
-                    className={`flex w-full flex-col items-start gap-[16px] bg-white px-[16px] py-6 shadow-[0px_0px_14px_0px_#0000000F] ${
+                    className={`flex w-full flex-col items-start gap-3 bg-white px-3 py-4 shadow-[0px_0px_14px_0px_#0000000F] sm:px-4 sm:py-5 ${
                         !plan.isPopular ? "rounded-[12px]" : ""
                     }`}
                 >
-                    <div className="flex h-auto w-full flex-col items-start justify-center gap-[16px] rounded-[8px] border border-[#E3DED0] bg-[#F5F2EC] p-5 sm:p-6">
-                        <div className="flex flex-col items-start justify-center gap-[10px]">
-                            <h3 className={`${jost.className} text-xl font-500 text-black sm:text-2xl`}>{plan.name}</h3>
-                            <p className={`${jost.className} text-lg font-400 text-[#615F5A] sm:text-xl`}>{plan.pages} Pages</p>
-                            <p className={`${jost.className} text-sm font-400 text-[#615F5A] sm:text-base`}>{plan.duration}</p>
+                    <div className="flex h-auto w-full flex-col items-start justify-center gap-3 rounded-[8px] border border-[#E3DED0] bg-[#F5F2EC] p-4 sm:p-5">
+                        <div className="flex flex-col items-start justify-center gap-2">
+                            <h3 className={`${jost.className} text-lg font-500 text-black sm:text-xl`}>{plan.name}</h3>
+                            <p className={`${jost.className} text-base font-400 text-[#615F5A] sm:text-lg`}>{plan.pages} Pages</p>
+                            <p className={`${jost.className} text-xs font-400 text-[#615F5A] sm:text-sm`}>{plan.duration}</p>
                         </div>
 
                         <div className="h-[1px] w-full bg-[#E3DED0]"></div>
 
-                        <p className="text-3xl font-bold text-[#CAA64A] sm:text-4xl lg:text-5xl">
+                        <p className="text-2xl font-bold text-[#CAA64A] sm:text-3xl lg:text-4xl">
                             {plan.price}{" "}
-                            <span className="text-base font-500 text-[#615F5A] sm:text-lg lg:text-xl">/ Book</span>
+                            <span className="text-sm font-500 text-[#615F5A] sm:text-base lg:text-lg">/ Book</span>
                         </p>
 
-                        <ul className="flex flex-col items-start justify-center gap-[16px]">
+                        <ul className="flex flex-col items-start justify-center gap-3">
                             {plan.features.map((feature) => (
                                 <li
                                     key={feature}
-                                    className="flex items-center gap-2 text-sm font-400 text-[#615F5A] sm:text-base"
+                                    className="flex items-center gap-2 text-xs font-400 text-[#615F5A] sm:text-sm"
                                 >
                                     <Check className="h-4 w-4 shrink-0 text-[#12473A]" />
                                     <span>{feature}</span>
@@ -120,7 +120,7 @@ const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }
                         </ul>
                     </div>
 
-                    <Button className="mt-6 w-full rounded-full bg-[#CAA64A] text-xs text-black hover:bg-[#b89442] sm:text-sm">
+                    <Button className="mt-4 w-full rounded-full bg-[#CAA64A] text-xs text-black hover:bg-[#b89442] sm:text-sm">
                         GET STARTED <ArrowRightIcon className="w-4 h-4" />
                     </Button>
                 </div>

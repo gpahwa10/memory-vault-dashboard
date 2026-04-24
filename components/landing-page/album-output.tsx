@@ -116,7 +116,7 @@ export const AlbumOutput = () => {
     }
 
     return (
-        <div id="album-output" className="flex flex-col items-center justify-center gap-5 bg-[#EDE9DF] px-3 py-8 sm:gap-6 sm:px-4 sm:py-11 md:px-7 lg:px-10 xl:px-14 2xl:px-24 min-[1920px]:px-[168px]">
+        <div id="album-output" className="flex flex-col items-center justify-center gap-5 bg-[#EDE9DF] px-3 py-8 sm:gap-6 sm:px-4 sm:py-11 md:px-6 lg:px-8 xl:px-10">
             {/* Heading */}
             <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-normal text-[#12473A] sm:text-3xl lg:text-4xl`}>
                 Our <span className="text-[#CAA64A]">Photobooks</span>
@@ -127,7 +127,7 @@ export const AlbumOutput = () => {
 
             {/* Cards Fan */}
             <div
-                className="relative flex w-full max-w-full touch-pan-y items-center justify-center overflow-hidden"
+                className="relative flex w-full max-w-[1320px] touch-pan-y items-center justify-center overflow-hidden"
                 style={{ height: isSmallScreen ? "360px" : "520px" }}
                 onTouchStart={(event) => handleTouchStart(event.targetTouches[0]?.clientX ?? null)}
                 onTouchMove={(event) => setTouchEndX(event.targetTouches[0]?.clientX ?? null)}

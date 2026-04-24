@@ -85,7 +85,7 @@ export const Reviews = () => {
     }, [])
 
     return (
-        <div className="flex flex-col items-center justify-center gap-6 bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-7 md:py-14 lg:px-10 lg:py-16 xl:px-14 xl:py-20 2xl:px-24 2xl:py-16 min-[1920px]:px-[168px] min-[1920px]:py-[80px]">
+        <div className="flex flex-col items-center justify-center gap-6 bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-6 md:py-14 lg:px-8 lg:py-16 xl:px-10 xl:py-18">
             <h2 className={`${gtSuperDisplay.className} text-center text-2xl font-400 text-[#12473A] sm:text-3xl lg:text-4xl`}>
                 What our Happy <span className="text-[#CAA64A]">Families Say</span>
             </h2>
@@ -94,7 +94,7 @@ export const Reviews = () => {
             </p>
 
             {/* Testimonials Carousel Row */}
-            <div className="relative w-full mt-8">
+            <div className="relative mt-8 w-full max-w-[1320px]">
                 {/* Dashed connecting line */}
                 <div
                     className="absolute top-1/2 left-0 right-0 -translate-y-1/2 border-t-2 border-dashed border-[#CAA64A] opacity-60 z-0"

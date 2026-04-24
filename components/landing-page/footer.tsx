@@ -1,6 +1,9 @@
+ "use client"
+
 import Link from "next/link"
 import localFont from "next/font/local"
 import { Mail, MapPin, Phone } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 const gtSuperDisplay = localFont({
     src: "../../public/fonts/gt-super-ds-trial/GT-Super-Display-Regular-Trial.otf",
@@ -13,9 +16,14 @@ const jost = localFont({
 })
 
 export const Footer = () => {
+    const pathname = usePathname()
+    const isAlbumDetailRoute = pathname.startsWith("/album/")
+
     return (
-        <footer className="bg-[#1D453A] px-3 py-6 sm:px-4 sm:py-7 md:px-7 md:py-8 lg:px-10 lg:py-10 xl:px-14 xl:py-11 2xl:px-24 2xl:py-[40px] min-[1920px]:px-[168px] min-[1920px]:py-[44px]">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+        <footer
+            className={`${isAlbumDetailRoute ? "bg-white" : "bg-[#1D453A]"} px-3 py-6 sm:px-4 sm:py-7 md:px-6 md:py-8 lg:px-8 lg:py-10 xl:px-10 xl:py-11`}
+        >
+            <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
                 <div className="flex flex-col gap-2">
                     <span className={`${gtSuperDisplay.className} flex flex-row items-center gap-2 text-2xl font-500 text-white sm:text-3xl lg:text-4xl`}>
                         <p>Let's Stay </p>
@@ -32,19 +40,10 @@ export const Footer = () => {
                         <Mail className="size-4 text-white"/> <span className={`${jost.className} text-sm font-400 text-white sm:text-base lg:text-lg`}>info@memoryvault.com</span>
                     </a>
                 </div>
-                {/* <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-2 lg:max-w-xl lg:shrink-0">
-                    <input
-                        type="email"
-                        placeholder="Enter your email"
-                        className="min-h-10 w-full flex-1 rounded-full border-0 bg-white px-4 py-2 text-xs font-400 text-black sm:text-sm"
-                    />
-                    <Button className="w-full shrink-0 rounded-full border-0 bg-[#CAA64A] px-4 py-2 text-xs font-400 text-white hover:bg-[#b89442] sm:w-auto sm:text-sm">
-                        Subscribe
-                    </Button>
-                </div> */}
+           
             </div>
-            <div className="h-[1px] w-full bg-[#568C85] my-6"></div>
-            <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-8 xl:gap-12">
+            <div className="mx-auto my-6 h-[1px] w-full max-w-[1320px] bg-[#568C85]"></div>
+            <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-8 xl:gap-12">
                 <div className="flex min-w-0 flex-col gap-4">
                     <div className="flex min-w-0 items-center gap-2 sm:gap-[8px]">
                         <img

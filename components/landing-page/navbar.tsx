@@ -43,8 +43,8 @@ export const Navbar = () => {
   }
 
   return (
-    <header className="bg-[#1D453A] px-3 py-3 sm:px-4 lg:px-6 xl:px-7 2xl:px-8 sm:py-4 lg:py-4">
-      <div className="mx-auto flex w-full flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+    <header className="bg-[#1D453A] px-3 py-3 sm:px-4 lg:px-6 xl:px-8 sm:py-4 lg:py-4">
+      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
         <div className="flex items-center justify-between gap-3 lg:justify-start lg:gap-2">
           <div className="flex min-w-0 items-center gap-2 sm:gap-[8px] cursor-pointer" onClick={() => router.push("/")}>
             <img
@@ -74,7 +74,7 @@ export const Navbar = () => {
         >
           {/* Occasions, Pricing , Give a gift & Sign In */}
           <Link href="/#album-output" className={`${jost.className} ${linkClass}`} onClick={handleSmoothScroll("album-output")}>
-            Our Photobooks
+            OUR PHOTOBOOKS
           </Link>
           <Link href="/#pricing" className={`${jost.className} ${linkClass}`} onClick={handleSmoothScroll("pricing")}>
             PRICING

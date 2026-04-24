@@ -33,7 +33,7 @@ export const HeroSection = () => {
         }}
       />
 
-      <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-0 min-h-[520px] sm:min-h-[560px] lg:max-h-[700px] lg:min-h-[600px]">
+      <div className="relative mx-auto grid w-full max-w-[1320px] grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-0 min-h-[520px] sm:min-h-[560px] lg:max-h-[700px] lg:min-h-[600px]">
         
         {/* LEFT CONTENT */}
         <div className="flex flex-col justify-center gap-5 px-3 py-7 sm:gap-6 sm:px-4 sm:py-8 lg:gap-8 lg:px-11 lg:py-11">
@@ -66,11 +66,11 @@ export const HeroSection = () => {
             src="/landing-page/hero-section.png"
             alt="hero-section"
             className="
-              w-[180px] 
-              sm:w-[220px] 
-              md:w-[260px] 
-              lg:w-[360px] 
-              xl:w-[420px]
+              w-[140px] 
+              sm:w-[180px] 
+              md:w-[220px] 
+              lg:w-[320px] 
+              xl:w-[360px]
               h-auto 
               object-contain
             "
