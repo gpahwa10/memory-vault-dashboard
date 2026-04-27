@@ -21,7 +21,7 @@ export const Footer = () => {
 
     return (
         <footer
-            className={`${isAlbumDetailRoute ? "bg-white" : "bg-[#1D453A]"} px-3 py-6 sm:px-4 sm:py-7 md:px-6 md:py-8 lg:px-8 lg:py-10 xl:px-10 xl:py-11`}
+            className={`${isAlbumDetailRoute ? "bg-white" : "bg-[#305c57]"} px-3 py-6 sm:px-4 sm:py-7 md:px-6 md:py-8 lg:px-8 lg:py-10 xl:px-10 xl:py-11`}
         >
             <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
                 <div className="flex flex-col gap-2">
@@ -29,15 +29,15 @@ export const Footer = () => {
                         <p>Let's Stay </p>
                         <p className="text-[#CAA64A]">in touch!</p>
                     </span>
-                    <p className={`${jost.className} text-sm font-400 text-[#E3DED0] sm:text-base lg:text-lg xl:text-xl`}>Subscribe to our newsletter to get the latest news and updates.</p>
+                    {/* <p className={`${jost.className} text-sm font-400 text-[#E3DED0] sm:text-base lg:text-lg xl:text-xl`}>Subscribe to our newsletter to get the latest news and updates.</p> */}
                 </div>
 
                   <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-col sm:items-start sm:gap-2 lg:max-w-xl lg:shrink-0">
                     <a href="tel:+919217976689" className="flex items-center gap-2">
                         <Phone className="size-4 text-white"/> <span className={`${jost.className} text-sm font-400 text-white sm:text-base lg:text-lg`}>+91-9217976689</span>
                     </a>
-                    <a href="mailto:info@memoryvault.com" className="flex items-center gap-2">
-                        <Mail className="size-4 text-white"/> <span className={`${jost.className} text-sm font-400 text-white sm:text-base lg:text-lg`}>info@memoryvault.com</span>
+                    <a href="mailto:us.memoryvault@gmail.com" className="flex items-center gap-2">
+                        <Mail className="size-4 text-white"/> <span className={`${jost.className} text-sm font-400 text-white sm:text-base lg:text-lg`}>us.memoryvault@gmail.com</span>
                     </a>
                 </div>
            

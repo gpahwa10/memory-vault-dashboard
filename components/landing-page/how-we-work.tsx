@@ -15,7 +15,7 @@ const gtSuperDisplay = localFont({
 export const HowWeWork = () => {
     return (
         <div className="flex flex-col items-center justify-center bg-[#EDE9DF] px-3 py-8 sm:px-4 sm:py-11 md:px-6 md:py-14 lg:px-8 lg:py-16 xl:px-10 xl:py-18">
-                <h2 className={`${gtSuperDisplay.className} max-w-4xl text-center text-2xl font-500 leading-tight text-[#12473A] sm:text-3xl lg:text-4xl mb-2`}>
+                <h2 className={`${gtSuperDisplay.className} max-w-4xl text-center text-2xl font-500 leading-tight text-[#12473A] sm:text-3xl lg:text-4xl mb-12`}>
                     How It <span className="text-[#CAA64A]">Works</span>
                 </h2>
             

@@ -115,7 +115,7 @@ export const AlbumDetailSection = () => {
               className="h-14 w-14 shrink-0 object-contain sm:h-16 sm:w-16"
             />
             <p
-              className={`${gtSuperDisplay.className} text-pretty text-xl font-normal text-[#1D453A] sm:text-[22px] md:text-[24px]`}
+              className={`${gtSuperDisplay.className} text-pretty text-xl font-normal text-[#305c57] sm:text-[22px] md:text-[24px]`}
             >
               {highlight.text}
             </p>

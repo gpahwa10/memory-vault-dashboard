@@ -15,7 +15,7 @@ const jost = localFont({
 
 export const AlbumOutputHeroSection = () => {
   return (
-    <section className="relative w-full min-w-0 overflow-hidden bg-[#1D453A]">
+    <section className="relative w-full min-w-0 overflow-hidden bg-[#305c57]">
       {/* 🔲 Noise Overlay */}
       <div
         className="pointer-events-none absolute inset-0 opacity-100"

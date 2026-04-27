@@ -43,9 +43,9 @@ export const Navbar = () => {
   }
 
   return (
-    <header className="bg-[#1D453A] px-3 py-3 sm:px-4 lg:px-6 xl:px-8 sm:py-4 lg:py-4">
-      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
-        <div className="flex items-center justify-between gap-3 lg:justify-start lg:gap-2">
+    <header className="sticky top-0 z-50 bg-[#3d6b66] px-2 py-2 sm:px-4 lg:px-6 xl:px-8 sm:py-2 lg:py-2 w-full">
+      <div className="relative mx-auto flex w-full max-w-[1440px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+        <div className="flex items-center justify-center gap-3 lg:justify-start lg:gap-2">
           <div className="flex min-w-0 items-center gap-2 sm:gap-[8px] cursor-pointer" onClick={() => router.push("/")}>
             <img
               src="/logo-transparent.svg"
@@ -67,10 +67,11 @@ export const Navbar = () => {
         </div>
 
         <nav
-          className={`${
-            isMobileMenuOpen ? "flex" : "hidden"
-          } w-full flex-col items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 lg:flex lg:flex-1 lg:flex-row lg:items-center lg:justify-center lg:gap-x-4 lg:gap-y-2 lg:border-0 lg:bg-transparent lg:p-0 xl:gap-x-6`}
-          aria-label="Primary"
+          className={`${isMobileMenuOpen ? "flex" : "hidden"
+            } w-full flex-col items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 
+  lg:absolute lg:left-1/2 lg:-translate-x-1/2 
+  lg:flex lg:w-auto lg:flex-row lg:items-center lg:gap-x-6 
+  lg:border-0 lg:bg-transparent lg:p-0`}
         >
           {/* Occasions, Pricing , Give a gift & Sign In */}
           <Link href="/#album-output" className={`${jost.className} ${linkClass}`} onClick={handleSmoothScroll("album-output")}>
@@ -82,9 +83,6 @@ export const Navbar = () => {
           <Link href="/gift-page" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
             GIVE A GIFT
           </Link>
-          {/* <Link href="/app" className={`${jost.className} ${linkClass}`} onClick={() => setIsMobileMenuOpen(false)}>
-            SIGN IN
-          </Link> */}
           <Button
             asChild
             variant="outline"

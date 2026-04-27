@@ -21,11 +21,11 @@ export const Subscription = () => {
             <p className={`${jost.className} text-center text-sm font-400 text-[#615F5A] sm:text-base lg:text-lg xl:text-xl`}>
             Choose the perfect plan to beautifully preserve and celebrate your most cherished memories.
             </p>
-            <div className="grid w-full max-w-[1320px] grid-cols-1 place-items-center gap-8 md:grid-cols-2 xl:grid-cols-3">
-                {subscriptionPlans.map((plan) => (
-                    <SubscriptionPlan key={plan.id} plan={plan} />
-                ))}
-            </div>
+            <div className="grid w-full max-w-[1440px] grid-cols-1 place-items-center gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-4">
+  {subscriptionPlans.map((plan) => (
+    <SubscriptionPlan key={plan.id} plan={plan} />
+  ))}
+</div>
         </div>
     )
 }
@@ -71,11 +71,11 @@ const subscriptionPlans = [
 
 const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }) => {
     return (
-        <div className="flex w-full max-w-[468px] flex-col items-center">
+        <div className="flex w-full max-w-[280px] flex-col items-center">
             <div
                 className={`w-full rounded-[16px] overflow-hidden ${
                     plan.isPopular
-                        ? "border-2 border-[#1D453A]"
+                        ? "border-2 border-[#305c57]"
                         : ""
                 }`}
                 style={plan.isPopular ? { boxShadow: "0px 0px 0px 4px rgba(29,69,58,0.15)" } : {}}
@@ -89,7 +89,7 @@ const SubscriptionPlan = ({ plan }: { plan: (typeof subscriptionPlans)[number] }
 
                 {/* Card Body */}
                 <div
-                    className={`flex w-full flex-col items-start gap-3 bg-white px-3 py-4 shadow-[0px_0px_14px_0px_#0000000F] sm:px-4 sm:py-5 ${
+                    className={`flex w-full flex-col items-start gap-3 bg-white px-6 py-4 shadow-[0px_0px_14px_0px_#0000000F] sm:px-4 sm:py-5 ${
                         !plan.isPopular ? "rounded-[12px]" : ""
                     }`}
                 >
